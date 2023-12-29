@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sayur_widget/sayur_widget.dart';
+import 'package:sayur_widget/function.dart';
 
 BuildContext get globalContext => Get.context;
 

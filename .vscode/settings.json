@@ -1,0 +1,19 @@
+{
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        },
+        "editor.formatOnType": true,
+        "editor.rulers": [],
+        "editor.selectionHighlight": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "allDocuments",
+        "editor.defaultFormatter": "Dart-Code.dart-code"
+        
+    },
+    "cmake.configureOnOpen": true,
+    "cmake.sourceDirectory": "/Users/yakobusbudiman/Dev/Medicall/medicall_ios_partner/linux",
+}

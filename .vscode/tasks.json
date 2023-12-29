@@ -1,0 +1,123 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		//flutter clean ; flutter pub get ; flutter publish
+		{
+			"label": "Publish",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter publish",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter run
+		{
+			"label": "Run",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter run",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter build apk --split-per-abi --release
+		{
+			"label": "Build APK release",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter build apk --split-per-abi --release",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter build apk --split-per-abi --debug
+		{
+			"label": "Build APK debug",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter build apk --split-per-abi --debug",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter build apk --split-per-abi --profile
+		{
+			"label": "Build APK profile",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter build apk --split-per-abi --profile",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter build aab --release
+		{
+			"label": "Build AAB release",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter build appbundle",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter build ios --release --no-codesign
+		{
+			"label": "Build IOS release",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter build ios --release --no-codesign",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter clean ; flutter pub get ; flutter build ios --debug --no-codesign
+		{
+			"label": "Build IOS debug",
+			"type": "shell",
+			"command": "flutter clean ; flutter pub get ; flutter build ios --debug --no-codesign",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter pub add freezed_annotation ; flutter pub add --dev build_runner ; flutter pub add --dev freezed ; flutter pub add json_annotation ; flutter pub add --dev json_serializable
+		{
+			"label": "Install Freezed",
+			"type": "shell",
+			"command": "flutter pub add freezed_annotation ; flutter pub add --dev build_runner ; flutter pub add --dev freezed ; flutter pub add json_annotation ; flutter pub add --dev json_serializable",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		//flutter dart fix --apply
+		{
+			"label": "Fix Dart",
+			"type": "shell",
+			"command": "dart fix --apply",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "Build IOS",
+			"type": "shell",
+			"command": "flutter clean ; flutter build ios;",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "Clean Get",
+			"type": "shell",
+			"command": "flutter clean; flutter pub get;",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+	]
+}
