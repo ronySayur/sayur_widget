@@ -16,9 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as g;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jitsi_meet_wrapper/jitsi_meet_wrapper.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:pie_chart/pie_chart.dart';
@@ -272,6 +269,7 @@ const BorderRadius brBottom48 = BorderRadius.only(
   bottomLeft: Radius.circular(48),
   bottomRight: Radius.circular(48),
 );
+
 NumberFormat doubleCurrency = NumberFormat("#,##0.00", "en_US");
 NumberFormat integerCurrency = NumberFormat("#,##0", "en_US");
 
@@ -335,7 +333,7 @@ String YurRandomNumber(int length) {
       length, (index) => chars.codeUnitAt(random.nextInt(chars.length))));
 }
 
-Position positionUser(String lng, String lat) {
+Position YurPosition(String lng, String lat) {
   return Position(
     longitude: double.parse(lng),
     latitude: double.parse(lat),
