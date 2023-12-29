@@ -69,9 +69,9 @@ class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(56.0);
 }
 
-class LoadingStack extends StatelessWidget {
+class YurLoadingStack extends StatelessWidget {
   final Widget content;
-  const LoadingStack({Key? key, required this.content}) : super(key: key);
+  const YurLoadingStack({Key? key, required this.content}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
