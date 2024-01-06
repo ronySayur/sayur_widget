@@ -16,6 +16,35 @@ import 'dart:async';
 
 import 'package:sayur_widget/core.dart';
 
+TextStyle YurTextStyle({
+  double fontSize = 16,
+  FontWeight fontWeight = FontWeight.normal,
+  Color color = Colors.black,
+  FontStyle fontStyle = FontStyle.normal,
+  TextDecoration decoration = TextDecoration.none,
+  double letterSpacing = 0.3,
+  List<Shadow> shadows = const [],
+  double height = 1.0,
+}) {
+  return TextStyle(
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    color: color,
+    fontStyle: fontStyle,
+    decoration: decoration,
+    letterSpacing: letterSpacing,
+    shadows: shadows,
+    height: height,
+    fontFamily: 'Roboto',
+    decorationStyle: TextDecorationStyle.solid,
+    textBaseline: TextBaseline.ideographic,
+    wordSpacing: 0.5,
+    locale: const Locale('id', 'ID'),
+    leadingDistribution: TextLeadingDistribution.even,
+    inherit: true,
+  );
+}
+
 class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
   const YurAppBar({
     Key? key,
@@ -1657,35 +1686,6 @@ class YurText extends StatelessWidget {
       ),
     );
   }
-}
-
-TextStyle YurTextStyle({
-  double fontSize = 16,
-  FontWeight fontWeight = FontWeight.normal,
-  Color color = Colors.black,
-  FontStyle fontStyle = FontStyle.normal,
-  TextDecoration decoration = TextDecoration.none,
-  double letterSpacing = 0.3,
-  List<Shadow> shadows = const [],
-  double height = 1.0,
-}) {
-  return TextStyle(
-    fontSize: fontSize,
-    fontWeight: fontWeight,
-    color: color,
-    fontStyle: fontStyle,
-    decoration: decoration,
-    letterSpacing: letterSpacing,
-    shadows: shadows,
-    height: height,
-    fontFamily: 'Roboto',
-    decorationStyle: TextDecorationStyle.solid,
-    textBaseline: TextBaseline.ideographic,
-    wordSpacing: 0.5,
-    locale: const Locale('id', 'ID'),
-    leadingDistribution: TextLeadingDistribution.even,
-    inherit: true,
-  );
 }
 
 class YurDivider extends StatelessWidget {
