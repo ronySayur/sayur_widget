@@ -49,13 +49,7 @@ const MaterialColor tertiaryColor = MaterialColor(
   },
 );
 
-enum FeeType { all, basic, procedure, distance, bhp }
-
 enum SizeTextField { small, medium, large }
-
-enum StatusHistory { all, paid, unpaid }
-
-enum DateFilter { now, week, month }
 
 enum SuffixType { none, password, search }
 

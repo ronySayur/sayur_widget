@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:lottie/lottie.dart';
@@ -2225,5 +2226,31 @@ class _YurStarRatingState extends State<YurStarRating> {
         );
       }),
     );
+  }
+}
+
+void YurLoading({required bool isShow}) {
+  EasyLoading.instance
+    ..displayDuration = const Duration(milliseconds: 2000)
+    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+    ..loadingStyle = EasyLoadingStyle.dark
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..progressColor = Colors.yellow
+    ..backgroundColor = Colors.green
+    ..indicatorColor = Colors.yellow
+    ..textColor = Colors.yellow
+    ..maskColor = Colors.blue.withOpacity(0.5)
+    ..userInteractions = true
+    ..dismissOnTap = false;
+
+  if (isShow) {
+    EasyLoading.addStatusCallback((status) {
+      YurLog(name: "EasyLoading", message: status.toString());
+    });
+    EasyLoading.show(status: 'loading...');
+  } else {
+    EasyLoading.removeAllCallbacks();
+    EasyLoading.dismiss();
   }
 }
