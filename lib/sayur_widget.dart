@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:lottie/lottie.dart';
@@ -48,7 +47,7 @@ TextStyle YurTextStyle({
 
 class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
   const YurAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.action,
     this.actionIcon,
@@ -56,7 +55,7 @@ class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.centertitle = true,
     this.withLeading = true,
     this.onTap,
-  }) : super(key: key);
+  });
 
   final String title;
   final Function()? action;
@@ -101,7 +100,7 @@ class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class YurLoadingStack extends StatelessWidget {
   final Widget content;
-  const YurLoadingStack({Key? key, required this.content}) : super(key: key);
+  const YurLoadingStack({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -147,13 +146,13 @@ class YurStack extends StatelessWidget {
   final bool isSuccess;
 
   const YurStack({
-    Key? key,
+    super.key,
     required this.context,
     required this.content,
     required this.function,
     required this.isSuccess,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -525,10 +524,10 @@ class YurOTPForm extends StatelessWidget {
   final Function() onCompleted;
 
   const YurOTPForm({
-    Key? key,
+    super.key,
     required this.otpControllers,
     required this.onCompleted,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -578,10 +577,10 @@ class YurExpansionTile extends StatelessWidget {
   final List<Widget> children;
 
   const YurExpansionTile({
-    Key? key,
+    super.key,
     required this.title,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -748,13 +747,13 @@ class YurRadioButton extends StatelessWidget {
   final bool isVertical;
 
   const YurRadioButton({
-    Key? key,
+    super.key,
     required this.labelText,
     required this.options,
     required this.selectedOption,
     required this.onChanged,
     this.isVertical = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -969,12 +968,12 @@ class YurAddField extends StatefulWidget {
   final int length;
 
   const YurAddField({
-    Key? key,
+    super.key,
     required this.onDelete,
     required this.textController,
     required this.label,
     this.length = 300,
-  }) : super(key: key);
+  });
 
   @override
   _YurAddFieldState createState() => _YurAddFieldState();
@@ -1016,8 +1015,7 @@ class LottieHelper extends StatelessWidget {
   final double height;
 
   const LottieHelper(
-      {Key? key, required this.lottieEnum, this.height = 200, this.text})
-      : super(key: key);
+      {super.key, required this.lottieEnum, this.height = 200, this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -1513,7 +1511,7 @@ class YurSwitch extends StatelessWidget {
 
 class YurImageAsset extends StatelessWidget {
   const YurImageAsset({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.width,
     this.height,
@@ -1524,7 +1522,7 @@ class YurImageAsset extends StatelessWidget {
     this.borderRadius,
     this.color,
     this.centerSlice,
-  }) : super(key: key);
+  });
 
   final String imageUrl;
   final double? width;
@@ -1576,7 +1574,7 @@ class YurImageAsset extends StatelessWidget {
 
 class YurImageNet extends StatelessWidget {
   const YurImageNet({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.width,
     this.height,
@@ -1586,7 +1584,7 @@ class YurImageNet extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.color,
-  }) : super(key: key);
+  });
 
   final String imageUrl;
   final double? width;
@@ -1632,7 +1630,7 @@ class YurImageNet extends StatelessWidget {
 
 class YurText extends StatelessWidget {
   const YurText({
-    Key? key,
+    super.key,
     required this.text,
     this.fontSize,
     this.fontWeight,
@@ -1650,7 +1648,7 @@ class YurText extends StatelessWidget {
     this.padding,
     this.margin,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   final String text;
 
@@ -1703,12 +1701,12 @@ class YurText extends StatelessWidget {
 
 class YurDivider extends StatelessWidget {
   const YurDivider({
-    Key? key,
+    super.key,
     this.thickness = 2,
     this.indent = 0,
     this.endIndent = 0,
     this.color = primaryRed,
-  }) : super(key: key);
+  });
 
   final double thickness;
   final double indent;
@@ -1728,7 +1726,7 @@ class YurDivider extends StatelessWidget {
 
 class YurListView extends StatelessWidget {
   const YurListView({
-    Key? key,
+    super.key,
     required this.children,
     this.reverse = false,
     this.shrinkWrap = true,
@@ -1746,7 +1744,7 @@ class YurListView extends StatelessWidget {
     this.clipBehavior = Clip.hardEdge,
     this.restorationId,
     this.scrollDirection = Axis.vertical,
-  }) : super(key: key);
+  });
 
   final List<Widget> children;
   final bool reverse;
@@ -1792,7 +1790,7 @@ class YurListView extends StatelessWidget {
 
 class YurCard extends StatelessWidget {
   const YurCard({
-    Key? key,
+    super.key,
     required this.child,
     this.elevation = 4,
     this.color = Colors.white,
@@ -1806,7 +1804,7 @@ class YurCard extends StatelessWidget {
     this.clipBehavior = Clip.antiAlias,
     this.margin = e0,
     this.padding = e0,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final double elevation;
@@ -1831,7 +1829,7 @@ class YurCard extends StatelessWidget {
 
 class YurIcon extends StatelessWidget {
   const YurIcon({
-    Key? key,
+    super.key,
     required this.icon,
     this.color,
     this.size = 24,
@@ -1839,7 +1837,7 @@ class YurIcon extends StatelessWidget {
     this.margin,
     this.onTap,
     this.backgroundColor = Colors.transparent,
-  }) : super(key: key);
+  });
 
   final IconData icon;
   final Color? color;
@@ -1868,7 +1866,7 @@ class YurIcon extends StatelessWidget {
 
 class YurScaffold extends StatelessWidget {
   const YurScaffold({
-    Key? key,
+    super.key,
     required this.body,
     this.appBar,
     this.floatingActionButton,
@@ -1879,7 +1877,7 @@ class YurScaffold extends StatelessWidget {
     this.persistentFooterButtons,
     this.backgroundColor,
     this.resizeToAvoidBottomInset = true,
-  }) : super(key: key);
+  });
 
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -1919,7 +1917,7 @@ class YurPieChart extends StatelessWidget {
   final bool showChartValuesOutside;
 
   const YurPieChart({
-    Key? key,
+    super.key,
     required this.dataMap,
     this.radius = 100,
     this.showLegends = false,
@@ -1927,7 +1925,7 @@ class YurPieChart extends StatelessWidget {
     this.showChartValues = false,
     this.showChartValuesInPercentage = false,
     this.showChartValuesOutside = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2036,7 +2034,7 @@ class YurSwiper extends StatelessWidget {
   final bool fullscreen;
 
   const YurSwiper({
-    Key? key,
+    super.key,
     required this.children,
     this.swiperLayout = SwiperLayout.DEFAULT,
     this.loop = false,
@@ -2045,7 +2043,7 @@ class YurSwiper extends StatelessWidget {
     this.itemHeight,
     this.itemWidth,
     this.fullscreen = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2098,7 +2096,7 @@ class YurSwiper extends StatelessWidget {
 
 class YurPopMenuButton extends StatelessWidget {
   const YurPopMenuButton({
-    Key? key,
+    super.key,
     required this.onDeleted,
     this.onEdit,
     this.icon = Icons.more_vert,
@@ -2115,7 +2113,7 @@ class YurPopMenuButton extends StatelessWidget {
       ),
     ),
     this.clipBehavior = Clip.antiAlias,
-  }) : super(key: key);
+  });
 
   final Function(int) onDeleted;
   final Function(int)? onEdit;
@@ -2196,12 +2194,12 @@ class YurStarRating extends StatefulWidget {
   bool isReadOnly;
 
   YurStarRating({
-    Key? key,
+    super.key,
     this.starCount = 5,
     required this.rate,
     required this.onRatingChanged,
     this.isReadOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   _YurStarRatingState createState() => _YurStarRatingState();
@@ -2241,28 +2239,4 @@ class _YurStarRatingState extends State<YurStarRating> {
   }
 }
 
-void YurLoading({required bool isShow}) {
-  EasyLoading.instance
-    ..displayDuration = const Duration(milliseconds: 2000)
-    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-    ..loadingStyle = EasyLoadingStyle.dark
-    ..indicatorSize = 45.0
-    ..radius = 10.0
-    ..progressColor = Colors.yellow
-    ..backgroundColor = Colors.green
-    ..indicatorColor = Colors.yellow
-    ..textColor = Colors.yellow
-    ..maskColor = Colors.blue.withOpacity(0.5)
-    ..userInteractions = true
-    ..dismissOnTap = false;
 
-  if (isShow) {
-    EasyLoading.addStatusCallback((status) {
-      YurLog(name: "EasyLoading", message: status.toString());
-    });
-    EasyLoading.show(status: 'loading...');
-  } else {
-    EasyLoading.removeAllCallbacks();
-    EasyLoading.dismiss();
-  }
-}

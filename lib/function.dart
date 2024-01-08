@@ -10,6 +10,7 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'dart:async';
@@ -480,7 +481,6 @@ YurDialog({
       barrierColor: Colors.black54,
       useSafeArea: true,
       useRootNavigator: true,
-      
       builder: (BuildContext context) {
         var img = isSuccess ? 'accept_order_success' : 'failed';
 
@@ -496,7 +496,6 @@ YurDialog({
           },
           child: Dialog(
             elevation: 3,
-
             insetPadding: e16,
             shape: const RoundedRectangleBorder(borderRadius: br16),
             backgroundColor: Colors.white.withOpacity(0.99),
@@ -725,4 +724,15 @@ void YurShowPicker({
       themeData: ThemeData(primaryColor: primaryRed),
     ),
   );
+}
+
+void YurLoading({required bool isShow, String? message}) {
+  if (isShow) {
+    EasyLoading.addStatusCallback(
+        (status) => YurLog(name: "EasyLoading", message: status.toString()));
+    EasyLoading.show(status: message ?? "Loading...");
+  } else {
+    EasyLoading.removeAllCallbacks();
+    EasyLoading.dismiss();
+  }
 }
