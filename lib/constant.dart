@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-const MaterialColor primaryColor = MaterialColor(
+const MaterialColor primaryRed = MaterialColor(
   0xFFEA1F27,
   <int, Color>{
     50: Color(0xFFFFE3E6),
@@ -17,7 +17,23 @@ const MaterialColor primaryColor = MaterialColor(
   },
 );
 
-const MaterialColor secondaryColor = MaterialColor(
+const MaterialColor primaryBlue = MaterialColor(
+  0xFF1E88E5,
+  <int, Color>{
+    50: Color(0xFFE3F2FD),
+    100: Color(0xFFBBDEFB),
+    200: Color(0xFF90CAF9),
+    300: Color(0xFF64B5F6),
+    400: Color(0xFF42A5F5),
+    500: Color(0xFF1E88E5),
+    600: Color(0xFF1976D2),
+    700: Color(0xFF1565C0),
+    800: Color(0xFF0D47A1),
+    900: Color(0xFF82B1FF),
+  },
+);
+
+const MaterialColor secondaryYellow = MaterialColor(
   0xFFFFA726,
   <int, Color>{
     50: Color(0xFFFFF3E0),
@@ -33,7 +49,7 @@ const MaterialColor secondaryColor = MaterialColor(
   },
 );
 
-const MaterialColor tertiaryColor = MaterialColor(
+const MaterialColor tertiaryGreen = MaterialColor(
   0xFF00A445,
   <int, Color>{
     50: Color(0xFFE0F2E9),
@@ -57,7 +73,7 @@ enum LottieEnum { loading, success, failed }
 
 enum InfoType { info, warning, error, success }
 
-enum BStyle { primary, secondary }
+enum BStyle { primaryRed, secondary, primaryBlue }
 
 enum DialogType { confirmation, info }
 

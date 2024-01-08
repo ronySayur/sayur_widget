@@ -5,12 +5,16 @@ import 'package:sayur_widget/function.dart';
 BuildContext get globalContext => Get.context;
 
 class Get {
+  //navigator
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  //context
   static BuildContext? _context;
 
   static BuildContext get context {
     if (_context == null) {
-      throw Exception("Get context not initialized. Call Get.initContext first.");
+      throw Exception(
+          "Get context not initialized. Call Get.initContext first.");
     }
     return _context!;
   }
@@ -26,28 +30,31 @@ class Get {
     }
   }
 
-   static Future<void> to(Widget page) async {
+  static Future<void> to(Widget page) async {
     YurLog(message: "To : ${page.toString()}", name: "Get.to");
-    await navigatorKey.currentState!.push(
+
+    Navigator.push(
+      context,
       CupertinoPageRoute(builder: (context) => page),
     );
   }
 
   static Future<void> replace(Widget page) async {
     YurLog(message: "Replace : ${page.toString()}", name: "Get.replace");
-    await navigatorKey.currentState!.pushReplacement(
+    Navigator.pushReplacement(
+      context,
       CupertinoPageRoute(builder: (context) => page),
     );
   }
 
   static Future<void> offAll(Widget page) async {
     YurLog(message: "Off All : ${page.toString()}", name: "Get.offAll");
-    await navigatorKey.currentState!.pushAndRemoveUntil(
+    Navigator.pushAndRemoveUntil(
+      context,
       CupertinoPageRoute(builder: (context) => page),
-      (Route<dynamic> route) => false,
+      (route) => false,
     );
   }
-
 
   static void popUntil() {
     YurLog(message: "Pop Until", name: "Get.popUntil");

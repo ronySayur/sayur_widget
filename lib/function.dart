@@ -109,10 +109,8 @@ Future<String> YurDownloadFile(String url, String fileName) async {
 }
 
 ThemeData YurTheme() {
-  
-
   return ThemeData(
-    primarySwatch: primaryColor,
+    primarySwatch: primaryRed,
     useMaterial3: true,
     fontFamily: 'Poppins',
     visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -120,10 +118,10 @@ ThemeData YurTheme() {
     //  ==================================> ColorScheme <==================================
     colorScheme: ColorScheme(
       brightness: Brightness.light,
-      primary: primaryColor,
+      primary: primaryRed,
       onPrimary: Colors.white,
-      secondary: secondaryColor,
-      onSecondary: secondaryColor,
+      secondary: secondaryYellow,
+      onSecondary: secondaryYellow,
       error: Colors.red,
       onError: Colors.red,
       background: Colors.white,
@@ -145,7 +143,7 @@ ThemeData YurTheme() {
 
     //  ==================================> FAB <==================================
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: primaryColor,
+      backgroundColor: primaryRed,
       foregroundColor: Colors.white,
     ),
 
@@ -172,14 +170,14 @@ ThemeData YurTheme() {
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       elevation: 4,
-      selectedItemColor: primaryColor,
+      selectedItemColor: primaryRed,
       unselectedItemColor: Colors.grey,
       showUnselectedLabels: true,
       showSelectedLabels: true,
       type: BottomNavigationBarType.fixed,
       landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
-      selectedIconTheme: IconThemeData(color: primaryColor),
-      selectedLabelStyle: TextStyle(color: primaryColor),
+      selectedIconTheme: IconThemeData(color: primaryRed),
+      selectedLabelStyle: TextStyle(color: primaryRed),
     ),
     bottomAppBarTheme: const BottomAppBarTheme(
       color: Colors.white,
@@ -203,16 +201,16 @@ void YurToast({
   if (backgroundColor == null) {
     switch (toastType) {
       case InfoType.info:
-        backgroundColor = primaryColor;
+        backgroundColor = primaryRed;
         break;
       case InfoType.warning:
-        backgroundColor = secondaryColor;
+        backgroundColor = secondaryYellow;
         break;
       case InfoType.error:
-        backgroundColor = primaryColor;
+        backgroundColor = primaryRed;
         break;
       case InfoType.success:
-        backgroundColor = tertiaryColor;
+        backgroundColor = tertiaryGreen;
         break;
     }
   }
@@ -357,7 +355,7 @@ YurAlertDialog({
                 YurText(
                   fontSize: 20,
                   text: title,
-                  color: primaryColor,
+                  color: primaryRed,
                   maxLines: 3,
                   textAlign: TextAlign.center,
                 ),
@@ -372,7 +370,7 @@ YurAlertDialog({
                     },
                     icon: const YurIcon(
                       icon: Icons.cancel_outlined,
-                      color: primaryColor,
+                      color: primaryRed,
                     ),
                   )
                 else
@@ -400,7 +398,7 @@ YurAlertDialog({
                       textAlign: textAlign,
                       letterSpacing: 0.2,
                       maxLines: maxMessageLine,
-                      color: primaryColor,
+                      color: primaryRed,
                     ),
                   if (message3 != null) gap8,
                   if (message3 != null)
@@ -410,7 +408,7 @@ YurAlertDialog({
                       textAlign: textAlign,
                       letterSpacing: 0.2,
                       maxLines: maxMessageLine,
-                      color: primaryColor,
+                      color: primaryRed,
                     ),
                 ],
               ),
@@ -437,7 +435,7 @@ YurAlertDialog({
                       Expanded(
                           child: YurButton(
                         text: buttonText,
-                        buttonStyle: BStyle.primary,
+                        buttonStyle: BStyle.primaryRed,
                         fontSize: 12,
                         onPressed: () {
                           Future.delayed(const Duration(microseconds: 500), () {
@@ -467,7 +465,7 @@ YurDialog({
   bool isDismissable = false,
   bool isSuccess = true,
   double fontSize = 16,
-  Color fontColor = primaryColor,
+  Color fontColor = primaryRed,
   FontWeight fontWeight = FontWeight.w500,
   Function()? onConfirm,
 }) async {
@@ -482,6 +480,7 @@ YurDialog({
       barrierColor: Colors.black54,
       useSafeArea: true,
       useRootNavigator: true,
+      
       builder: (BuildContext context) {
         var img = isSuccess ? 'accept_order_success' : 'failed';
 
@@ -497,6 +496,7 @@ YurDialog({
           },
           child: Dialog(
             elevation: 3,
+
             insetPadding: e16,
             shape: const RoundedRectangleBorder(borderRadius: br16),
             backgroundColor: Colors.white.withOpacity(0.99),
@@ -527,7 +527,7 @@ YurDialog({
                             fontSize: fontSize,
                             text: message2,
                             textAlign: TextAlign.center,
-                            color: primaryColor,
+                            color: primaryRed,
                             fontWeight: fontWeight,
                             maxLines: 3,
                           ),
@@ -538,7 +538,7 @@ YurDialog({
                         children: [
                           gapH20,
                           YurButton(
-                              buttonStyle: BStyle.primary,
+                              buttonStyle: BStyle.primaryRed,
                               text: "OK",
                               onPressed: () {
                                 onConfirm();
@@ -625,7 +625,7 @@ YurSearch({
                     flex: 1,
                     child: YurButton(
                       text: "Cari",
-                      buttonStyle: BStyle.primary,
+                      buttonStyle: BStyle.primaryRed,
                       fontSize: 12,
                       onPressed: () {
                         onConfirm(textController);
@@ -713,16 +713,16 @@ void YurShowPicker({
       okText: "Pilih",
       cancelText: "Batal",
       okStyle: const TextStyle(
-        color: primaryColor,
+        color: primaryRed,
         fontWeight: FontWeight.bold,
         fontSize: 16,
       ),
       cancelStyle: const TextStyle(
-        color: primaryColor,
+        color: primaryRed,
         fontWeight: FontWeight.bold,
         fontSize: 16,
       ),
-      themeData: ThemeData(primaryColor: primaryColor),
+      themeData: ThemeData(primaryColor: primaryRed),
     ),
   );
 }

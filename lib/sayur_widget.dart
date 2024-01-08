@@ -76,20 +76,20 @@ class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Get.back();
                 onPressedBack();
               },
-              icon: const YurIcon(icon: Icons.arrow_back, color: primaryColor),
+              icon: const YurIcon(icon: Icons.arrow_back, color: primaryRed),
             )
           : Container(),
       actions: [
         if (actionIcon != null)
           IconButton(
               onPressed: () => action!(),
-              icon: YurIcon(icon: actionIcon!, color: secondaryColor))
+              icon: YurIcon(icon: actionIcon!, color: secondaryYellow))
       ],
       title: YurText(
         fontSize: 20,
         text: title,
         onTap: onTap,
-        color: primaryColor,
+        color: primaryRed,
       ),
       centerTitle: centertitle,
     );
@@ -396,7 +396,7 @@ class YurForm extends StatelessWidget {
       decoration: InputDecoration(
         //Prefix
         prefixIcon: prefixIcon,
-        prefixIconColor: primaryColor,
+        prefixIconColor: primaryRed,
 
         //Sufix
         suffixText: suffixText,
@@ -404,7 +404,7 @@ class YurForm extends StatelessWidget {
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
           fontStyle: FontStyle.italic,
-          color: primaryColor,
+          color: primaryRed,
         ),
         suffixIcon: suffixType == SuffixType.none ? null : suffix,
 
@@ -511,7 +511,7 @@ class YurForm extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: borderRadius,
           borderSide: const BorderSide(
-            color: primaryColor,
+            color: primaryRed,
             width: 2,
           ),
         ),
@@ -659,7 +659,7 @@ class YurDropdown extends StatelessWidget {
         value: selectedValue,
         icon: const YurIcon(icon: Icons.keyboard_arrow_down),
         iconSize: 14,
-        iconEnabledColor: primaryColor,
+        iconEnabledColor: primaryRed,
         iconDisabledColor: Colors.grey,
         alignment: Alignment.center,
         isDense: true,
@@ -816,17 +816,17 @@ class YurRadioButton extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: br16,
         side: BorderSide(
-          color: selectedOption == option ? primaryColor : Colors.grey.shade500,
+          color: selectedOption == option ? primaryRed : Colors.grey.shade500,
         ),
       ),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shadowColor: secondaryColor,
+      shadowColor: secondaryYellow,
       side: BorderSide(
-        color: selectedOption == option ? primaryColor : Colors.grey.shade500,
+        color: selectedOption == option ? primaryRed : Colors.grey.shade500,
       ),
       visualDensity: VisualDensity.compact,
       backgroundColor: selectedOption == option
-          ? primaryColor.withOpacity(0.2)
+          ? primaryRed.withOpacity(0.2)
           : Colors.grey.shade200,
       elevation: selectedOption == option ? 0 : 5,
       label: YurText(
@@ -840,7 +840,7 @@ class YurRadioButton extends StatelessWidget {
         onChanged: onChanged,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         visualDensity: VisualDensity.compact,
-        activeColor: primaryColor,
+        activeColor: primaryRed,
       ),
     );
   }
@@ -1070,7 +1070,7 @@ class LottieHelper extends StatelessWidget {
           text: text!,
           maxLines: 3,
           textAlign: TextAlign.center,
-          color: primaryColor,
+          color: primaryRed,
         ));
         children.add(gap20);
       }
@@ -1213,9 +1213,9 @@ class YurTabBar extends StatelessWidget {
             TabBar(
               controller: tab,
               tabs: tabs,
-              labelColor: primaryColor,
+              labelColor: primaryRed,
               unselectedLabelColor: unselectedLabelColor,
-              indicatorColor: primaryColor,
+              indicatorColor: primaryRed,
               indicatorSize: TabBarIndicatorSize.label,
               indicatorWeight: 2,
               labelStyle: const TextStyle(
@@ -1296,15 +1296,15 @@ class YurFAB extends StatelessWidget {
       onPressed: onPressed,
       elevation: 4,
       backgroundColor: buttonColor ??
-          (buttonStyle == BStyle.primary ? primaryColor : secondaryColor),
+          (buttonStyle == BStyle.primaryRed ? primaryRed : secondaryYellow),
       shape: RoundedRectangleBorder(
         side: BorderSide(
           color: onPressed == null
               ? Colors.grey.withOpacity(0.38)
               : buttonColor ??
-                  (buttonStyle == BStyle.primary
-                      ? primaryColor
-                      : secondaryColor),
+                  (buttonStyle == BStyle.primaryRed
+                      ? primaryRed
+                      : secondaryYellow),
           width: 1,
         ),
         borderRadius: BorderRadius.circular(borderRadius),
@@ -1325,7 +1325,7 @@ class YurFAB extends StatelessWidget {
               shadows: [
                 Shadow(
                   blurRadius: 3,
-                  color: buttonStyle == BStyle.primary
+                  color: buttonStyle == BStyle.primaryRed
                       ? Colors.black
                       : Colors.white,
                   offset: const Offset(0.5, 0.5),
@@ -1334,9 +1334,9 @@ class YurFAB extends StatelessWidget {
               color: onPressed == null
                   ? Colors.grey.withOpacity(0.38)
                   : textColor ??
-                      (buttonStyle == BStyle.primary
+                      (buttonStyle == BStyle.primaryRed
                           ? Colors.white
-                          : primaryColor),
+                          : primaryRed),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1366,6 +1366,8 @@ class YurButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? buttonColor;
   final Color? textColor;
+  final Color? borderColor;
+  final Color? backgroundColor;
   final FontWeight? fontWeight;
   final double borderRadius;
   final double fontSize;
@@ -1382,6 +1384,8 @@ class YurButton extends StatelessWidget {
     this.onPressed,
     this.buttonColor,
     this.textColor,
+    this.borderColor,
+    this.backgroundColor,
     this.fontWeight,
     this.borderRadius = 8.0,
     this.fontSize = 16.0,
@@ -1394,24 +1398,30 @@ class YurButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (onPressed == null) {
+      borderColor ?? Colors.grey.withOpacity(0.38);
+      textColor ?? Colors.grey.withOpacity(0.38);
+    } else {
+      borderColor ?? Colors.white;
+      textColor ?? Colors.white;
+
+      backgroundColor ??
+          (buttonStyle == BStyle.primaryRed
+              ? primaryRed
+              : (buttonStyle == BStyle.primaryBlue
+                  ? primaryBlue
+                  : secondaryYellow));
+    }
+
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         alignment: Alignment.center,
         splashFactory: InkRipple.splashFactory,
         enableFeedback: true,
-        side: BorderSide(
-          color: onPressed == null
-              ? Colors.grey.withOpacity(0.38)
-              : buttonColor ??
-                  (buttonStyle == BStyle.primary
-                      ? primaryColor
-                      : secondaryColor),
-          width: 1,
-        ),
+        side: BorderSide(color: borderColor ?? Colors.white, width: 1),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        backgroundColor: buttonColor ??
-            (buttonStyle == BStyle.primary ? Colors.white : secondaryColor),
+        backgroundColor: backgroundColor,
         disabledForegroundColor: Colors.grey.withOpacity(0.38),
         disabledBackgroundColor: Colors.grey.withOpacity(0.12),
         shape: RoundedRectangleBorder(
@@ -1441,9 +1451,7 @@ class YurButton extends StatelessWidget {
               overflow: overflow,
               decorationStyle: TextDecorationStyle.solid,
               decoration: TextDecoration.none,
-              color: onPressed == null
-                  ? Colors.grey.withOpacity(0.38)
-                  : primaryColor,
+              color: textColor,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1451,14 +1459,18 @@ class YurButton extends StatelessWidget {
               children: [
                 if (icon != null)
                   YurIcon(
-                      icon: icon!, color: primaryColor, size: fontSize * 1.5),
+                    icon: icon!,
+                    color: textColor,
+                    size: fontSize * 1.5,
+                  ),
                 if (text != null)
                   Expanded(
-                    child: Text(
-                      text!,
+                    child: YurText(
+                      text: text!,
                       maxLines: maxlines,
                       overflow: overflow,
                       softWrap: true,
+                      color: textColor,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -1478,7 +1490,7 @@ class YurSwitch extends StatelessWidget {
     super.key,
     required this.value,
     required this.onToggle,
-    this.activeColor = primaryColor,
+    this.activeColor = primaryRed,
   });
 
   @override
@@ -1536,7 +1548,7 @@ class YurImageAsset extends StatelessWidget {
       alignment: alignment,
       errorBuilder: (context, error, stackTrace) {
         YurCrash(name: "Image.asset : $imageUrl + ", e: error);
-        return const YurIcon(icon: Icons.error, color: primaryColor);
+        return const YurIcon(icon: Icons.error, color: primaryRed);
       },
       scale: 1,
       centerSlice: centerSlice,
@@ -1608,10 +1620,10 @@ class YurImageNet extends StatelessWidget {
         padding: padding,
       ),
       placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator(color: primaryColor)),
+          const Center(child: CircularProgressIndicator(color: primaryRed)),
       errorWidget: (context, url, error) {
         return const Center(
-          child: CircularProgressIndicator(color: primaryColor),
+          child: CircularProgressIndicator(color: primaryRed),
         );
       },
     );
@@ -1695,7 +1707,7 @@ class YurDivider extends StatelessWidget {
     this.thickness = 2,
     this.indent = 0,
     this.endIndent = 0,
-    this.color = primaryColor,
+    this.color = primaryRed,
   }) : super(key: key);
 
   final double thickness;
@@ -2051,7 +2063,7 @@ class YurSwiper extends StatelessWidget {
             ? children.length == 1
                 ? null
                 : const SwiperControl(
-                    color: primaryColor,
+                    color: primaryRed,
                     disableColor: Colors.grey,
                     size: 24,
                   )
@@ -2065,8 +2077,8 @@ class YurSwiper extends StatelessWidget {
                 : const SwiperPagination(
                     alignment: Alignment.bottomCenter,
                     builder: DotSwiperPaginationBuilder(
-                      activeColor: primaryColor,
-                      color: secondaryColor,
+                      activeColor: primaryRed,
+                      color: secondaryYellow,
                       activeSize: 8,
                       size: 6,
                     ),
@@ -2144,7 +2156,7 @@ class YurPopMenuButton extends StatelessWidget {
                 gap8,
                 YurIcon(
                   icon: Icons.delete,
-                  color: primaryColor,
+                  color: primaryRed,
                   size: 16,
                 ),
               ],
@@ -2220,7 +2232,7 @@ class _YurStarRatingState extends State<YurStarRating> {
                 },
           child: YurIcon(
             icon: starValue <= widget.rate ? Icons.grade : Icons.star_border,
-            color: starValue <= widget.rate ? secondaryColor : Colors.grey,
+            color: starValue <= widget.rate ? secondaryYellow : Colors.grey,
             size: iconSize,
           ),
         );
