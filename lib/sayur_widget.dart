@@ -11,6 +11,7 @@ import 'package:lottie/lottie.dart';
 
 import 'package:pie_chart/pie_chart.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:pinput/pinput.dart';
 
 import 'dart:async';
 
@@ -513,59 +514,6 @@ class YurForm extends StatelessWidget {
             color: primaryRed,
             width: 2,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class YurOTPForm extends StatelessWidget {
-  final List<TextEditingController> otpControllers;
-  final Function() onCompleted;
-
-  const YurOTPForm({
-    super.key,
-    required this.otpControllers,
-    required this.onCompleted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.8,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(
-          otpControllers.length,
-          (index) {
-            final controller = otpControllers[index];
-            return SizedBox(
-              width: 65,
-              child: YurForm(
-                controller: controller,
-                label: '',
-                withLabel: false,
-                textAllignment: TextAlign.center,
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    if (index < otpControllers.length - 1) {
-                      FocusScope.of(context).nextFocus();
-                    } else {
-                      FocusScope.of(context).unfocus();
-                    }
-                  }
-                },
-                maxLength: 1,
-                obscureText: false,
-                isUpperCase: true,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                textInputAction: index < otpControllers.length - 1
-                    ? TextInputAction.next
-                    : TextInputAction.done,
-              ),
-            );
-          },
         ),
       ),
     );
@@ -2239,4 +2187,98 @@ class _YurStarRatingState extends State<YurStarRating> {
   }
 }
 
+Pinput YurPinput({
+  required BuildContext context,
+  required int length,
+  required TextEditingController controller,
+  bool isObscure = false,
+  bool isDigitsOnly = false,
+  bool isReadOnly = false,
+  TextCapitalization capitalize = TextCapitalization.characters,
+  Function()? onTap,
+}) {
+  final defaultPinTheme = PinTheme(
+    width: MediaQuery.of(context).size.width / 6,
+    height: MediaQuery.of(context).size.width / 6,
+    textStyle: const TextStyle(
+      fontSize: 24,
+      color: Color.fromRGBO(30, 60, 87, 1),
+      fontWeight: FontWeight.w600,
+    ),
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: const Color.fromRGBO(234, 239, 243, 1),
+        width: 3,
+        style: BorderStyle.solid,
+      ),
+      borderRadius: br20,
+      boxShadow: const [
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.05),
+          offset: Offset(0, 4),
+          blurRadius: 4,
+        ),
+      ],
+      shape: BoxShape.rectangle,
+      gradient: const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Color.fromRGBO(255, 255, 255, 0),
+          Color.fromRGBO(255, 255, 255, 1),
+        ],
+      ),
+    ),
+  );
 
+  final focusedPinTheme = defaultPinTheme.copyDecorationWith(
+    border: Border.all(color: const Color.fromRGBO(114, 178, 238, 1)),
+    borderRadius: BorderRadius.circular(8),
+  );
+
+  final submittedPinTheme = defaultPinTheme.copyWith(
+    decoration: defaultPinTheme.decoration!.copyWith(
+      color: const Color.fromRGBO(234, 239, 243, 1),
+    ),
+  );
+
+  return Pinput(
+    onCompleted: (value) {
+      YurLog(name: "PINPUT_onCompleted", message: value.toString());
+    },
+    onSubmitted: (value) {
+      YurLog(name: "PINPUT_onSubmitted", message: value.toString());
+    },
+    onTap: () {
+      YurLog(name: "PINPUT_onTap", message: "onTap");
+
+      if (onTap != null) onTap();
+    },
+    androidSmsAutofillMethod: AndroidSmsAutofillMethod.smsRetrieverApi,
+    listenForMultipleSmsOnAndroid: true,
+    closeKeyboardWhenCompleted: true,
+    length: length,
+    animationCurve: Curves.easeInOut,
+    hapticFeedbackType: HapticFeedbackType.vibrate,
+    inputFormatters: [
+      if (isDigitsOnly) FilteringTextInputFormatter.digitsOnly,
+    ],
+    controller: controller,
+    keyboardType: isDigitsOnly ? TextInputType.number : TextInputType.text,
+    errorText: 'Kode OTP Salah',
+    errorTextStyle: const TextStyle(
+      color: Colors.red,
+      fontSize: 12,
+    ),
+    autofillHints: const [AutofillHints.oneTimeCode],
+    enableSuggestions: true,
+    textCapitalization: capitalize,
+    enabled: !isReadOnly,
+    obscureText: isObscure,
+    enableIMEPersonalizedLearning: true,
+    animationDuration: const Duration(milliseconds: 300),
+    defaultPinTheme: defaultPinTheme,
+    focusedPinTheme: focusedPinTheme,
+    submittedPinTheme: submittedPinTheme,
+  );
+}
