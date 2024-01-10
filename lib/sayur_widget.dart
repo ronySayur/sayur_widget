@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names, must_be_immutable, unnecessary_null_in_if_null_operators
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
@@ -2194,7 +2195,6 @@ Pinput YurPinput({
   bool isObscure = false,
   bool isDigitsOnly = false,
   bool isReadOnly = false,
-  TextCapitalization capitalize = TextCapitalization.characters,
   Function()? onTap,
 }) {
   final defaultPinTheme = PinTheme(
@@ -2254,25 +2254,21 @@ Pinput YurPinput({
 
       if (onTap != null) onTap();
     },
+    inputFormatters: [
+      if (isDigitsOnly) FilteringTextInputFormatter.digitsOnly,
+    ],
     androidSmsAutofillMethod: AndroidSmsAutofillMethod.smsRetrieverApi,
     listenForMultipleSmsOnAndroid: true,
     closeKeyboardWhenCompleted: true,
     length: length,
     animationCurve: Curves.easeInOut,
     hapticFeedbackType: HapticFeedbackType.vibrate,
-    inputFormatters: [
-      if (isDigitsOnly) FilteringTextInputFormatter.digitsOnly,
-    ],
     controller: controller,
     keyboardType: isDigitsOnly ? TextInputType.number : TextInputType.text,
     errorText: 'Kode OTP Salah',
-    errorTextStyle: const TextStyle(
-      color: Colors.red,
-      fontSize: 12,
-    ),
+    errorTextStyle: const TextStyle(color: Colors.red, fontSize: 12),
     autofillHints: const [AutofillHints.oneTimeCode],
     enableSuggestions: true,
-    textCapitalization: capitalize,
     enabled: !isReadOnly,
     obscureText: isObscure,
     enableIMEPersonalizedLearning: true,
@@ -2280,5 +2276,142 @@ Pinput YurPinput({
     defaultPinTheme: defaultPinTheme,
     focusedPinTheme: focusedPinTheme,
     submittedPinTheme: submittedPinTheme,
+    textCapitalization: TextCapitalization.characters,
   );
+}
+
+class YurWebView extends StatefulWidget {
+  const YurWebView({
+    super.key,
+    required this.linkWebView,
+    required this.title,
+    this.isDismisable = true,
+    this.isSecured = false,
+    this.withAppBar = false,
+  });
+
+  final String title;
+  final String linkWebView;
+  final bool isDismisable;
+  final bool isSecured;
+  final bool withAppBar;
+
+  @override
+  State<YurWebView> createState() => _YurWebViewState();
+}
+
+class _YurWebViewState extends State<YurWebView> {
+  @override
+  void initState() {
+    super.initState();
+    YurLoading(isShow: true);
+
+    if (widget.isSecured) {
+      YurSecureFlag(isAddFlagSecure: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (widget.isSecured) {
+      YurSecureFlag(isAddFlagSecure: false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return content();
+  }
+
+  MaterialApp content() {
+    String userAgent =
+        "Mozilla/5.0 (Linux; Android 10; SM-A107F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36";
+
+    return MaterialApp(
+      home: PopScope(
+        canPop: widget.isDismisable,
+        onPopInvoked: (didPop) {
+          if (didPop) {
+            YurAlertDialog(
+              context: context,
+              title: "Keluar dari aplikasi",
+              message: "Yakin Mau Keluar?",
+              buttonText: "Ya",
+              onConfirm: () => Get.back(),
+            );
+          }
+        },
+        child: SafeArea(
+          child: YurScaffold(
+            appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
+            body: InAppWebView(
+              initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
+              initialOptions: InAppWebViewGroupOptions(
+                ios: IOSInAppWebViewOptions(
+                  allowsInlineMediaPlayback: true,
+                  allowsAirPlayForMediaPlayback: true,
+                  allowsBackForwardNavigationGestures: true,
+                  allowsLinkPreview: true,
+                  isFraudulentWebsiteWarningEnabled: true,
+                  sharedCookiesEnabled: true,
+                  suppressesIncrementalRendering: true,
+                  selectionGranularity: IOSWKSelectionGranularity.DYNAMIC,
+                ),
+                android: AndroidInAppWebViewOptions(
+                  builtInZoomControls: false,
+                  displayZoomControls: false,
+                  supportMultipleWindows: false,
+                  thirdPartyCookiesEnabled: true,
+                  useWideViewPort: true,
+                  forceDark: AndroidForceDark.FORCE_DARK_OFF,
+                  domStorageEnabled: true,
+                  serifFontFamily: "Roboto",
+                  sansSerifFontFamily: "Roboto",
+                  defaultFixedFontSize: 12,
+                ),
+                crossPlatform: InAppWebViewOptions(
+                  javaScriptEnabled: true,
+                  useShouldOverrideUrlLoading: true,
+                  useOnDownloadStart: true,
+                  useOnLoadResource: true,
+                  useShouldInterceptAjaxRequest: true,
+                  useShouldInterceptFetchRequest: true,
+                  supportZoom: false,
+                  incognito: true,
+                  userAgent: userAgent,
+                ),
+              ),
+              onWebViewCreated: (InAppWebViewController controller) {
+                controller.addJavaScriptHandler(
+                  handlerName: "messageChannel",
+                  callback: (args) {
+                    YurLog(message: args[0], name: "messageChannel");
+                  },
+                );
+              },
+              onLoadStart: (InAppWebViewController controller, Uri? url) {
+                YurLog(message: url.toString(), name: "onLoadStart");
+              },
+              onLoadStop: (InAppWebViewController controller, Uri? url) async {
+                YurLog(message: url.toString(), name: "onLoadStop");
+
+                YurLoading(isShow: false);
+              },
+              onLoadError: (InAppWebViewController controller, Uri? url,
+                  int code, String message) {
+                YurLog(message: message, name: "onLoadError");
+              },
+              onProgressChanged:
+                  (InAppWebViewController controller, int progress) {
+                YurLog(message: progress.toString(), name: "progress");
+              },
+              onConsoleMessage: (InAppWebViewController controller,
+                  ConsoleMessage consoleMessage) async {},
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -251,3 +251,4 @@ const BorderRadius brBottom48 = BorderRadius.only(
 
 NumberFormat doubleCurrency = NumberFormat("#,##0.00", "en_US");
 NumberFormat integerCurrency = NumberFormat("#,##0", "en_US");
+

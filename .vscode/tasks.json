@@ -1,11 +1,11 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-		//flutter clean ; flutter pub get ; flutter publish
+		//check sha key
 		{
-			"label": "Publish",
+			"label": "Check SHA key",
 			"type": "shell",
-			"command": "flutter clean ; flutter pub get ; flutter publish",
+			"command": "keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android",
 			"group": {
 				"kind": "build",
 				"isDefault": true

@@ -25,15 +25,13 @@ import 'package:http/http.dart' as http;
 
 import 'package:sayur_widget/core.dart';
 
-class FlagSecure {
-  static Future<void> futuerFlag({
-    required bool isAddFlagSecure,
-  }) async {
-    if (isAddFlagSecure) {
-      await NoScreenshot.instance.screenshotOff();
-    } else {
-      await NoScreenshot.instance.screenshotOn();
-    }
+Future<void> YurSecureFlag({
+  required bool isAddFlagSecure,
+}) async {
+  if (isAddFlagSecure) {
+    await NoScreenshot.instance.screenshotOff();
+  } else {
+    await NoScreenshot.instance.screenshotOn();
   }
 }
 
@@ -730,7 +728,8 @@ void YurLoading({required bool isShow, String? message}) {
   if (isShow) {
     EasyLoading.addStatusCallback(
         (status) => YurLog(name: "EasyLoading", message: status.toString()));
-    EasyLoading.show(status: message ?? "Loading...");
+
+    EasyLoading.show(status: message);
   } else {
     EasyLoading.removeAllCallbacks();
     EasyLoading.dismiss();
