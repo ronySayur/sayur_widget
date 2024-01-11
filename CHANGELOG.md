@@ -16,3 +16,5 @@ Fixing Context
 Add PrimaryBlue
 ## 0.0.10
 Add YurPinput
+## 0.0.11
+Add flutter_easyloading and flutter_inappwebview dependencies
