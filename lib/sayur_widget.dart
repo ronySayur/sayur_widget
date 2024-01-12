@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names, must_be_immutable, unnecessary_null_in_if_null_operators
 
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/gestures.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:pie_chart/pie_chart.dart';
@@ -355,19 +358,9 @@ class YurForm extends StatelessWidget {
           message: controller?.text ?? "textController",
         );
       },
-      onFieldSubmitted: (value) {
-        onFieldSubmitted(value);
-        YurLog(
-          name: label,
-          message: controller?.text ?? "textController",
-        );
-      },
-      onChanged: (value) {
-        onChanged(value);
-        YurLog(name: label, message: value);
-      },
       onEditingComplete: () {
         onComplete();
+        FocusScope.of(context).unfocus();
         YurLog(
           name: label,
           message: controller?.text ?? "textController",
@@ -1494,7 +1487,7 @@ class YurImageAsset extends StatelessWidget {
       color: color,
       alignment: alignment,
       errorBuilder: (context, error, stackTrace) {
-        YurCrash(name: "Image.asset : $imageUrl + ", e: error);
+        YurCrash(name: "Image.asset : $imageUrl + ", e: error, s: stackTrace!);
         return const YurIcon(icon: Icons.error, color: primaryRed);
       },
       scale: 1,
@@ -2411,6 +2404,56 @@ class _YurWebViewState extends State<YurWebView> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class YurTakePhoto extends StatefulWidget {
+  YurTakePhoto({super.key, required this.image});
+
+  XFile? image;
+
+  @override
+  _YurTakePhotoState createState() => _YurTakePhotoState();
+}
+
+class _YurTakePhotoState extends State<YurTakePhoto> {
+  late ImagePicker _picker;
+
+  @override
+  void initState() {
+    super.initState();
+    _picker = ImagePicker();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return YurScaffold(
+      appBar: const YurAppBar(title: "Take Photo"),
+      body: Center(
+        child: widget.image == null
+            ? const CircularProgressIndicator()
+            : Image.file(File(widget.image!.path)),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const YurIcon(icon: Icons.camera),
+        onPressed: () async {
+          try {
+            XFile? pickedImage =
+                await _picker.pickImage(source: ImageSource.camera);
+
+            if (pickedImage != null) {
+              setState(() {
+                widget.image = pickedImage;
+              });
+
+              // Do something with the captured image
+            }
+          } catch (e, s) {
+            YurCrash(name: "Take Photo", e: e, s: s);
+          }
+        },
       ),
     );
   }

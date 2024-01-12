@@ -670,7 +670,7 @@ void YurLog({
 Future<void> YurCrash({
   required String name,
   required dynamic e,
-  StackTrace s = StackTrace.empty,
+  required StackTrace s ,
 }) async {
   FirebaseCrashlytics i = FirebaseCrashlytics.instance;
   i.setCrashlyticsCollectionEnabled(true);
