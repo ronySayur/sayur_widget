@@ -222,7 +222,7 @@ class YurForm extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Function(String) onChanged;
   final Function() onComplete;
-  final Function(String) onSaved;
+
   final Function() suffixTap;
   final Function() onTap;
   Widget? prefixIcon;
@@ -245,7 +245,6 @@ class YurForm extends StatelessWidget {
     this.hintText,
     this.sizeField = SizeTextField.small,
     this.onChanged = dfp,
-    this.onSaved = dfp,
     this.onComplete = df,
     this.suffixTap = df,
     this.withLabel = true,
@@ -368,7 +367,13 @@ class YurForm extends StatelessWidget {
       },
       focusNode: focusNode,
       initialValue: initialValue,
-      onSaved: (newValue) => onSaved(newValue!),
+      onChanged: (value) {
+        onChanged(value);
+        YurLog(
+          name: label,
+          message: controller?.text ?? "textController",
+        );
+      },
       maxLines: maxLines,
       obscureText: obscureText,
       textInputAction: textInputAction,
