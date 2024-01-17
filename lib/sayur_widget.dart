@@ -2302,7 +2302,7 @@ class _YurWebViewState extends State<YurWebView> {
   @override
   void initState() {
     super.initState();
-    YurLoading(isShow: true);
+    YurLoading(status: LoadingStatus.show, isDismisable: false);
 
     if (widget.isSecured) {
       YurSecureFlag(isAddFlagSecure: true);
@@ -2394,7 +2394,7 @@ class _YurWebViewState extends State<YurWebView> {
               onLoadStop: (InAppWebViewController controller, Uri? url) async {
                 YurLog(message: url.toString(), name: "onLoadStop");
 
-                YurLoading(isShow: false);
+                YurLoading(status: LoadingStatus.dismiss);
               },
               onLoadError: (InAppWebViewController controller, Uri? url,
                   int code, String message) {

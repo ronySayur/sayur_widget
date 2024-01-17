@@ -10,7 +10,6 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'dart:async';
@@ -187,6 +186,7 @@ ThemeData YurTheme() {
   );
 }
 
+//Toast
 void YurToast({
   required String message,
   InfoType toastType = InfoType.info,
@@ -225,6 +225,76 @@ void YurToast({
   );
 }
 
+enum LoadingStatus { show, error, info, success, dismiss }
+
+// EasyLoading
+void YurLoading({
+  String? message,
+  bool isDismisable = true,
+  required LoadingStatus status,
+  EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
+  Color backgroundColor = Colors.black,
+}) {
+  EasyLoading i = EasyLoading.instance;
+  i
+    ..displayDuration = const Duration(seconds: 2)
+    ..indicatorType = indicatorType
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..backgroundColor = backgroundColor
+    ..progressColor = Colors.white
+    ..indicatorColor = Colors.white
+    ..textColor = Colors.white
+    ..maskColor = Colors.black.withOpacity(0.5)
+    ..userInteractions = true
+    ..dismissOnTap = isDismisable
+    ..customAnimation
+    ..loadingStyle = EasyLoadingStyle.custom;
+
+  EasyLoading.addStatusCallback(
+    (status) => YurLog(name: "EasyLoading", message: status.toString()),
+  );
+
+  switch (status) {
+    case LoadingStatus.show:
+      i.backgroundColor = Colors.black;
+
+      EasyLoading.show(
+        status: message ?? "Loading...",
+        dismissOnTap: isDismisable,
+      );
+      break;
+    case LoadingStatus.error:
+      i.backgroundColor = Colors.red;
+
+      EasyLoading.showError(
+        message ?? "Terjadi kesalahan...",
+        dismissOnTap: isDismisable,
+      );
+      break;
+    case LoadingStatus.info:
+      i.backgroundColor = Colors.blue;
+
+      EasyLoading.showInfo(
+        message ?? "Perhatian",
+        dismissOnTap: isDismisable,
+      );
+      break;
+    case LoadingStatus.success:
+      i.backgroundColor = Colors.green;
+
+      EasyLoading.showSuccess(
+        message ?? "Berhasil",
+        dismissOnTap: isDismisable,
+      );
+      break;
+    case LoadingStatus.dismiss:
+      EasyLoading.dismiss();
+      break;
+  }
+}
+
+//SnackBar
 void YurSnackBar({
   required String message,
   InfoType snackBarType = InfoType.success,
@@ -670,7 +740,7 @@ void YurLog({
 Future<void> YurCrash({
   required String name,
   required dynamic e,
-  required StackTrace s ,
+  required StackTrace s,
 }) async {
   FirebaseCrashlytics i = FirebaseCrashlytics.instance;
   i.setCrashlyticsCollectionEnabled(true);
@@ -722,16 +792,4 @@ void YurShowPicker({
       themeData: ThemeData(primaryColor: primaryRed),
     ),
   );
-}
-
-void YurLoading({required bool isShow, String? message}) {
-  if (isShow) {
-    EasyLoading.addStatusCallback(
-        (status) => YurLog(name: "EasyLoading", message: status.toString()));
-
-    EasyLoading.show(status: message);
-  } else {
-    EasyLoading.removeAllCallbacks();
-    EasyLoading.dismiss();
-  }
 }
