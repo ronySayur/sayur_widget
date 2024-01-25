@@ -50,6 +50,77 @@ TextStyle YurTextStyle({
   );
 }
 
+class YurText extends StatelessWidget {
+  const YurText({
+    super.key,
+    required this.text,
+    this.fontSize,
+    this.fontWeight,
+    this.letterSpacing = 0.3,
+    this.color = Colors.black,
+    this.fontStyle = FontStyle.normal,
+    this.decoration = TextDecoration.none,
+    this.textAlign = TextAlign.start,
+    this.overflow = TextOverflow.ellipsis,
+    this.maxLines = 2,
+    this.height = 1.0,
+    this.shadows = const [],
+    this.onTap,
+    this.softWrap,
+    this.padding,
+    this.margin,
+    this.backgroundColor,
+  });
+
+  final String text;
+
+  final double? fontSize;
+  final FontWeight? fontWeight;
+  final double letterSpacing;
+  final Color? color;
+  final FontStyle fontStyle;
+  final TextDecoration? decoration;
+  final TextAlign? textAlign;
+  final TextOverflow? overflow;
+  final int maxLines;
+  final double? height;
+  final List<Shadow>? shadows;
+  final Function()? onTap;
+  final bool? softWrap;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      margin: margin,
+      decoration: BoxDecoration(color: backgroundColor),
+      child: InkWell(
+        onTap: onTap ?? null,
+        child: Text(
+          text,
+          style: YurTextStyle(
+            fontSize: fontSize ?? 16,
+            fontWeight: fontWeight ?? FontWeight.normal,
+            color: color ?? Colors.black,
+            fontStyle: fontStyle,
+            decoration: decoration ?? TextDecoration.none,
+            letterSpacing: letterSpacing,
+            shadows: shadows ?? [],
+            height: height ?? 1.0,
+          ),
+          textAlign: textAlign,
+          softWrap: softWrap,
+          overflow: overflow,
+          maxLines: maxLines,
+        ),
+      ),
+    );
+  }
+}
+
 class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
   const YurAppBar({
     super.key,
@@ -222,7 +293,6 @@ class YurForm extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Function(String) onChanged;
   final Function() onComplete;
-
   final Function() suffixTap;
   final Function() onTap;
   Widget? prefixIcon;
@@ -367,13 +437,7 @@ class YurForm extends StatelessWidget {
       },
       focusNode: focusNode,
       initialValue: initialValue,
-      onChanged: (value) {
-        onChanged(value);
-        YurLog(
-          name: label,
-          message: controller?.text ?? "textController",
-        );
-      },
+      onChanged: (value) => onChanged(value),
       maxLines: maxLines,
       obscureText: obscureText,
       textInputAction: textInputAction,
@@ -956,79 +1020,6 @@ class _YurAddFieldState extends State<YurAddField> {
   }
 }
 
-class LottieHelper extends StatelessWidget {
-  final LottieEnum lottieEnum;
-  final String? text;
-  final double height;
-
-  const LottieHelper(
-      {super.key, required this.lottieEnum, this.height = 200, this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    Widget lottieWidget;
-
-    Widget buildContainer(List<Widget> children) {
-      return Container(
-        margin: eH48,
-        padding: eW16,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: br16,
-          border: Border.fromBorderSide(BorderSide(color: Colors.grey)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: children,
-        ),
-      );
-    }
-
-    if (lottieEnum == LottieEnum.loading) {
-      lottieWidget = Stack(
-        children: [
-          Lottie.asset('assets/json/loading.json'),
-        ],
-      );
-    } else {
-      List<Widget> children = [
-        Lottie.asset(
-          lottieEnum == LottieEnum.failed
-              ? 'assets/json/failed.json'
-              : 'assets/json/success.json',
-          height: height,
-        ),
-      ];
-
-      if (text != null) {
-        children.add(gap20);
-        children.add(YurText(
-          fontSize: 20,
-          text: text!,
-          maxLines: 3,
-          textAlign: TextAlign.center,
-          color: primaryRed,
-        ));
-        children.add(gap20);
-      }
-
-      lottieWidget = buildContainer(children);
-
-      YurLog(name: "LottieHelper", message: "$lottieEnum");
-    }
-
-    return Center(child: lottieWidget);
-  }
-}
-
 class YurListViewBuilder extends StatefulWidget {
   const YurListViewBuilder(
       {super.key, required this.listItem, required this.listWidget});
@@ -1311,8 +1302,6 @@ class YurButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color? buttonColor;
   final Color? textColor;
-  final Color? borderColor;
-  final Color? backgroundColor;
   final FontWeight? fontWeight;
   final double borderRadius;
   final double fontSize;
@@ -1329,8 +1318,6 @@ class YurButton extends StatelessWidget {
     this.onPressed,
     this.buttonColor,
     this.textColor,
-    this.borderColor,
-    this.backgroundColor,
     this.fontWeight,
     this.borderRadius = 8.0,
     this.fontSize = 16.0,
@@ -1343,30 +1330,24 @@ class YurButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (onPressed == null) {
-      borderColor ?? Colors.grey.withOpacity(0.38);
-      textColor ?? Colors.grey.withOpacity(0.38);
-    } else {
-      borderColor ?? Colors.white;
-      textColor ?? Colors.white;
-
-      backgroundColor ??
-          (buttonStyle == BStyle.primaryRed
-              ? primaryRed
-              : (buttonStyle == BStyle.primaryBlue
-                  ? primaryBlue
-                  : secondaryYellow));
-    }
-
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         alignment: Alignment.center,
         splashFactory: InkRipple.splashFactory,
         enableFeedback: true,
-        side: BorderSide(color: borderColor ?? Colors.white, width: 1),
+        side: BorderSide(
+          color: onPressed == null
+              ? Colors.grey.withOpacity(0.38)
+              : buttonColor ??
+                  (buttonStyle == BStyle.primaryRed
+                      ? primaryRed
+                      : secondaryYellow),
+          width: 1,
+        ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        backgroundColor: backgroundColor,
+        backgroundColor: buttonColor ??
+            (buttonStyle == BStyle.primaryRed ? Colors.white : secondaryYellow),
         disabledForegroundColor: Colors.grey.withOpacity(0.38),
         disabledBackgroundColor: Colors.grey.withOpacity(0.12),
         shape: RoundedRectangleBorder(
@@ -1396,26 +1377,23 @@ class YurButton extends StatelessWidget {
               overflow: overflow,
               decorationStyle: TextDecorationStyle.solid,
               decoration: TextDecoration.none,
-              color: textColor,
+              color: onPressed == null
+                  ? Colors.grey.withOpacity(0.38)
+                  : primaryRed,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (icon != null)
-                  YurIcon(
-                    icon: icon!,
-                    color: textColor,
-                    size: fontSize * 1.5,
-                  ),
+                  YurIcon(icon: icon!, color: primaryRed, size: fontSize * 1.5),
                 if (text != null)
                   Expanded(
-                    child: YurText(
-                      text: text!,
+                    child: Text(
+                      text!,
                       maxLines: maxlines,
                       overflow: overflow,
                       softWrap: true,
-                      color: textColor,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -1531,6 +1509,7 @@ class YurImageNet extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.color,
+    this.iconError = Icons.error,
   });
 
   final String imageUrl;
@@ -1542,6 +1521,7 @@ class YurImageNet extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final BorderRadiusGeometry? borderRadius;
   final Color? color;
+  final IconData iconError;
 
   @override
   Widget build(BuildContext context) {
@@ -1567,81 +1547,10 @@ class YurImageNet extends StatelessWidget {
       placeholder: (context, url) =>
           const Center(child: CircularProgressIndicator(color: primaryRed)),
       errorWidget: (context, url, error) {
-        return const Center(
-          child: CircularProgressIndicator(color: primaryRed),
+        return Center(
+          child: YurIcon(icon: iconError, color: primaryRed),
         );
       },
-    );
-  }
-}
-
-class YurText extends StatelessWidget {
-  const YurText({
-    super.key,
-    required this.text,
-    this.fontSize,
-    this.fontWeight,
-    this.letterSpacing = 0.3,
-    this.color = Colors.black,
-    this.fontStyle = FontStyle.normal,
-    this.decoration = TextDecoration.none,
-    this.textAlign = TextAlign.start,
-    this.overflow = TextOverflow.ellipsis,
-    this.maxLines = 2,
-    this.height = 1.0,
-    this.shadows = const [],
-    this.onTap,
-    this.softWrap,
-    this.padding,
-    this.margin,
-    this.backgroundColor,
-  });
-
-  final String text;
-
-  final double? fontSize;
-  final FontWeight? fontWeight;
-  final double letterSpacing;
-  final Color? color;
-  final FontStyle fontStyle;
-  final TextDecoration? decoration;
-  final TextAlign? textAlign;
-  final TextOverflow? overflow;
-  final int maxLines;
-  final double? height;
-  final List<Shadow>? shadows;
-  final Function()? onTap;
-  final bool? softWrap;
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
-  final Color? backgroundColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
-      margin: margin,
-      decoration: BoxDecoration(color: backgroundColor),
-      child: InkWell(
-        onTap: onTap,
-        child: Text(
-          text,
-          style: YurTextStyle(
-            fontSize: fontSize ?? 16,
-            fontWeight: fontWeight ?? FontWeight.normal,
-            color: color ?? Colors.black,
-            fontStyle: fontStyle,
-            decoration: decoration ?? TextDecoration.none,
-            letterSpacing: letterSpacing,
-            shadows: shadows ?? [],
-            height: height ?? 1.0,
-          ),
-          textAlign: textAlign,
-          softWrap: softWrap,
-          overflow: overflow,
-          maxLines: maxLines,
-        ),
-      ),
     );
   }
 }
@@ -1804,7 +1713,7 @@ class YurIcon extends StatelessWidget {
       ),
       margin: margin,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap ?? null,
         child: Icon(icon, color: color, size: size),
       ),
     );
@@ -1856,22 +1765,19 @@ class YurScaffold extends StatelessWidget {
 
 class YurPieChart extends StatelessWidget {
   final Map<String, double> dataMap;
-  final double radius;
+
   final bool showLegends;
-  final bool showChartValueBackground;
-  final bool showChartValues;
-  final bool showChartValuesInPercentage;
-  final bool showChartValuesOutside;
+  final bool percentage;
+  final double sizeRatio;
+  final double? textSize;
 
   const YurPieChart({
     super.key,
     required this.dataMap,
-    this.radius = 100,
     this.showLegends = false,
-    this.showChartValueBackground = false,
-    this.showChartValues = false,
-    this.showChartValuesInPercentage = false,
-    this.showChartValuesOutside = false,
+    this.percentage = false,
+    this.sizeRatio = 0.2,
+    this.textSize,
   });
 
   @override
@@ -1883,49 +1789,50 @@ class YurPieChart extends StatelessWidget {
       Color.fromRGBO(255, 122, 122, 1),
     ];
 
-    return Container(
-      padding: e24,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          PieChart(
-            dataMap: dataMap,
-            animationDuration: const Duration(seconds: 2),
-            chartRadius: radius,
-            chartType: ChartType.ring,
-            legendOptions: const LegendOptions(showLegends: false),
-            totalValue:
-                dataMap.values.reduce((value, element) => value + element),
-            chartValuesOptions: ChartValuesOptions(
-              chartValueBackgroundColor: Colors.transparent,
-              chartValueStyle: TextStyle(
-                color: Colors.grey.shade100,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-              showChartValues: showChartValues,
-              showChartValueBackground: showChartValueBackground,
-              showChartValuesInPercentage: showChartValuesInPercentage,
-              showChartValuesOutside: showChartValuesOutside,
+    double totalValue =
+        dataMap.values.reduce((value, element) => value + element);
+
+    double chartRadius = Get.width * sizeRatio;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        PieChart(
+          dataMap: dataMap,
+          colorList: colorList,
+          initialAngleInDegree: 270,
+          animationDuration: const Duration(seconds: 2),
+          chartRadius: chartRadius,
+          ringStrokeWidth: chartRadius,
+          chartType: ChartType.ring,
+          totalValue: totalValue,
+          legendOptions: const LegendOptions(showLegends: false),
+          chartValuesOptions: ChartValuesOptions(
+            showChartValues: percentage,
+            showChartValuesOutside: false,
+            showChartValuesInPercentage: percentage,
+            chartValueBackgroundColor: Colors.transparent,
+            decimalPlaces: 0,
+            chartValueStyle: TextStyle(
+              color: Colors.grey.shade100,
+              fontWeight: FontWeight.bold,
+              fontSize: textSize ?? chartRadius * 0.2,
             ),
-            colorList: colorList,
-            initialAngleInDegree: 270,
-            ringStrokeWidth: 70,
           ),
-          if (showLegends)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var i = 0; i < dataMap.length; i++)
-                  DetailsLegend(
-                    title: dataMap.keys.elementAt(i),
-                    value: dataMap.values.elementAt(i).toStringAsFixed(0),
-                    color: colorList[i],
-                  ),
-              ],
-            )
-        ],
-      ),
+        ),
+        if (showLegends)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < dataMap.length; i++)
+                DetailsLegend(
+                  title: dataMap.keys.elementAt(i),
+                  value: dataMap.values.elementAt(i).toStringAsFixed(0),
+                  color: colorList[i],
+                ),
+            ],
+          )
+      ],
     );
   }
 
@@ -1951,7 +1858,7 @@ class YurPieChart extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               YurText(
-                fontSize: 14,
+                fontSize: 10,
                 text: title,
                 fontWeight: FontWeight.bold,
                 maxLines: 2,
@@ -2255,12 +2162,10 @@ Pinput YurPinput({
     inputFormatters: [
       if (isDigitsOnly) FilteringTextInputFormatter.digitsOnly,
     ],
-    androidSmsAutofillMethod: AndroidSmsAutofillMethod.smsRetrieverApi,
     listenForMultipleSmsOnAndroid: true,
     closeKeyboardWhenCompleted: true,
     length: length,
     animationCurve: Curves.easeInOut,
-    hapticFeedbackType: HapticFeedbackType.vibrate,
     controller: controller,
     keyboardType: isDigitsOnly ? TextInputType.number : TextInputType.text,
     errorText: 'Kode OTP Salah',
@@ -2305,7 +2210,7 @@ class _YurWebViewState extends State<YurWebView> {
     YurLoading(status: LoadingStatus.show, isDismisable: false);
 
     if (widget.isSecured) {
-      YurSecureFlag(isAddFlagSecure: true);
+      YurScreenShot(isOn: true);
     }
   }
 
@@ -2313,7 +2218,7 @@ class _YurWebViewState extends State<YurWebView> {
   void dispose() {
     super.dispose();
     if (widget.isSecured) {
-      YurSecureFlag(isAddFlagSecure: false);
+      YurScreenShot(isOn: false);
     }
   }
 
@@ -2461,5 +2366,80 @@ class _YurTakePhotoState extends State<YurTakePhoto> {
         },
       ),
     );
+  }
+}
+
+class LottieHelper extends StatelessWidget {
+  final LottieEnum lottieEnum;
+  final String? text;
+  final double height;
+
+  const LottieHelper(
+      {super.key, required this.lottieEnum, this.height = 200, this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget lottieWidget;
+
+    Widget buildContainer(List<Widget> children) {
+      return Container(
+        margin: eH48,
+        padding: eW16,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: br16,
+          border: Border.fromBorderSide(BorderSide(color: Colors.grey)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        ),
+      );
+    }
+
+    if (lottieEnum == LottieEnum.loading) {
+      lottieWidget = Stack(
+        children: [
+          Lottie.asset('assets/json/loading.json'),
+          const Positioned.fill(
+              child: Center(child: CircularProgressIndicator())),
+        ],
+      );
+    } else {
+      List<Widget> children = [
+        Lottie.asset(
+          lottieEnum == LottieEnum.failed
+              ? 'assets/json/failed.json'
+              : 'assets/json/success.json',
+          height: height,
+        ),
+      ];
+
+      if (text != null) {
+        children.add(gap20);
+        children.add(YurText(
+          fontSize: 20,
+          text: text!,
+          maxLines: 3,
+          textAlign: TextAlign.center,
+          color: primaryRed,
+        ));
+        children.add(gap20);
+      }
+
+      lottieWidget = buildContainer(children);
+
+      YurLog(name: "LottieHelper", message: "$lottieEnum");
+    }
+
+    return Center(child: lottieWidget);
   }
 }

@@ -10,7 +10,6 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -24,10 +23,32 @@ import 'package:http/http.dart' as http;
 
 import 'package:sayur_widget/core.dart';
 
-Future<void> YurSecureFlag({
-  required bool isAddFlagSecure,
-}) async {
-  if (isAddFlagSecure) {
+class Generator {
+  static String randomKey(int length) {
+    const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    final r = Random();
+
+    return String.fromCharCodes(List.generate(
+      length,
+      (index) => c.codeUnitAt(r.nextInt(c.length)),
+    ));
+  }
+
+  static String randomNumber(int length) {
+    const c = "0123456789";
+
+    final r = Random();
+
+    return String.fromCharCodes(List.generate(
+      length,
+      (index) => c.codeUnitAt(r.nextInt(c.length)),
+    ));
+  }
+}
+
+Future<void> YurScreenShot({required bool isOn}) async {
+  if (isOn) {
     await NoScreenshot.instance.screenshotOff();
   } else {
     await NoScreenshot.instance.screenshotOn();
@@ -60,40 +81,35 @@ extension EmailValidator on String {
 }
 
 void dfp(dynamic parameter) {
-  YurLog(name: "dfp", message: parameter);
+  YurLog(name: "Default Function", message: "paramater : $parameter");
 }
 
 void df() {
-  YurLog(name: "df", message: "(){}");
+  YurLog(name: "Default Function", message: "(){}");
 }
 
-String YurRandomKey(int length) {
-  const chars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  final random = Random();
-  return String.fromCharCodes(List.generate(
-      length, (index) => chars.codeUnitAt(random.nextInt(chars.length))));
-}
-
-String YurRandomNumber(int length) {
-  const chars = "0123456789";
-  final random = Random();
-  return String.fromCharCodes(List.generate(
-      length, (index) => chars.codeUnitAt(random.nextInt(chars.length))));
-}
-
-Position YurPosition(String lng, String lat) {
+Position YurPosition({
+  required double lng,
+  required double lat,
+  double accuracy = 0,
+  double heading = 0,
+  double speed = 0,
+  double altitude = 0,
+  double speedAccuracy = 0,
+  double altitudeAccuracy = 0,
+  double headingAccuracy = 0,
+}) {
   return Position(
-    longitude: double.parse(lng),
-    latitude: double.parse(lat),
+    longitude: lng,
+    latitude: lat,
     timestamp: DateTime.now(),
-    altitudeAccuracy: 0,
-    headingAccuracy: 0,
-    accuracy: 0,
-    altitude: 0,
-    heading: 0,
-    speed: 0,
-    speedAccuracy: 0,
+    altitudeAccuracy: altitudeAccuracy,
+    headingAccuracy: headingAccuracy,
+    speedAccuracy: speedAccuracy,
+    accuracy: accuracy,
+    altitude: altitude,
+    heading: heading,
+    speed: speed,
   );
 }
 
@@ -186,52 +202,14 @@ ThemeData YurTheme() {
   );
 }
 
-//Toast
-void YurToast({
-  required String message,
-  InfoType toastType = InfoType.info,
-  Toast duration = Toast.LENGTH_SHORT,
-  ToastGravity gravity = ToastGravity.CENTER,
-  int timeInSecForIosWeb = 1,
-  Color? backgroundColor,
-  Color? textColor = Colors.white,
-  double fontSize = 14.0,
-}) {
-  if (backgroundColor == null) {
-    switch (toastType) {
-      case InfoType.info:
-        backgroundColor = primaryRed;
-        break;
-      case InfoType.warning:
-        backgroundColor = secondaryYellow;
-        break;
-      case InfoType.error:
-        backgroundColor = primaryRed;
-        break;
-      case InfoType.success:
-        backgroundColor = tertiaryGreen;
-        break;
-    }
-  }
-
-  Fluttertoast.showToast(
-    msg: message,
-    toastLength: duration,
-    gravity: gravity,
-    timeInSecForIosWeb: timeInSecForIosWeb,
-    backgroundColor: backgroundColor,
-    textColor: textColor,
-    fontSize: fontSize,
-  );
-}
-
-enum LoadingStatus { show, error, info, success, dismiss }
+enum LoadingStatus { show, error, info, success, dismiss, toast }
 
 // EasyLoading
 void YurLoading({
   String? message,
   bool isDismisable = true,
   required LoadingStatus status,
+  InfoType toastType = InfoType.info,
   EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
   Color backgroundColor = Colors.black,
 }) {
@@ -290,6 +268,28 @@ void YurLoading({
       break;
     case LoadingStatus.dismiss:
       EasyLoading.dismiss();
+      break;
+    case LoadingStatus.toast:
+      switch (toastType) {
+        case InfoType.info:
+          i.backgroundColor = Colors.blue;
+          break;
+        case InfoType.success:
+          i.backgroundColor = Colors.green;
+          break;
+        case InfoType.error:
+          i.backgroundColor = Colors.red;
+          break;
+        case InfoType.warning:
+          i.backgroundColor = Colors.orange;
+          break;
+      }
+
+      EasyLoading.showToast(
+        message ?? "",
+        toastPosition: EasyLoadingToastPosition.bottom,
+        maskType: EasyLoadingMaskType.custom,
+      );
       break;
   }
 }
@@ -681,8 +681,8 @@ YurSearch({
                         onConfirm(textController);
                         Get.back();
                         YurLog(
-                          name: "YurcallDialog",
-                          message: "YurDialogForm",
+                          name: "MediSearch",
+                          message: "MediDialogForm",
                         );
                       },
                     ),
@@ -699,8 +699,8 @@ YurSearch({
                         Get.back();
 
                         YurLog(
-                          name: "YurcallDialog",
-                          message: "YurDialogForm",
+                          name: "MediSearch",
+                          message: "MediDialogForm",
                         );
                       },
                     ),

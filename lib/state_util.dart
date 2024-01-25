@@ -1,26 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sayur_widget/function.dart';
+import 'package:sayur_widget/sayur_function.dart';
 
 BuildContext get globalContext => Get.context;
 
 class Get {
-  //navigator
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  //context
-  static BuildContext? _context;
-
-  static BuildContext get context {
-    if (_context == null) {
-      throw Exception(
-          "Get context not initialized. Call Get.initContext first.");
-    }
-    return _context!;
-  }
-
-  static void initContext(BuildContext initialContext) {
-    _context = initialContext;
+  static get context {
+    return navigatorKey.currentState?.context;
   }
 
   static void back({dynamic result}) {
