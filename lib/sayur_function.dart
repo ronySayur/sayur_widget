@@ -3,7 +3,6 @@
 import 'dart:developer';
 import 'dart:ui';
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:day_night_time_picker/day_night_time_picker.dart';
@@ -735,18 +734,6 @@ void YurLog({
       debugPrint(message);
       break;
   }
-}
-
-Future<void> YurCrash({
-  required String name,
-  required dynamic e,
-  required StackTrace s,
-}) async {
-  FirebaseCrashlytics i = FirebaseCrashlytics.instance;
-  i.setCrashlyticsCollectionEnabled(true);
-  i.log("${DateTime.now().dateFormat("HH:mm:ss")} - $name");
-  String error = "[$name] - ${e.toString()}";
-  await i.recordError(error, s);
 }
 
 void YurShowPicker({

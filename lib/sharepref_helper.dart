@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:sayur_widget/core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,8 +11,8 @@ Future<T> getShared<T>({required String key, required T defaultValue}) async {
     final value = prefs.getString(key);
 
     return value != null ? json.decode(value) as T : defaultValue;
-  } catch (e, s) {
-    YurCrash(s: s, name: "_getShared", e: e);
+  } catch (e) {
+    YurLog(name: "_getShared", message: e.toString());
     return defaultValue;
   }
 }
@@ -22,8 +23,8 @@ Future<bool> setShared<T>({required String key, required T value}) async {
     prefs.reload();
     String valueJson = json.encode(value);
     return await prefs.setString(key, valueJson);
-  } catch (e, s) {
-    YurCrash(s: s, name: "_setShared", e: e);
+  } catch (e) {
+    YurLog(name: "_getShared", message: e.toString());
 
     return false;
   }

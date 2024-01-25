@@ -1470,7 +1470,6 @@ class YurImageAsset extends StatelessWidget {
       color: color,
       alignment: alignment,
       errorBuilder: (context, error, stackTrace) {
-        YurCrash(name: "Image.asset : $imageUrl + ", e: error, s: stackTrace!);
         return const YurIcon(icon: Icons.error, color: primaryRed);
       },
       scale: 1,
@@ -2360,8 +2359,8 @@ class _YurTakePhotoState extends State<YurTakePhoto> {
 
               // Do something with the captured image
             }
-          } catch (e, s) {
-            YurCrash(name: "Take Photo", e: e, s: s);
+          } catch (e) {
+            YurLog(name: "YurTakePhoto", message: e.toString());
           }
         },
       ),
