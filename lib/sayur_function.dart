@@ -9,6 +9,7 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -201,7 +202,45 @@ ThemeData YurTheme() {
   );
 }
 
-enum LoadingStatus { show, error, info, success, dismiss, toast }
+enum LoadingStatus { show, error, info, success, dismiss }
+
+void YurToast({
+  required String message,
+  InfoType toastType = InfoType.info,
+  Toast duration = Toast.LENGTH_SHORT,
+  ToastGravity gravity = ToastGravity.CENTER,
+  int timeInSecForIosWeb = 1,
+  Color? backgroundColor,
+  Color? textColor = Colors.white,
+  double fontSize = 14.0,
+}) {
+  if (backgroundColor == null) {
+    switch (toastType) {
+      case InfoType.info:
+        backgroundColor = primaryRed;
+        break;
+      case InfoType.warning:
+        backgroundColor = secondaryYellow;
+        break;
+      case InfoType.error:
+        backgroundColor = primaryRed;
+        break;
+      case InfoType.success:
+        backgroundColor = tertiaryGreen;
+        break;
+    }
+  }
+
+  Fluttertoast.showToast(
+    msg: message,
+    toastLength: duration,
+    gravity: gravity,
+    timeInSecForIosWeb: timeInSecForIosWeb,
+    backgroundColor: backgroundColor,
+    textColor: textColor,
+    fontSize: fontSize,
+  );
+}
 
 // EasyLoading
 void YurLoading({
@@ -213,6 +252,7 @@ void YurLoading({
   Color backgroundColor = Colors.black,
 }) {
   EasyLoading i = EasyLoading.instance;
+
   i
     ..displayDuration = const Duration(seconds: 2)
     ..indicatorType = indicatorType
@@ -267,28 +307,6 @@ void YurLoading({
       break;
     case LoadingStatus.dismiss:
       EasyLoading.dismiss();
-      break;
-    case LoadingStatus.toast:
-      switch (toastType) {
-        case InfoType.info:
-          i.backgroundColor = Colors.blue;
-          break;
-        case InfoType.success:
-          i.backgroundColor = Colors.green;
-          break;
-        case InfoType.error:
-          i.backgroundColor = Colors.red;
-          break;
-        case InfoType.warning:
-          i.backgroundColor = Colors.orange;
-          break;
-      }
-
-      EasyLoading.showToast(
-        message ?? "",
-        toastPosition: EasyLoadingToastPosition.bottom,
-        maskType: EasyLoadingMaskType.custom,
-      );
       break;
   }
 }
@@ -419,31 +437,35 @@ YurAlertDialog({
             clipBehavior: Clip.antiAliasWithSaveLayer,
             semanticLabel: title,
             title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                YurText(
-                  fontSize: 20,
-                  text: title,
-                  color: primaryRed,
-                  maxLines: 3,
-                  textAlign: TextAlign.center,
-                ),
-                if (dialogType == DialogType.confirmation)
-                  IconButton(
-                    onPressed: () {
-                      if (onCancel != null) {
-                        onCancel();
-                      } else {
-                        Get.back();
-                      }
-                    },
-                    icon: const YurIcon(
-                      icon: Icons.cancel_outlined,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    YurText(
+                      fontSize: 20,
+                      text: title,
                       color: primaryRed,
+                      maxLines: 3,
+                      textAlign: TextAlign.center,
                     ),
-                  )
-                else
-                  gap0,
-                const YurDivider()
+                    if (dialogType == DialogType.confirmation)
+                      IconButton(
+                        onPressed: () {
+                          if (onCancel != null) {
+                            onCancel();
+                          } else {
+                            Get.back();
+                          }
+                        },
+                        icon: const YurIcon(
+                          icon: Icons.cancel_outlined,
+                          color: primaryRed,
+                        ),
+                      )
+                  ],
+                ),
+                const YurDivider(),
               ],
             ),
             content: SingleChildScrollView(

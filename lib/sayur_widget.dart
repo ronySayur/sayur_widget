@@ -1342,12 +1342,17 @@ class YurButton extends StatelessWidget {
               : buttonColor ??
                   (buttonStyle == BStyle.primaryRed
                       ? primaryRed
-                      : secondaryYellow),
+                      : buttonStyle == BStyle.primaryBlue
+                          ? primaryBlue
+                          : secondaryYellow),
           width: 1,
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         backgroundColor: buttonColor ??
-            (buttonStyle == BStyle.primaryRed ? Colors.white : secondaryYellow),
+            (buttonStyle == BStyle.primaryRed ||
+                    buttonStyle == BStyle.primaryBlue
+                ? Colors.white
+                : secondaryYellow),
         disabledForegroundColor: Colors.grey.withOpacity(0.38),
         disabledBackgroundColor: Colors.grey.withOpacity(0.12),
         shape: RoundedRectangleBorder(
@@ -1379,7 +1384,11 @@ class YurButton extends StatelessWidget {
               decoration: TextDecoration.none,
               color: onPressed == null
                   ? Colors.grey.withOpacity(0.38)
-                  : primaryRed,
+                  : BStyle.primaryRed == buttonStyle
+                      ? primaryRed
+                      : BStyle.primaryBlue == buttonStyle
+                          ? primaryBlue
+                          : textColor ?? Colors.white,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
