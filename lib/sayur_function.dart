@@ -246,7 +246,7 @@ void YurToast({
 void YurLoading({
   String? message,
   bool isDismisable = true,
-  required LoadingStatus status,
+  required LoadingStatus loadingStatus,
   InfoType toastType = InfoType.info,
   EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
   Color backgroundColor = Colors.black,
@@ -272,7 +272,7 @@ void YurLoading({
     (status) => YurLog(name: "EasyLoading", message: status.toString()),
   );
 
-  switch (status) {
+  switch (loadingStatus) {
     case LoadingStatus.show:
       i.backgroundColor = Colors.black;
 
@@ -515,7 +515,7 @@ YurAlertDialog({
                         Expanded(
                             child: YurButton(
                           text: "Batal",
-                          buttonStyle: BStyle.secondary,
+                          buttonStyle: BStyle.secondaryRed,
                           fontSize: 12,
                           onPressed: () {
                             onCancel != null ? onCancel() : Get.back();

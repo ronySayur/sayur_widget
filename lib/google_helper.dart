@@ -7,7 +7,7 @@ class YurGoogle {
   static Future<UserCredential?> signIn() async {
     try {
       YurLoading(
-        status: LoadingStatus.show,
+        loadingStatus: LoadingStatus.show,
         message: "Signing in with Google",
       );
       // Trigger the Google Sign-In process
@@ -32,11 +32,11 @@ class YurGoogle {
       final UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      YurLoading(status: LoadingStatus.dismiss);
+      YurLoading(loadingStatus: LoadingStatus.dismiss);
 
       return userCredential;
     } catch (error) {
-      YurLoading(status: LoadingStatus.dismiss);
+      YurLoading(loadingStatus: LoadingStatus.dismiss);
       // Handle any errors that might occur during the sign-in process
       YurLog(
           name: "signInWithGoogle",

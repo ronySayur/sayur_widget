@@ -44,8 +44,8 @@ class Get {
     );
   }
 
-  static void popUntil() {
-    YurLog(message: "Pop Until", name: "Get.popUntil");
+  static Future<void> firstRoute() async {
+    YurLog(message: "First Route", name: "Get.firstRoute");
     Navigator.popUntil(context, (route) => route.isFirst);
   }
 

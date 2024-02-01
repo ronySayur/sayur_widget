@@ -1347,12 +1347,12 @@ class YurButton extends StatelessWidget {
                           : secondaryYellow),
           width: 1,
         ),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         backgroundColor: buttonColor ??
             (buttonStyle == BStyle.primaryRed ||
                     buttonStyle == BStyle.primaryBlue
                 ? Colors.white
                 : secondaryYellow),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         disabledForegroundColor: Colors.grey.withOpacity(0.38),
         disabledBackgroundColor: Colors.grey.withOpacity(0.12),
         shape: RoundedRectangleBorder(
@@ -1388,7 +1388,7 @@ class YurButton extends StatelessWidget {
                       ? primaryRed
                       : BStyle.primaryBlue == buttonStyle
                           ? primaryBlue
-                          : textColor ?? Colors.white,
+                          : textColor ?? primaryRed,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -2215,7 +2215,7 @@ class _YurWebViewState extends State<YurWebView> {
   @override
   void initState() {
     super.initState();
-    YurLoading(status: LoadingStatus.show, isDismisable: false);
+    YurLoading(loadingStatus: LoadingStatus.show, isDismisable: false);
 
     if (widget.isSecured) {
       YurScreenShot(isOn: true);
@@ -2307,7 +2307,7 @@ class _YurWebViewState extends State<YurWebView> {
               onLoadStop: (InAppWebViewController controller, Uri? url) async {
                 YurLog(message: url.toString(), name: "onLoadStop");
 
-                YurLoading(status: LoadingStatus.dismiss);
+                YurLoading(loadingStatus: LoadingStatus.dismiss);
               },
               onLoadError: (InAppWebViewController controller, Uri? url,
                   int code, String message) {
