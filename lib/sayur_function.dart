@@ -802,3 +802,52 @@ void YurShowPicker({
     ),
   );
 }
+
+Future<DateTime> selectDate({
+  required BuildContext context,
+  DateTime? initialDate,
+  DateTime? firstDate,
+  DateTime? lastDate,
+  TimeOfDay? initialTime,
+  bool withTimePick = false,
+}) async {
+  DateTime newDateTime = DateTime.now();
+  TimeOfDay? pickedTime;
+
+  final DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: firstDate ?? DateTime.now(),
+    lastDate: lastDate ?? DateTime.now().add(const Duration(days: 365)),
+  );
+
+  if (pickedDate != null) {
+    newDateTime = pickedDate;
+
+    if (withTimePick) {
+      pickedTime = await showTimePicker(
+        context: Get.context,
+        initialTime: initialTime ?? TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        newDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        YurLog(name: "Picked Date", message: newDateTime.toString());
+      }
+
+      return newDateTime;
+    }
+
+    return newDateTime;
+  } else {
+    YurLog(name: "Picked Date else", message: initialDate.toString());
+    return DateTime.now();
+  }
+}

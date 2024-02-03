@@ -8,8 +8,6 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_holo_date_picker/date_picker.dart';
-import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 
@@ -306,6 +304,10 @@ class YurForm extends StatelessWidget {
   final FocusNode? focusNode;
   final int maxLines;
   final BorderRadius borderRadius;
+  final bool withTimePick;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+  final TimeOfDay? initialTime;
 
   YurForm({
     super.key,
@@ -351,6 +353,10 @@ class YurForm extends StatelessWidget {
     this.focusNode,
     this.maxLines = 1,
     this.borderRadius = br12,
+    this.withTimePick = false,
+    this.firstDate,
+    this.lastDate,
+    this.initialTime,
   });
 
   @override
@@ -396,23 +402,7 @@ class YurForm extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
-      onTap: () {
-        if (isDate) {
-          DatePicker.showSimpleDatePicker(
-            context,
-            initialDate: initialDate ?? DateTime.now(),
-            firstDate: DateTime(1900),
-            lastDate: DateTime.now(),
-            dateFormat: "dd-MMM-yyyy",
-            titleText: label,
-            itemTextStyle: const TextStyle(color: Colors.grey),
-            locale: DateTimePickerLocale.en_us,
-            looping: false,
-          ).then((value) {
-            controller!.text = value!.dateFormat("yyyy-MM-dd");
-          });
-        }
-
+      onTap: () async {
         if (isHours) {
           YurShowPicker(
             context: context,
@@ -421,6 +411,19 @@ class YurForm extends StatelessWidget {
             minMinute: minMinute,
           );
         }
+
+        if (isDate) {
+          DateTime selectedDate = await selectDate(
+            context: context,
+            initialDate: initialDate ?? DateTime.now(),
+            firstDate: firstDate ?? DateTime(1900),
+            lastDate: lastDate ?? DateTime.now(),
+            initialTime: initialTime,
+            withTimePick: withTimePick,
+          );
+          controller!.text = selectedDate.dateFormat("yyyy-MM-dd");
+        }
+
         onTap();
         YurLog(
           name: label,
