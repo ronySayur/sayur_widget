@@ -413,15 +413,21 @@ class YurForm extends StatelessWidget {
         }
 
         if (isDate) {
-          DateTime selectedDate = await selectDate(
+          await selectDate(
             context: context,
             initialDate: initialDate ?? DateTime.now(),
             firstDate: firstDate ?? DateTime(1900),
             lastDate: lastDate ?? DateTime.now(),
             initialTime: initialTime,
             withTimePick: withTimePick,
-          );
-          controller!.text = selectedDate.dateFormat("yyyy-MM-dd");
+          ).then((value) {
+            if (value.isEmpty) {
+              return controller!.text = "";
+            } else {
+              return controller!.text =
+                  DateTime.parse(value).dateFormat("yyyy-MM-dd");
+            }
+          });
         }
 
         onTap();
@@ -461,7 +467,8 @@ class YurForm extends StatelessWidget {
       scrollPhysics: const ClampingScrollPhysics(),
       decoration: InputDecoration(
         //Prefix
-        prefixIcon: prefixIcon,
+        prefixIcon:
+            isDate ? const YurIcon(icon: Icons.calendar_today) : prefixIcon,
         prefixIconColor: primaryRed,
 
         //Sufix

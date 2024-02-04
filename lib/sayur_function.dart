@@ -14,6 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' show Random;
+import 'dart:isolate';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -736,26 +737,15 @@ YurSearch({
   );
 }
 
-void YurLog({
-  required String name,
-  required String message,
-}) {
-  DateTime logNow = DateTime.now();
-  LogType logType = kDebugMode ? LogType.log : LogType.debugPrint;
-  switch (logType) {
-    case LogType.log:
-      DateTime now = DateTime.now();
-      log(
-        name: "${logNow.dateFormat("HH:mm:ss")} - $name",
-        message,
-        time: now,
-      );
-      break;
-    case LogType.debugPrint:
-      debugPrint("${logNow.dateFormat("HH:mm:ss")} - $name");
-      debugPrint(message);
-      break;
-  }
+void YurLog({required String name, required String message}) {
+  Isolate.run(() {
+    DateTime now = DateTime.now();
+    log(
+      name: "${now.dateFormat("HH:mm:ss")} - $name",
+      message,
+      time: now,
+    );
+  });
 }
 
 void YurShowPicker({
@@ -803,7 +793,7 @@ void YurShowPicker({
   );
 }
 
-Future<DateTime> selectDate({
+Future<String> selectDate({
   required BuildContext context,
   DateTime? initialDate,
   DateTime? firstDate,
@@ -842,12 +832,13 @@ Future<DateTime> selectDate({
         YurLog(name: "Picked Date", message: newDateTime.toString());
       }
 
-      return newDateTime;
+      return newDateTime.toString();
     }
 
-    return newDateTime;
+    return newDateTime.toString();
   } else {
     YurLog(name: "Picked Date else", message: initialDate.toString());
-    return DateTime.now();
+
+    return '';
   }
 }
