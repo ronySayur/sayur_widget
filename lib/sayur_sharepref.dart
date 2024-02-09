@@ -12,7 +12,7 @@ Future<T> getShared<T>({required String key, required T defaultValue}) async {
 
     return value != null ? json.decode(value) as T : defaultValue;
   } catch (e) {
-    YurLog(name: "_getShared", message: e.toString());
+    YurLog(name: "_getShared", e.toString());
     return defaultValue;
   }
 }
@@ -24,7 +24,7 @@ Future<bool> setShared<T>({required String key, required T value}) async {
     String valueJson = json.encode(value);
     return await prefs.setString(key, valueJson);
   } catch (e) {
-    YurLog(name: "_getShared", message: e.toString());
+    YurLog(name: "_getShared", e.toString());
 
     return false;
   }

@@ -12,14 +12,14 @@ class Get {
   }
 
   static void back({dynamic result}) {
-    YurLog(message: "Back", name: "Get.back");
+    YurLog("Back", name: "Get.back");
     if (Navigator.canPop(context)) {
       Navigator.pop(context, result);
     }
   }
 
   static Future<void> to(Widget page) async {
-    YurLog(message: "To : ${page.toString()}", name: "Get.to");
+    YurLog("To : ${page.toString()}", name: "Get.to");
 
     Navigator.push(
       context,
@@ -28,7 +28,7 @@ class Get {
   }
 
   static Future<void> replace(Widget page) async {
-    YurLog(message: "Replace : ${page.toString()}", name: "Get.replace");
+    YurLog("Replace : ${page.toString()}", name: "Get.replace");
     Navigator.pushReplacement(
       context,
       CupertinoPageRoute(builder: (context) => page),
@@ -36,7 +36,7 @@ class Get {
   }
 
   static Future<void> offAll(Widget page) async {
-    YurLog(message: "Off All : ${page.toString()}", name: "Get.offAll");
+    YurLog("Off All : ${page.toString()}", name: "Get.offAll");
     Navigator.pushAndRemoveUntil(
       context,
       CupertinoPageRoute(builder: (context) => page),
@@ -45,7 +45,7 @@ class Get {
   }
 
   static Future<void> firstRoute() async {
-    YurLog(message: "First Route", name: "Get.firstRoute");
+    YurLog("First Route", name: "Get.firstRoute");
     Navigator.popUntil(context, (route) => route.isFirst);
   }
 

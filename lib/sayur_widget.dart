@@ -433,7 +433,7 @@ class YurForm extends StatelessWidget {
         onTap();
         YurLog(
           name: label,
-          message: controller?.text ?? "textController",
+          controller?.text ?? "textController",
         );
       },
       onEditingComplete: () {
@@ -441,7 +441,7 @@ class YurForm extends StatelessWidget {
         FocusScope.of(context).unfocus();
         YurLog(
           name: label,
-          message: controller?.text ?? "textController",
+          controller?.text ?? "textController",
         );
       },
       focusNode: focusNode,
@@ -712,7 +712,7 @@ class YurDropdown extends StatelessWidget {
         ),
         onChanged: (value) {
           onChanged(value);
-          YurLog(name: labelText, message: value!);
+          YurLog(name: labelText, value!);
         },
         decoration: InputDecoration(
           border: const OutlineInputBorder(borderRadius: br16),
@@ -1180,7 +1180,7 @@ class YurTabBar extends StatelessWidget {
               labelPadding: eW12,
               mouseCursor: SystemMouseCursors.click,
               onTap: (index) {
-                YurLog(name: "TabBarHelper $tabs", message: "index: $index");
+                YurLog(name: "TabBarHelper $tabs", "index: $index");
               },
               overlayColor: MaterialStateProperty.all(Colors.transparent),
               padding: eW12,
@@ -1441,7 +1441,7 @@ class YurSwitch extends StatelessWidget {
       value: value,
       onChanged: (value) {
         onToggle(value);
-        YurLog(name: "YurcallSwitch", message: value ? 'ON' : 'OFF');
+        YurLog(name: "YurcallSwitch", value ? 'ON' : 'OFF');
       },
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       focusNode: FocusNode(),
@@ -2097,7 +2097,7 @@ class _YurStarRatingState extends State<YurStarRating> {
                     widget.rate = starValue;
                     widget.onRatingChanged(starValue);
 
-                    YurLog(name: "Rating", message: starValue.toString());
+                    YurLog(name: "Rating", starValue.toString());
                   });
                 },
           child: YurIcon(
@@ -2167,13 +2167,13 @@ Pinput YurPinput({
 
   return Pinput(
     onCompleted: (value) {
-      YurLog(name: "PINPUT_onCompleted", message: value.toString());
+      YurLog(name: "PINPUT_onCompleted", value.toString());
     },
     onSubmitted: (value) {
-      YurLog(name: "PINPUT_onSubmitted", message: value.toString());
+      YurLog(name: "PINPUT_onSubmitted", value.toString());
     },
     onTap: () {
-      YurLog(name: "PINPUT_onTap", message: "onTap");
+      YurLog(name: "PINPUT_onTap", "onTap");
 
       if (onTap != null) onTap();
     },
@@ -2307,25 +2307,25 @@ class _YurWebViewState extends State<YurWebView> {
                 controller.addJavaScriptHandler(
                   handlerName: "messageChannel",
                   callback: (args) {
-                    YurLog(message: args[0], name: "messageChannel");
+                    YurLog(args[0], name: "messageChannel");
                   },
                 );
               },
               onLoadStart: (InAppWebViewController controller, Uri? url) {
-                YurLog(message: url.toString(), name: "onLoadStart");
+                YurLog(url.toString(), name: "onLoadStart");
               },
               onLoadStop: (InAppWebViewController controller, Uri? url) async {
-                YurLog(message: url.toString(), name: "onLoadStop");
+                YurLog(url.toString(), name: "onLoadStop");
 
                 YurLoading(loadingStatus: LoadingStatus.dismiss);
               },
               onLoadError: (InAppWebViewController controller, Uri? url,
                   int code, String message) {
-                YurLog(message: message, name: "onLoadError");
+                YurLog(message, name: "onLoadError");
               },
               onProgressChanged:
                   (InAppWebViewController controller, int progress) {
-                YurLog(message: progress.toString(), name: "progress");
+                YurLog(progress.toString(), name: "progress");
               },
               onConsoleMessage: (InAppWebViewController controller,
                   ConsoleMessage consoleMessage) async {},
@@ -2379,7 +2379,7 @@ class _YurTakePhotoState extends State<YurTakePhoto> {
               // Do something with the captured image
             }
           } catch (e) {
-            YurLog(name: "YurTakePhoto", message: e.toString());
+            YurLog(name: "YurTakePhoto", e.toString());
           }
         },
       ),
@@ -2455,7 +2455,7 @@ class LottieHelper extends StatelessWidget {
 
       lottieWidget = buildContainer(children);
 
-      YurLog(name: "LottieHelper", message: "$lottieEnum");
+      YurLog(name: "LottieHelper",  "$lottieEnum");
     }
 
     return Center(child: lottieWidget);

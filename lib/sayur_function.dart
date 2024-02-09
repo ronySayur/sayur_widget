@@ -3,8 +3,6 @@
 import 'dart:developer';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 import 'package:flutter/material.dart';
@@ -82,11 +80,11 @@ extension EmailValidator on String {
 }
 
 void dfp(dynamic parameter) {
-  YurLog(name: "Default Function", message: "paramater : $parameter");
+  YurLog(name: "Default Function", "paramater : $parameter");
 }
 
 void df() {
-  YurLog(name: "Default Function", message: "(){}");
+  YurLog(name: "Default Function", "(){}");
 }
 
 Position YurPosition({
@@ -270,7 +268,7 @@ void YurLoading({
     ..loadingStyle = EasyLoadingStyle.custom;
 
   EasyLoading.addStatusCallback(
-    (status) => YurLog(name: "EasyLoading", message: status.toString()),
+    (status) => YurLog(name: "EasyLoading", status.toString()),
   );
 
   switch (loadingStatus) {
@@ -312,7 +310,6 @@ void YurLoading({
   }
 }
 
-//SnackBar
 void YurSnackBar({
   required String message,
   InfoType snackBarType = InfoType.success,
@@ -532,7 +529,7 @@ YurAlertDialog({
                           Future.delayed(const Duration(microseconds: 500), () {
                             onConfirm();
                             Get.back();
-                            YurLog(name: "YurcallDialog", message: title);
+                            YurLog(name: "YurcallDialog", title);
                           });
                         },
                       )),
@@ -634,7 +631,7 @@ YurDialog({
                                 Get.back();
                                 YurLog(
                                   name: "YurcallDialog",
-                                  message: "YurDialog",
+                                  "YurDialog",
                                 );
                               })
                         ],
@@ -704,7 +701,7 @@ YurSearch({
                         Get.back();
                         YurLog(
                           name: "MediSearch",
-                          message: "MediDialogForm",
+                          "MediDialogForm",
                         );
                       },
                     ),
@@ -722,7 +719,7 @@ YurSearch({
 
                         YurLog(
                           name: "MediSearch",
-                          message: "MediDialogForm",
+                          "MediDialogForm",
                         );
                       },
                     ),
@@ -737,11 +734,11 @@ YurSearch({
   );
 }
 
-void YurLog({required String name, required String message}) {
+void YurLog(String message, {String? name}) {
   Isolate.run(() {
     DateTime now = DateTime.now();
     log(
-      name: "${now.dateFormat("HH:mm:ss")} - $name",
+      name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
       message,
       time: now,
     );
@@ -829,7 +826,7 @@ Future<String> selectDate({
           pickedTime.minute,
         );
 
-        YurLog(name: "Picked Date", message: newDateTime.toString());
+        YurLog(name: "Picked Date", newDateTime.toString());
       }
 
       return newDateTime.toString();
@@ -837,7 +834,7 @@ Future<String> selectDate({
 
     return newDateTime.toString();
   } else {
-    YurLog(name: "Picked Date else", message: initialDate.toString());
+    YurLog(name: "Picked Date else", initialDate.toString());
 
     return '';
   }

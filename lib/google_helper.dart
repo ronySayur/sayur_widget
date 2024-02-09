@@ -38,9 +38,7 @@ class YurGoogle {
     } catch (error) {
       YurLoading(loadingStatus: LoadingStatus.dismiss);
       // Handle any errors that might occur during the sign-in process
-      YurLog(
-          name: "signInWithGoogle",
-          message: 'Error signing in with Google: $error');
+      YurLog(name: "signInWithGoogle", 'Error signing in with Google: $error');
       return null;
     }
   }
