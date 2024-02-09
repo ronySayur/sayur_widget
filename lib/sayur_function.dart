@@ -734,12 +734,12 @@ YurSearch({
   );
 }
 
-void YurLog(String message, {String? name}) {
+void YurLog(dynamic message, {String? name}) {
   Isolate.run(() {
     DateTime now = DateTime.now();
     log(
       name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
-      message,
+      message.toString(),
       time: now,
     );
   });

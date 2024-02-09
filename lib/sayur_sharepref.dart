@@ -75,9 +75,8 @@ Future<bool> setSharedInt({required String key, required int setIntTo}) async {
 }
 
 //  DOUBLE <==================================
-Future<double> getSharedDouble(
-    {required String key, required double defaultValue}) async {
-  return await getShared<double>(key: key, defaultValue: defaultValue);
+Future<double> getSharedDouble({required String key}) async {
+  return await getShared<double>(key: key, defaultValue: 0.0);
 }
 
 Future<bool> setSharedDouble(
