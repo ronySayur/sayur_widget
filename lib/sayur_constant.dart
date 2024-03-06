@@ -73,7 +73,7 @@ enum LottieEnum { loading, success, failed }
 
 enum InfoType { info, warning, error, success }
 
-enum BStyle { primaryRed, secondaryRed, primaryBlue }
+enum BStyle { fullRed, primaryRed, secondaryRed, primaryBlue }
 
 enum DialogType { confirmation, info }
 

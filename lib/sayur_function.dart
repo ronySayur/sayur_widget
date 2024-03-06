@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:day_night_time_picker/day_night_time_picker.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +15,6 @@ import 'dart:io';
 import 'dart:math' show Random;
 import 'dart:isolate';
 
-import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
@@ -85,31 +85,6 @@ void dfp(dynamic parameter) {
 
 void df() {
   YurLog(name: "Default Function", "(){}");
-}
-
-Position YurPosition({
-  required double lng,
-  required double lat,
-  double accuracy = 0,
-  double heading = 0,
-  double speed = 0,
-  double altitude = 0,
-  double speedAccuracy = 0,
-  double altitudeAccuracy = 0,
-  double headingAccuracy = 0,
-}) {
-  return Position(
-    longitude: lng,
-    latitude: lat,
-    timestamp: DateTime.now(),
-    altitudeAccuracy: altitudeAccuracy,
-    headingAccuracy: headingAccuracy,
-    speedAccuracy: speedAccuracy,
-    accuracy: accuracy,
-    altitude: altitude,
-    heading: heading,
-    speed: speed,
-  );
 }
 
 Future<String> YurDownloadFile(String url, String fileName) async {
@@ -248,7 +223,7 @@ void YurLoading({
   required LoadingStatus loadingStatus,
   InfoType toastType = InfoType.info,
   EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
-  Color backgroundColor = Colors.black,
+  Color? backgroundColor,
 }) {
   EasyLoading i = EasyLoading.instance;
 
@@ -257,7 +232,7 @@ void YurLoading({
     ..indicatorType = indicatorType
     ..indicatorSize = 45.0
     ..radius = 10.0
-    ..backgroundColor = backgroundColor
+    ..backgroundColor = backgroundColor ?? Colors.black.withOpacity(0.5)
     ..progressColor = Colors.white
     ..indicatorColor = Colors.white
     ..textColor = Colors.white
@@ -273,15 +248,13 @@ void YurLoading({
 
   switch (loadingStatus) {
     case LoadingStatus.show:
-      i.backgroundColor = Colors.black;
-
       EasyLoading.show(
         status: message ?? "Loading...",
         dismissOnTap: isDismisable,
       );
       break;
     case LoadingStatus.error:
-      i.backgroundColor = Colors.red;
+      i.backgroundColor = backgroundColor ?? Colors.red;
 
       EasyLoading.showError(
         message ?? "Terjadi kesalahan...",
@@ -289,7 +262,7 @@ void YurLoading({
       );
       break;
     case LoadingStatus.info:
-      i.backgroundColor = Colors.blue;
+      i.backgroundColor = backgroundColor ?? Colors.blue;
 
       EasyLoading.showInfo(
         message ?? "Perhatian",
@@ -297,7 +270,7 @@ void YurLoading({
       );
       break;
     case LoadingStatus.success:
-      i.backgroundColor = Colors.green;
+      i.backgroundColor = backgroundColor ?? Colors.green;
 
       EasyLoading.showSuccess(
         message ?? "Berhasil",
@@ -737,11 +710,18 @@ YurSearch({
 void YurLog(dynamic message, {String? name}) {
   Isolate.run(() {
     DateTime now = DateTime.now();
-    log(
-      name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
-      message.toString(),
-      time: now,
-    );
+
+    if (kDebugMode && Platform.isAndroid) {
+      log(
+        name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
+        message.toString(),
+        time: now,
+      );
+    } else {
+      debugPrint(
+        "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"} : $message",
+      );
+    }
   });
 }
 

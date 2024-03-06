@@ -308,6 +308,8 @@ class YurForm extends StatelessWidget {
   final DateTime? firstDate;
   final DateTime? lastDate;
   final TimeOfDay? initialTime;
+  final Color? borderSideColor;
+  final Color? prefixIconColor;
 
   YurForm({
     super.key,
@@ -357,6 +359,8 @@ class YurForm extends StatelessWidget {
     this.firstDate,
     this.lastDate,
     this.initialTime,
+    this.borderSideColor,
+    this.prefixIconColor,
   });
 
   @override
@@ -469,7 +473,7 @@ class YurForm extends StatelessWidget {
         //Prefix
         prefixIcon:
             isDate ? const YurIcon(icon: Icons.calendar_today) : prefixIcon,
-        prefixIconColor: primaryRed,
+        prefixIconColor: prefixIconColor ?? primaryRed,
 
         //Sufix
         suffixText: suffixText,
@@ -534,9 +538,10 @@ class YurForm extends StatelessWidget {
         ),
         floatingLabelAlignment: FloatingLabelAlignment.start,
         floatingLabelBehavior: floatingLabelBehavior,
-        alignLabelWithHint: true,
         filled: true,
         fillColor: fillColor,
+
+        alignLabelWithHint: true,
         isDense: true,
         isCollapsed: false,
 
@@ -564,6 +569,7 @@ class YurForm extends StatelessWidget {
             width: 1,
           ),
         ),
+
         //error
         errorBorder: OutlineInputBorder(
           borderRadius: borderRadius,
@@ -583,8 +589,8 @@ class YurForm extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: const BorderSide(
-            color: primaryRed,
+          borderSide: BorderSide(
+            color: borderSideColor ?? primaryRed,
             width: 2,
           ),
         ),
@@ -677,7 +683,10 @@ class YurDropdown extends StatelessWidget {
     return IntrinsicWidth(
       child: DropdownButtonFormField(
         value: selectedValue,
-        icon: const YurIcon(icon: Icons.keyboard_arrow_down),
+        icon: const YurIcon(
+          icon: Icons.keyboard_arrow_down,
+          color: Colors.grey,
+        ),
         iconSize: 14,
         iconEnabledColor: primaryRed,
         iconDisabledColor: Colors.grey,
@@ -1320,6 +1329,8 @@ class YurButton extends StatelessWidget {
   final int maxlines;
   final TextOverflow overflow;
   final IconData? icon;
+  final Color? iconColor;
+  final double? iconSize;
 
   const YurButton({
     super.key,
@@ -1336,38 +1347,72 @@ class YurButton extends StatelessWidget {
     this.maxlines = 1,
     this.overflow = TextOverflow.ellipsis,
     this.icon,
+    this.iconColor,
+    this.iconSize,
   });
 
   @override
   Widget build(BuildContext context) {
+    Color borderColor = onPressed == null
+        ? Colors.grey.withOpacity(0.38)
+        : buttonColor ??
+            (() {
+              switch (buttonStyle) {
+                case BStyle.fullRed:
+                  return primaryRed;
+                case BStyle.primaryRed:
+                  return primaryRed;
+                case BStyle.primaryBlue:
+                  return primaryBlue;
+                default:
+                  return secondaryYellow;
+              }
+            })();
+
+    Color backgroundColor = buttonColor ??
+        (() {
+          switch (buttonStyle) {
+            case BStyle.primaryRed:
+            case BStyle.primaryBlue:
+              return Colors.white;
+            case BStyle.fullRed:
+              return primaryRed;
+            default:
+              return secondaryYellow;
+          }
+        })();
+
+    Color colorText = onPressed == null
+        ? Colors.grey.withOpacity(0.38)
+        : textColor ??
+            (() {
+              switch (buttonStyle) {
+                case BStyle.fullRed:
+                  return Colors.white;
+                case BStyle.primaryRed:
+                  return primaryRed;
+                case BStyle.primaryBlue:
+                  return primaryBlue;
+                case BStyle.secondaryRed:
+                  return primaryRed;
+                default:
+                  return Colors.black;
+              }
+            })();
+
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         alignment: Alignment.center,
         splashFactory: InkRipple.splashFactory,
         enableFeedback: true,
-        side: BorderSide(
-          color: onPressed == null
-              ? Colors.grey.withOpacity(0.38)
-              : buttonColor ??
-                  (buttonStyle == BStyle.primaryRed
-                      ? primaryRed
-                      : buttonStyle == BStyle.primaryBlue
-                          ? primaryBlue
-                          : secondaryYellow),
-          width: 1,
-        ),
-        backgroundColor: buttonColor ??
-            (buttonStyle == BStyle.primaryRed ||
-                    buttonStyle == BStyle.primaryBlue
-                ? Colors.white
-                : secondaryYellow),
+        side: BorderSide(color: borderColor, width: 1),
+        backgroundColor: backgroundColor,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         disabledForegroundColor: Colors.grey.withOpacity(0.38),
         disabledBackgroundColor: Colors.grey.withOpacity(0.12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
+            borderRadius: BorderRadius.circular(borderRadius)),
         padding: EdgeInsets.symmetric(
           vertical: paddingVertical,
           horizontal: paddingHorizontal,
@@ -1392,20 +1437,19 @@ class YurButton extends StatelessWidget {
               overflow: overflow,
               decorationStyle: TextDecorationStyle.solid,
               decoration: TextDecoration.none,
-              color: onPressed == null
-                  ? Colors.grey.withOpacity(0.38)
-                  : BStyle.primaryRed == buttonStyle
-                      ? primaryRed
-                      : BStyle.primaryBlue == buttonStyle
-                          ? primaryBlue
-                          : textColor ?? primaryRed,
+              color: colorText,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null)
-                  YurIcon(icon: icon!, color: primaryRed, size: fontSize * 1.5),
+                  YurIcon(
+                    icon: icon!,
+                    color: iconColor ?? primaryRed,
+                    size: iconSize ?? fontSize * 1.5,
+                  ),
                 if (text != null)
                   Expanded(
                     child: Text(
@@ -1904,6 +1948,9 @@ class YurSwiper extends StatelessWidget {
   final double? itemHeight;
   final double? itemWidth;
   final bool fullscreen;
+  final double? height;
+  final SwiperController? swiperController;
+  final Function(int)? onPageChanged;
 
   const YurSwiper({
     super.key,
@@ -1915,12 +1962,15 @@ class YurSwiper extends StatelessWidget {
     this.itemHeight,
     this.itemWidth,
     this.fullscreen = false,
+    this.height,
+    this.swiperController,
+    this.onPageChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: Get.height * 0.35,
+      height: height ?? Get.height * 0.35,
       child: Swiper(
         itemCount: children.length,
         itemBuilder: (context, index) => children[index],
@@ -1955,8 +2005,14 @@ class YurSwiper extends StatelessWidget {
                   )
             : null,
         indicatorLayout: PageIndicatorLayout.COLOR,
+        onIndexChanged: (index) {
+          YurLog(name: "Swiper", "Index: $index");
+          if (onPageChanged != null) {
+            onPageChanged!(index);
+          }
+        },
         transformer: ScaleAndFadeTransformer(),
-        controller: SwiperController(),
+        controller: swiperController ?? SwiperController(),
         layout: swiperLayout,
         autoplay: true,
         autoplayDelay: 10000,
@@ -1966,104 +2022,12 @@ class YurSwiper extends StatelessWidget {
   }
 }
 
-class YurPopMenuButton extends StatelessWidget {
-  const YurPopMenuButton({
-    super.key,
-    required this.onDeleted,
-    this.onEdit,
-    this.icon = Icons.more_vert,
-    this.iconSize = 24,
-    this.color = Colors.black,
-    this.elevation = 8,
-    this.padding = e0,
-    this.backgroundColor = Colors.white,
-    this.shape = const RoundedRectangleBorder(
-      borderRadius: br8,
-      side: BorderSide(
-        color: Colors.grey,
-        width: 0.5,
-      ),
-    ),
-    this.clipBehavior = Clip.antiAlias,
-  });
-
-  final Function(int) onDeleted;
-  final Function(int)? onEdit;
-
-  final IconData icon;
-  final double iconSize;
-  final Color color;
-
-  final double elevation;
-  final EdgeInsetsGeometry padding;
-  final Color backgroundColor;
-  final ShapeBorder shape;
-  final Clip clipBehavior;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton(
-      itemBuilder: (context) {
-        return [
-          if (onEdit != null)
-            const PopupMenuItem(
-              value: 1,
-              child: YurText(
-                text: "Edit",
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          const PopupMenuItem(
-            value: 2,
-            child: Row(
-              children: [
-                YurText(
-                  text: "Hapus",
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-                gap8,
-                YurIcon(
-                  icon: Icons.delete,
-                  color: primaryRed,
-                  size: 16,
-                ),
-              ],
-            ),
-          ),
-        ];
-      },
-      onSelected: (value) {
-        if (value == 2) {
-          YurAlertDialog(
-            context: context,
-            title: "Hapus Jadwal",
-            message: "Yakin Mau Hapus Jadwal?",
-            buttonText: "Hapus",
-            onConfirm: () {
-              onDeleted(value);
-            },
-          );
-        }
-      },
-      icon: YurIcon(icon: icon, size: iconSize, color: color),
-      elevation: elevation,
-      padding: padding,
-      color: backgroundColor,
-      shape: shape,
-      clipBehavior: clipBehavior,
-      surfaceTintColor: Colors.grey.shade100,
-      shadowColor: Colors.black,
-    );
-  }
-}
-
 class YurStarRating extends StatefulWidget {
   final int starCount;
   int rate;
   final Function(int) onRatingChanged;
   bool isReadOnly;
+  Color color;
 
   YurStarRating({
     super.key,
@@ -2071,6 +2035,7 @@ class YurStarRating extends StatefulWidget {
     required this.rate,
     required this.onRatingChanged,
     this.isReadOnly = false,
+    this.color = secondaryYellow,
   });
 
   @override
@@ -2102,7 +2067,7 @@ class _YurStarRatingState extends State<YurStarRating> {
                 },
           child: YurIcon(
             icon: starValue <= widget.rate ? Icons.grade : Icons.star_border,
-            color: starValue <= widget.rate ? secondaryYellow : Colors.grey,
+            color: starValue <= widget.rate ? widget.color : Colors.grey,
             size: iconSize,
           ),
         );
@@ -2375,8 +2340,6 @@ class _YurTakePhotoState extends State<YurTakePhoto> {
               setState(() {
                 widget.image = pickedImage;
               });
-
-              // Do something with the captured image
             }
           } catch (e) {
             YurLog(name: "YurTakePhoto", e.toString());
@@ -2455,7 +2418,7 @@ class LottieHelper extends StatelessWidget {
 
       lottieWidget = buildContainer(children);
 
-      YurLog(name: "LottieHelper",  "$lottieEnum");
+      YurLog(name: "LottieHelper", "$lottieEnum");
     }
 
     return Center(child: lottieWidget);
