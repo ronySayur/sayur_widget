@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names, must_be_immutable, unnecessary_null_in_if_null_operators
+// ignore_for_file: non_constant_identifier_names, must_be_immutable, library_private_types_in_public_api
 
 import 'dart:io';
 
@@ -96,7 +96,7 @@ class YurText extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(color: backgroundColor),
       child: InkWell(
-        onTap: onTap ?? null,
+        onTap: onTap,
         child: Text(
           text,
           style: YurTextStyle(
@@ -310,6 +310,7 @@ class YurForm extends StatelessWidget {
   final TimeOfDay? initialTime;
   final Color? borderSideColor;
   final Color? prefixIconColor;
+  final bool Function(DateTime)? selectableDayPredicate;
 
   YurForm({
     super.key,
@@ -361,6 +362,7 @@ class YurForm extends StatelessWidget {
     this.initialTime,
     this.borderSideColor,
     this.prefixIconColor,
+    this.selectableDayPredicate,
   });
 
   @override
@@ -406,40 +408,43 @@ class YurForm extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
-      onTap: () async {
-        if (isHours) {
-          YurShowPicker(
-            context: context,
-            controller: controller!,
-            minHour: minHour,
-            minMinute: minMinute,
-          );
-        }
+      onTap: readOnly
+          ? null
+          : () async {
+              if (isHours) {
+                YurShowPicker(
+                  context: context,
+                  controller: controller!,
+                  minHour: minHour,
+                  minMinute: minMinute,
+                );
+              }
 
-        if (isDate) {
-          await selectDate(
-            context: context,
-            initialDate: initialDate ?? DateTime.now(),
-            firstDate: firstDate ?? DateTime(1900),
-            lastDate: lastDate ?? DateTime.now(),
-            initialTime: initialTime,
-            withTimePick: withTimePick,
-          ).then((value) {
-            if (value.isEmpty) {
-              return controller!.text = "";
-            } else {
-              return controller!.text =
-                  DateTime.parse(value).dateFormat("yyyy-MM-dd");
-            }
-          });
-        }
+              if (isDate) {
+                await selectDate(
+                  context: context,
+                  initialDate: initialDate ?? DateTime.now(),
+                  firstDate: firstDate ?? DateTime(1900),
+                  lastDate: lastDate ?? DateTime.now(),
+                  initialTime: initialTime,
+                  withTimePick: withTimePick,
+                  selectableDayPredicate: selectableDayPredicate,
+                ).then((value) {
+                  if (value.isEmpty) {
+                    return controller!.text = "";
+                  } else {
+                    return controller!.text =
+                        DateTime.parse(value).dateFormat("yyyy-MM-dd");
+                  }
+                });
+              }
 
-        onTap();
-        YurLog(
-          name: label,
-          controller?.text ?? "textController",
-        );
-      },
+              onTap();
+              YurLog(
+                name: label,
+                controller?.text ?? "textController",
+              );
+            },
       onEditingComplete: () {
         onComplete();
         FocusScope.of(context).unfocus();
@@ -1331,6 +1336,8 @@ class YurButton extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
   final double? iconSize;
+  final String? iconAssets;
+  final double? iconAssetsHigh;
 
   const YurButton({
     super.key,
@@ -1349,6 +1356,8 @@ class YurButton extends StatelessWidget {
     this.icon,
     this.iconColor,
     this.iconSize,
+    this.iconAssets,
+    this.iconAssetsHigh,
   });
 
   @override
@@ -1364,6 +1373,8 @@ class YurButton extends StatelessWidget {
                   return primaryRed;
                 case BStyle.primaryBlue:
                   return primaryBlue;
+                case BStyle.fullWhite:
+                  return Colors.white;
                 default:
                   return secondaryYellow;
               }
@@ -1377,6 +1388,8 @@ class YurButton extends StatelessWidget {
               return Colors.white;
             case BStyle.fullRed:
               return primaryRed;
+            case BStyle.fullWhite:
+              return Colors.white;
             default:
               return secondaryYellow;
           }
@@ -1396,7 +1409,7 @@ class YurButton extends StatelessWidget {
                 case BStyle.secondaryRed:
                   return primaryRed;
                 default:
-                  return Colors.black;
+                  return Colors.black87;
               }
             })();
 
@@ -1442,13 +1455,17 @@ class YurButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null)
                   YurIcon(
                     icon: icon!,
                     color: iconColor ?? primaryRed,
                     size: iconSize ?? fontSize * 1.5,
+                  ),
+                if (iconAssets != null)
+                  YurImageAsset(
+                    imageUrl: iconAssets!,
+                    height: iconAssetsHigh ?? 24,
                   ),
                 if (text != null)
                   Expanded(
@@ -1775,7 +1792,7 @@ class YurIcon extends StatelessWidget {
       ),
       margin: margin,
       child: InkWell(
-        onTap: onTap ?? null,
+        onTap: onTap,
         child: Icon(icon, color: color, size: size),
       ),
     );
@@ -2170,10 +2187,12 @@ class YurWebView extends StatefulWidget {
   const YurWebView({
     super.key,
     required this.linkWebView,
-    required this.title,
+    this.title = "",
     this.isDismisable = true,
     this.isSecured = false,
     this.withAppBar = false,
+    this.onInit,
+    this.onDispose,
   });
 
   final String title;
@@ -2181,6 +2200,8 @@ class YurWebView extends StatefulWidget {
   final bool isDismisable;
   final bool isSecured;
   final bool withAppBar;
+  final Function()? onInit;
+  final Function()? onDispose;
 
   @override
   State<YurWebView> createState() => _YurWebViewState();
@@ -2192,6 +2213,10 @@ class _YurWebViewState extends State<YurWebView> {
     super.initState();
     YurLoading(loadingStatus: LoadingStatus.show, isDismisable: false);
 
+    if (widget.onInit != null) {
+      widget.onInit!();
+    }
+
     if (widget.isSecured) {
       YurScreenShot(isOn: true);
     }
@@ -2200,6 +2225,11 @@ class _YurWebViewState extends State<YurWebView> {
   @override
   void dispose() {
     super.dispose();
+
+    if (widget.onDispose != null) {
+      widget.onDispose!();
+    }
+
     if (widget.isSecured) {
       YurScreenShot(isOn: false);
     }
@@ -2207,7 +2237,94 @@ class _YurWebViewState extends State<YurWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return content();
+    String userAgent =
+        "Mozilla/5.0 (Linux; Android 10; SM-A107F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36";
+
+    return MaterialApp(
+      home: PopScope(
+        canPop: widget.isDismisable,
+        onPopInvoked: (didPop) {
+          if (didPop) {
+            YurAlertDialog(
+              context: context,
+              title: "Keluar dari aplikasi",
+              message: "Yakin Mau Keluar?",
+              buttonText: "Ya",
+              onConfirm: () => Get.back(),
+            );
+          }
+        },
+        child: SafeArea(
+          child: YurScaffold(
+            appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
+            body: InAppWebView(
+              initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
+              initialOptions: InAppWebViewGroupOptions(
+                ios: IOSInAppWebViewOptions(
+                  allowsInlineMediaPlayback: true,
+                  allowsAirPlayForMediaPlayback: true,
+                  allowsBackForwardNavigationGestures: true,
+                  allowsLinkPreview: true,
+                  isFraudulentWebsiteWarningEnabled: true,
+                  sharedCookiesEnabled: true,
+                  suppressesIncrementalRendering: true,
+                  selectionGranularity: IOSWKSelectionGranularity.DYNAMIC,
+                ),
+                android: AndroidInAppWebViewOptions(
+                  builtInZoomControls: false,
+                  displayZoomControls: false,
+                  supportMultipleWindows: false,
+                  thirdPartyCookiesEnabled: true,
+                  useWideViewPort: true,
+                  forceDark: AndroidForceDark.FORCE_DARK_OFF,
+                  domStorageEnabled: true,
+                  serifFontFamily: "Roboto",
+                  sansSerifFontFamily: "Roboto",
+                  defaultFixedFontSize: 12,
+                ),
+                crossPlatform: InAppWebViewOptions(
+                  javaScriptEnabled: true,
+                  useShouldOverrideUrlLoading: true,
+                  useOnDownloadStart: true,
+                  useOnLoadResource: true,
+                  useShouldInterceptAjaxRequest: true,
+                  useShouldInterceptFetchRequest: true,
+                  supportZoom: false,
+                  incognito: true,
+                  userAgent: userAgent,
+                ),
+              ),
+              onWebViewCreated: (InAppWebViewController controller) {
+                controller.addJavaScriptHandler(
+                  handlerName: "messageChannel",
+                  callback: (args) {
+                    YurLog(args[0], name: "messageChannel");
+                  },
+                );
+              },
+              onLoadStart: (InAppWebViewController controller, Uri? url) {
+                YurLog(url.toString(), name: "onLoadStart");
+              },
+              onLoadStop: (InAppWebViewController controller, Uri? url) async {
+                YurLog(url.toString(), name: "onLoadStop");
+
+                YurLoading(loadingStatus: LoadingStatus.dismiss);
+              },
+              onLoadError: (InAppWebViewController controller, Uri? url,
+                  int code, String message) {
+                YurLog(message, name: "onLoadError");
+              },
+              onProgressChanged:
+                  (InAppWebViewController controller, int progress) {
+                YurLog(progress.toString(), name: "progress");
+              },
+              onConsoleMessage: (InAppWebViewController controller,
+                  ConsoleMessage consoleMessage) async {},
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   MaterialApp content() {

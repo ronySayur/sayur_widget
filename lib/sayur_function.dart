@@ -777,6 +777,7 @@ Future<String> selectDate({
   DateTime? lastDate,
   TimeOfDay? initialTime,
   bool withTimePick = false,
+  bool Function(DateTime)? selectableDayPredicate,
 }) async {
   DateTime newDateTime = DateTime.now();
   TimeOfDay? pickedTime;
@@ -786,6 +787,12 @@ Future<String> selectDate({
     initialDate: initialDate,
     firstDate: firstDate ?? DateTime.now(),
     lastDate: lastDate ?? DateTime.now().add(const Duration(days: 365)),
+    selectableDayPredicate: (DateTime day) {
+      if (selectableDayPredicate != null) {
+        return selectableDayPredicate(day);
+      }
+      return true;
+    },
   );
 
   if (pickedDate != null) {
