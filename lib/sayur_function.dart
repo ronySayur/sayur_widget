@@ -22,6 +22,21 @@ import 'package:http/http.dart' as http;
 
 import 'package:sayur_widget/core.dart';
 
+Map<String, String> parseStringToMap(String input) {
+  Map<String, String> result = {};
+  List<String> keyValuePairs =
+      input.replaceAll('{', '').replaceAll('}', '').split(', ');
+
+  for (String pair in keyValuePairs) {
+    List<String> keyValue = pair.split(': ');
+    String key = keyValue[0].trim();
+    String value = keyValue[1].trim();
+    result[key] = value;
+  }
+
+  return result;
+}
+
 class Generator {
   static String randomKey(int length) {
     const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

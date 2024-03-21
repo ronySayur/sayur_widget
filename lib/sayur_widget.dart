@@ -311,6 +311,7 @@ class YurForm extends StatelessWidget {
   final Color? borderSideColor;
   final Color? prefixIconColor;
   final bool Function(DateTime)? selectableDayPredicate;
+  final bool isCantTap;
 
   YurForm({
     super.key,
@@ -363,6 +364,7 @@ class YurForm extends StatelessWidget {
     this.borderSideColor,
     this.prefixIconColor,
     this.selectableDayPredicate,
+    this.isCantTap = false,
   });
 
   @override
@@ -408,41 +410,43 @@ class YurForm extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
-      onTap: () async {
-        if (isHours) {
-          YurShowPicker(
-            context: context,
-            controller: controller!,
-            minHour: minHour,
-            minMinute: minMinute,
-          );
-        }
+      onTap: isCantTap
+          ? null
+          : () async {
+              if (isHours) {
+                YurShowPicker(
+                  context: context,
+                  controller: controller!,
+                  minHour: minHour,
+                  minMinute: minMinute,
+                );
+              }
 
-        if (isDate) {
-          await selectDate(
-            context: context,
-            initialDate: initialDate ?? DateTime.now(),
-            firstDate: firstDate ?? DateTime(1900),
-            lastDate: lastDate ?? DateTime.now(),
-            initialTime: initialTime,
-            withTimePick: withTimePick,
-            selectableDayPredicate: selectableDayPredicate,
-          ).then((value) {
-            if (value.isEmpty) {
-              return controller!.text = "";
-            } else {
-              return controller!.text =
-                  DateTime.parse(value).dateFormat("yyyy-MM-dd");
-            }
-          });
-        }
+              if (isDate) {
+                await selectDate(
+                  context: context,
+                  initialDate: initialDate ?? DateTime.now(),
+                  firstDate: firstDate ?? DateTime(1900),
+                  lastDate: lastDate ?? DateTime.now(),
+                  initialTime: initialTime,
+                  withTimePick: withTimePick,
+                  selectableDayPredicate: selectableDayPredicate,
+                ).then((value) {
+                  if (value.isEmpty) {
+                    return controller!.text = "";
+                  } else {
+                    return controller!.text =
+                        DateTime.parse(value).dateFormat("yyyy-MM-dd");
+                  }
+                });
+              }
 
-        onTap();
-        YurLog(
-          name: label,
-          controller?.text ?? "textController",
-        );
-      },
+              onTap();
+              YurLog(
+                name: label,
+                controller?.text ?? "textController",
+              );
+            },
       onEditingComplete: () {
         onComplete();
         FocusScope.of(context).unfocus();
@@ -1752,16 +1756,13 @@ class YurCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Card(
-        elevation: elevation,
-        color: color,
-        shape: shape,
-        clipBehavior: clipBehavior,
-        margin: margin,
-        child: child,
-      ),
+    return Card(
+      elevation: elevation,
+      color: color,
+      shape: shape,
+      clipBehavior: clipBehavior,
+      margin: margin,
+      child: InkWell(onTap: onTap, child: child),
     );
   }
 }
