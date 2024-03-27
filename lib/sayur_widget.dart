@@ -22,7 +22,7 @@ import 'package:pinput/pinput.dart';
 
 import 'dart:async';
 
-import 'package:sayur_widget/core.dart';
+import 'package:sayur_widget/sayur_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 TextStyle YurTextStyle({

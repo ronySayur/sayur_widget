@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sayur_widget/core.dart';
+import 'package:sayur_widget/sayur_core.dart';
 
 class YurGoogle {
 //Sign-in

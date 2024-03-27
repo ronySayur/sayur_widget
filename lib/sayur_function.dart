@@ -20,7 +20,7 @@ import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:sayur_widget/core.dart';
+import 'package:sayur_widget/sayur_core.dart';
 
 Map<String, String> parseStringToMap(String input) {
   Map<String, String> result = {};

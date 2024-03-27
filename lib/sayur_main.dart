@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sayur_widget/core.dart';
+import 'package:sayur_widget/sayur_core.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

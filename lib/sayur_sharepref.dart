@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:sayur_widget/core.dart';
+import 'package:sayur_widget/sayur_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // GET & SET <==================================

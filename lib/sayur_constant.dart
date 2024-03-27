@@ -251,3 +251,16 @@ const BorderRadius brBottom48 = BorderRadius.only(
 
 NumberFormat doubleCurrency = NumberFormat("#,##0.00", "en_US");
 NumberFormat integerCurrency = NumberFormat("#,##0", "en_US");
+
+class PermissionConstants {
+  static String notification =
+      "Please allow notifications to receive the latest updates, important information, and exclusive offers tailored to your needs, ensuring an optimal app user experience.";
+}
+class SayurTextConstants{
+  static String appName = "Sayur";
+  static String appVersion = "1.0.0";
+  static String appDescription = "Sayur is a mobile application that provides a variety of fresh vegetables and fruits that are guaranteed to be fresh and healthy. Sayur is here to help you get fresh vegetables and fruits easily and quickly.";
+  static String appContact = "For more information, please contact us at:";
+  static String noInternet = "No internet connection";
+
+}
