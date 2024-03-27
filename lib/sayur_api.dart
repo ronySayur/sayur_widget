@@ -78,8 +78,64 @@ class YurApi {
           return json.decode(responseStream);
         }
       }
-    } catch (e, s) {
-      return {"status": "", "e": e.toString(), "s": s.toString()};
+    } catch (e) {
+      return {"status": ""};
+    }
+  }
+
+  static Future<Map<String, dynamic>> IP() async {
+    try {
+      bool result = await InternetConnectionChecker().hasConnection;
+
+      if (!result) {
+        return {"status": ""};
+      }
+
+      final response = await http
+          .get(
+            Uri.parse('https://ipinfo.io/json'),
+          )
+          .timeout(
+            const Duration(seconds: 30),
+            onTimeout: () => http.Response('', 500),
+          );
+
+      if (response.body.isNotEmpty) {
+        return json.decode(response.body);
+      } else {
+        return {"status": ""};
+      }
+    } catch (e) {
+      return {"status": ""};
+    }
+  }
+
+  static Future<Map<String, dynamic>> Nominatim({
+    required String lat,
+    required String lon,
+  }) async {
+    try {
+      bool result = await InternetConnectionChecker().hasConnection;
+
+      if (!result) {
+        return {"status": ""};
+      }
+
+      String url =
+          'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lon&accept-language=id';
+
+      final response = await http.get(Uri.parse(url)).timeout(
+            const Duration(seconds: 30),
+            onTimeout: () => http.Response('', 500),
+          );
+
+      if (response.body.isNotEmpty) {
+        return json.decode(response.body);
+      } else {
+        return {"status": ""};
+      }
+    } catch (e) {
+      return {"status": ""};
     }
   }
 }
