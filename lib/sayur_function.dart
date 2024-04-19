@@ -8,8 +8,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -23,6 +23,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:sayur_widget/sayur_core.dart';
 
+//String to Map
 Map<String, String> parseStringToMap(String input) {
   Map<String, String> result = {};
   List<String> keyValuePairs =
@@ -35,6 +36,20 @@ Map<String, String> parseStringToMap(String input) {
     result[key] = value;
   }
 
+  return result;
+}
+
+int charToInt(String char) {
+  char = char.toLowerCase();
+  return char.codeUnitAt(0) - 'a'.codeUnitAt(0) + 1;
+}
+
+int parseStringToInt(String text) {
+  int result = 0;
+  for (int i = 0; i < text.length; i++) {
+    int intValue = charToInt(text[i]);
+    result = result * 26 + intValue;
+  }
   return result;
 }
 
@@ -92,6 +107,24 @@ extension EmailValidator on String {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(this);
+  }
+}
+
+extension PhoneValidator on String {
+  bool isValidPhone() {
+    return RegExp(r'^[0-9]{10,13}$').hasMatch(this);
+  }
+}
+
+extension NikValidator on String {
+  bool isValidNik() {
+    return RegExp(r'^[0-9]{16}$').hasMatch(this);
+  }
+}
+
+extension StringExtension on String {
+  String toCapitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
 
@@ -234,16 +267,17 @@ void YurToast({
 
 void YurLoading({
   String? message,
-  bool isDismisable = true,
+  bool isDismisable = false,
   required LoadingStatus loadingStatus,
   InfoType toastType = InfoType.info,
   EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
   Color? backgroundColor,
+  int duration = 2,
 }) {
   EasyLoading i = EasyLoading.instance;
 
   i
-    ..displayDuration = const Duration(seconds: 2)
+    ..displayDuration = Duration(seconds: duration)
     ..indicatorType = indicatorType
     ..indicatorSize = 45.0
     ..radius = 10.0
@@ -617,10 +651,7 @@ YurDialog({
                               onPressed: () {
                                 onConfirm();
                                 Get.back();
-                                YurLog(
-                                  name: "YurcallDialog",
-                                  "YurDialog",
-                                );
+                                YurLog(name: "YurcallDialog", "YurDialog");
                               })
                         ],
                       ),
@@ -732,10 +763,6 @@ void YurLog(dynamic message, {String? name}) {
         message.toString(),
         time: now,
       );
-    } else {
-      debugPrint(
-        "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"} : $message",
-      );
     }
   });
 }
@@ -840,4 +867,35 @@ Future<String> selectDate({
 
     return '';
   }
+}
+
+Position YurPosition({
+  required double latitude,
+  required double longitude,
+  double? accuracy,
+  double? altitude,
+  double? heading,
+  double? speed,
+  double? speedAccuracy,
+  double? altitudeAccuracy,
+  double? headingAccuracy,
+}) {
+  Position position = Position(
+    timestamp: DateTime.now(),
+    latitude: latitude,
+    longitude: longitude,
+    accuracy: accuracy ?? 0.0,
+    altitude: altitude ?? 0.0,
+    heading: heading ?? 0.0,
+    speed: speed ?? 0.0,
+    speedAccuracy: speedAccuracy ?? 0.0,
+    altitudeAccuracy: altitudeAccuracy ?? 0.0,
+    headingAccuracy: headingAccuracy ?? 0.0,
+  );
+
+  Geolocator.getCurrentPosition(
+    desiredAccuracy: LocationAccuracy.best,
+  ).then((value) => position = value);
+
+  return position;
 }

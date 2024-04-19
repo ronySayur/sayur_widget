@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:sayur_widget/sayur_function.dart';
 
 BuildContext get globalContext => Get.context;
@@ -18,33 +17,42 @@ class Get {
     }
   }
 
-  static Future<void> to(Widget page) async {
+  static Future<dynamic> to(
+    Widget page, {
+    BuildContext? localContext,
+  }) async {
     YurLog("To : ${page.toString()}", name: "Get.to");
 
-    Navigator.push(
-      context,
+    await Navigator.push(
+      localContext ?? context,
       CupertinoPageRoute(builder: (context) => page),
     );
   }
 
-  static Future<void> replace(Widget page) async {
+  static Future<dynamic> replace(
+    Widget page, {
+    BuildContext? localContext,
+  }) async {
     YurLog("Replace : ${page.toString()}", name: "Get.replace");
-    Navigator.pushReplacement(
-      context,
+    await Navigator.pushReplacement(
+      localContext ?? context,
       CupertinoPageRoute(builder: (context) => page),
     );
   }
 
-  static Future<void> offAll(Widget page) async {
+  static Future<dynamic> offAll(
+    Widget page, {
+    BuildContext? localContext,
+  }) async {
     YurLog("Off All : ${page.toString()}", name: "Get.offAll");
-    Navigator.pushAndRemoveUntil(
-      context,
+    await Navigator.pushAndRemoveUntil(
+      localContext ?? context,
       CupertinoPageRoute(builder: (context) => page),
       (route) => false,
     );
   }
 
-  static Future<void> firstRoute() async {
+  static Future<dynamic> firstRoute() async {
     YurLog("First Route", name: "Get.firstRoute");
     Navigator.popUntil(context, (route) => route.isFirst);
   }
@@ -55,20 +63,5 @@ class Get {
 
   static double get height {
     return MediaQuery.of(context).size.height;
-  }
-
-  static ValueNotifier<ThemeData> mainTheme =
-      ValueNotifier<ThemeData>(ThemeData());
-
-  static void changeTheme(ThemeData theme) {
-    mainTheme.value = theme;
-  }
-
-  static ThemeData get theme {
-    return Theme.of(context);
-  }
-
-  static ThemeData get lightTheme {
-    return ThemeData.light();
   }
 }

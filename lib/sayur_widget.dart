@@ -34,6 +34,7 @@ TextStyle YurTextStyle({
   double letterSpacing = 0.3,
   List<Shadow> shadows = const [],
   double height = 1.0,
+  String fontFamily = 'Poppins',
 }) {
   return TextStyle(
     fontSize: fontSize,
@@ -44,7 +45,7 @@ TextStyle YurTextStyle({
     letterSpacing: letterSpacing,
     shadows: shadows,
     height: height,
-    fontFamily: 'Roboto',
+    fontFamily: fontFamily,
     decorationStyle: TextDecorationStyle.solid,
     textBaseline: TextBaseline.ideographic,
     wordSpacing: 0.5,
@@ -119,7 +120,7 @@ class YurText extends StatelessWidget {
           softWrap: softWrap,
           overflow: overflow,
           maxLines: maxLines,
-        ),
+        ).animate().shimmer(duration: 2000.ms),
       ),
     );
   }
@@ -287,6 +288,8 @@ class YurForm extends StatelessWidget {
   final bool leading;
   final bool obscureText;
   final bool emailValidator;
+  final bool nikValidator;
+  final bool phoneNumberValidator;
   final bool validator;
   final bool optional;
   final bool isUpperCase;
@@ -335,6 +338,8 @@ class YurForm extends StatelessWidget {
     this.suffixType = SuffixType.none,
     this.obscureText = false,
     this.emailValidator = false,
+    this.nikValidator = false,
+    this.phoneNumberValidator = false,
     this.validator = true,
     this.optional = false,
     this.colorLabel = Colors.black,
@@ -375,16 +380,38 @@ class YurForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Validasi input sesuai kriteria tertentu.
     String? validateInput(String? value) {
+      // Jika tidak ada validator, langsung kembalikan null.
       if (!validator) return null;
 
-      return (!optional && (value?.isEmpty ?? true))
-          ? '$label Tidak boleh kosong'
-          : (emailValidator && value != null && !value.isValidEmail())
-              ? '$label Tidak Valid'
-              : (suffixType == SuffixType.password && (value?.length ?? 0) < 4)
-                  ? '$label Minimal 4 karakter'
-                  : null;
+      // Validasi jika input tidak boleh kosong, kecuali jika opsional.
+      if (!optional && (value?.isEmpty ?? true)) {
+        return '$label tidak boleh kosong';
+      }
+
+      // Validasi alamat email jika diperlukan.
+      if (emailValidator && value != null && !value.isValidEmail()) {
+        return '$label tidak valid';
+      }
+
+      // Validasi NIK jika diperlukan.
+      if (nikValidator && value != null && !value.isValidNik()) {
+        return '$label minimal 16 karakter dan wajib diisi';
+      }
+
+      // Validasi nomor telepon jika diperlukan.
+      if (phoneNumberValidator && value != null && !value.isValidPhone()) {
+        return '$label tidak valid';
+      }
+
+      // Validasi panjang minimal untuk jenis tertentu.
+      if (suffixType == SuffixType.password && (value?.length ?? 0) < 4) {
+        return '$label minimal 4 karakter';
+      }
+
+      // Jika lolos semua validasi, kembalikan null.
+      return null;
     }
 
     final Widget suffix;
@@ -782,12 +809,17 @@ class YurDropdown extends StatelessWidget {
   }
 }
 
+enum YurBuildRadio { chip, card }
+
 class YurRadioButton extends StatelessWidget {
   final String labelText;
   final List<String> options;
   final String? selectedOption;
   final Function(String?) onChanged;
   final bool isVertical;
+  final MainAxisAlignment mainAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
+  final YurBuildRadio buildRadio;
 
   const YurRadioButton({
     super.key,
@@ -796,6 +828,9 @@ class YurRadioButton extends StatelessWidget {
     required this.selectedOption,
     required this.onChanged,
     this.isVertical = false,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
+    this.buildRadio = YurBuildRadio.chip,
   });
 
   @override
@@ -809,80 +844,101 @@ class YurRadioButton extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
         gap8,
-        buildOptions(),
+        isVertical
+            ? Row(
+                mainAxisAlignment: mainAxisAlignment,
+                children: buildChipOptions())
+            : Column(
+                crossAxisAlignment: crossAxisAlignment,
+                children: buildChipOptions()),
       ],
-    );
-  }
-
-  Widget buildOptions() {
-    return isVertical
-        ? buildRowOptions()
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: buildChipOptions(),
-          );
-  }
-
-  Widget buildRowOptions() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: buildChipOptions(),
     );
   }
 
   List<Widget> buildChipOptions() {
     return options.map((option) {
-      return Padding(
-        padding: EdgeInsets.only(
-            right: isVertical ? 8 : 0, bottom: isVertical ? 0 : 4),
-        child: InkWell(
-          onTap: () => handleOptionTap(option),
-          onLongPress: () => handleOptionTap(option),
-          borderRadius: br48,
-          child: buildChip(option),
-        ),
-      );
+      return buildRadio == YurBuildRadio.card
+          ? Expanded(
+              child: InkWell(
+                onTap: () => handleOption(option),
+                borderRadius: br48,
+                child: card(option),
+              ),
+            )
+          : InkWell(
+              onTap: () => handleOption(option),
+              borderRadius: br48,
+              child: chip(option),
+            );
     }).toList();
   }
 
-  void handleOptionTap(String option) {
+  void handleOption(String option) {
     if (selectedOption != option) {
       onChanged(option);
     }
   }
 
-  Widget buildChip(String option) {
-    return Chip(
-      padding: e8,
+  Widget card(String option) {
+    return YurCard(
+      margin: isVertical ? eW4 : eH8,
+      padding: eW8,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: br16,
-        side: BorderSide(
-          color: selectedOption == option ? primaryRed : Colors.grey.shade500,
+      child: Row(
+        children: [
+          Radio(
+            value: option,
+            groupValue: selectedOption,
+            onChanged: (value) {
+              onChanged(value as String);
+            },
+            activeColor: primaryRed,
+          ),
+          YurText(
+            text: option,
+            fontWeight:
+                selectedOption == option ? FontWeight.bold : FontWeight.normal,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget chip(String option) {
+    return Container(
+      margin: isVertical ? eW4 : eH8,
+      child: Chip(
+        padding: e8,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: br16,
+          side: BorderSide(
+            color: selectedOption == option ? primaryRed : Colors.grey.shade500,
+          ),
         ),
-      ),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shadowColor: secondaryYellow,
-      side: BorderSide(
-        color: selectedOption == option ? primaryRed : Colors.grey.shade500,
-      ),
-      visualDensity: VisualDensity.compact,
-      backgroundColor: selectedOption == option
-          ? primaryRed.withOpacity(0.2)
-          : Colors.grey.shade200,
-      elevation: selectedOption == option ? 0 : 5,
-      label: YurText(
-        text: option,
-        fontWeight:
-            selectedOption == option ? FontWeight.bold : FontWeight.normal,
-      ),
-      avatar: Radio(
-        value: option,
-        groupValue: selectedOption,
-        onChanged: onChanged,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shadowColor: secondaryYellow,
+        side: BorderSide(
+            color:
+                selectedOption == option ? primaryRed : Colors.grey.shade500),
         visualDensity: VisualDensity.compact,
-        activeColor: primaryRed,
+        backgroundColor: selectedOption == option
+            ? primaryRed.withOpacity(0.2)
+            : Colors.grey.shade200,
+        elevation: selectedOption == option ? 0 : 5,
+        label: YurText(
+          text: option,
+          fontWeight:
+              selectedOption == option ? FontWeight.bold : FontWeight.normal,
+        ),
+        avatar: Radio(
+          value: option,
+          groupValue: selectedOption,
+          onChanged: onChanged,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+          activeColor: primaryRed,
+        ),
       ),
     );
   }
@@ -1150,13 +1206,13 @@ class _YurBottomSheetState extends State<YurBottomSheet> {
   }
 }
 
-class YurTabBar extends StatelessWidget {
+class YurTab extends StatelessWidget {
   final List<Widget> tabs;
   final List<Widget> tabViews;
   final Color color;
   final Color unselectedLabelColor;
 
-  const YurTabBar({
+  const YurTab({
     super.key,
     required this.tabs,
     required this.tabViews,
@@ -1345,7 +1401,9 @@ class YurButton extends StatelessWidget {
   final Color? iconColor;
   final double? iconSize;
   final String? iconAssets;
-  final double? iconAssetsHigh;
+  final double? iconAssetsHeight;
+  final String? iconNetwork;
+  final double? iconNetworkHeight;
 
   const YurButton({
     super.key,
@@ -1365,7 +1423,9 @@ class YurButton extends StatelessWidget {
     this.iconColor,
     this.iconSize,
     this.iconAssets,
-    this.iconAssetsHigh,
+    this.iconAssetsHeight,
+    this.iconNetwork,
+    this.iconNetworkHeight,
   });
 
   @override
@@ -1471,10 +1531,15 @@ class YurButton extends StatelessWidget {
                     color: iconColor ?? primaryRed,
                     size: iconSize ?? fontSize * 1.5,
                   ),
+                if (iconNetwork != null)
+                  YurImageNet(
+                    imageUrl: iconNetwork!,
+                    height: iconNetworkHeight ?? 24,
+                  ),
                 if (iconAssets != null)
                   YurImageAsset(
                     imageUrl: iconAssets!,
-                    height: iconAssetsHigh ?? 24,
+                    height: iconAssetsHeight ?? 24,
                   ),
                 if (text != null)
                   Expanded(
@@ -1551,37 +1616,44 @@ class YurImageAsset extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      imageUrl,
-      width: width,
-      height: height,
-      fit: fit,
-      color: color,
-      alignment: alignment,
-      errorBuilder: (context, error, stackTrace) {
-        return const YurIcon(icon: Icons.error, color: primaryRed);
-      },
-      scale: 1,
-      centerSlice: centerSlice,
-      filterQuality: FilterQuality.high,
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded) {
-          return child;
-        } else {
-          return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: frame != null
-                ? child
-                : const Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
-      cacheHeight: height?.toInt(),
-      cacheWidth: width?.toInt(),
-      gaplessPlayback: true,
-      excludeFromSemantics: true,
-      semanticLabel: imageUrl,
-    );
+    return Container(
+      padding: padding,
+      margin: margin,
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+      ),
+      child: Image.asset(
+        imageUrl,
+        width: width,
+        height: height,
+        fit: fit,
+        color: color,
+        alignment: alignment,
+        errorBuilder: (context, error, stackTrace) {
+          return const YurIcon(icon: Icons.error, color: primaryRed);
+        },
+        scale: 1,
+        centerSlice: centerSlice,
+        filterQuality: FilterQuality.high,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded) {
+            return child;
+          } else {
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: frame != null
+                  ? child
+                  : const Center(child: CircularProgressIndicator()),
+            );
+          }
+        },
+        cacheHeight: height?.toInt(),
+        cacheWidth: width?.toInt(),
+        gaplessPlayback: true,
+        excludeFromSemantics: true,
+        semanticLabel: imageUrl,
+      ),
+    ).animate().shimmer(duration: 2000.ms);
   }
 }
 
@@ -1768,7 +1840,9 @@ class YurCard extends StatelessWidget {
       shape: shape,
       clipBehavior: clipBehavior,
       margin: margin,
-      child: InkWell(onTap: onTap, child: child),
+      child: InkWell(
+          onTap: onTap,
+          child: Container(padding: padding, margin: margin, child: child)),
     );
   }
 }
@@ -1806,6 +1880,9 @@ class YurIcon extends StatelessWidget {
         onTap: onTap,
         child: Icon(icon, color: color, size: size),
       ),
+    ).animate(
+      delay: const Duration(milliseconds: 500),
+      effects: [const ShakeEffect()],
     );
   }
 }
@@ -1971,7 +2048,8 @@ class YurSwiper extends StatelessWidget {
   final List<Widget> children;
   final SwiperLayout swiperLayout;
   final bool loop;
-  final bool pagination;
+  final bool dotSwiper;
+  final Alignment? dotAllignment;
   final bool control;
   final double? itemHeight;
   final double? itemWidth;
@@ -1985,7 +2063,8 @@ class YurSwiper extends StatelessWidget {
     required this.children,
     this.swiperLayout = SwiperLayout.DEFAULT,
     this.loop = false,
-    this.pagination = true,
+    this.dotSwiper = true,
+    this.dotAllignment,
     this.control = true,
     this.itemHeight,
     this.itemWidth,
@@ -2019,15 +2098,15 @@ class YurSwiper extends StatelessWidget {
         curve: Curves.easeInOut,
         fade: 0.3,
         loop: loop,
-        pagination: pagination
+        pagination: dotSwiper
             ? children.length == 1
                 ? null
-                : const SwiperPagination(
-                    alignment: Alignment.bottomCenter,
-                    builder: DotSwiperPaginationBuilder(
-                      activeColor: primaryRed,
-                      color: secondaryYellow,
-                      activeSize: 8,
+                : SwiperPagination(
+                    alignment: dotAllignment ?? Alignment.bottomCenter,
+                    builder: const DotSwiperPaginationBuilder(
+                      activeColor: Colors.grey,
+                      color: Colors.white,
+                      activeSize: 12,
                       size: 6,
                     ),
                   )
