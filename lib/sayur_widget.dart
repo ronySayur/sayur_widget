@@ -293,6 +293,11 @@ class YurForm extends StatelessWidget {
   final bool validator;
   final bool optional;
   final bool isUpperCase;
+  final bool isDate;
+  final bool isHours;
+  final bool withTimePick;
+  final bool Function(DateTime)? selectableDayPredicate;
+  final bool isCantTap;
   final TextAlign textAllignment;
   final FontWeight fontWeight;
   final Color? fillColor;
@@ -302,25 +307,20 @@ class YurForm extends StatelessWidget {
   final Function() onComplete;
   final Function() suffixTap;
   final Function() onTap;
+  final Function(String) onFieldSubmitted;
   Widget? prefixIcon;
-  final bool isDate;
-  final bool isHours;
   String? hintText;
   final double minHour;
   final double minMinute;
-  final Function(String) onFieldSubmitted;
   final DateTime? initialDate;
   final FocusNode? focusNode;
   final int maxLines;
   final BorderRadius borderRadius;
-  final bool withTimePick;
   final DateTime? firstDate;
   final DateTime? lastDate;
   final TimeOfDay? initialTime;
   final Color? borderSideColor;
   final Color? prefixIconColor;
-  final bool Function(DateTime)? selectableDayPredicate;
-  final bool isCantTap;
 
   YurForm({
     super.key,

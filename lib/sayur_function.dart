@@ -754,17 +754,15 @@ YurSearch({
 }
 
 void YurLog(dynamic message, {String? name}) {
-  Isolate.run(() {
-    DateTime now = DateTime.now();
+  DateTime now = DateTime.now();
 
-    if (kDebugMode && Platform.isAndroid) {
-      log(
-        name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
-        message.toString(),
-        time: now,
-      );
-    }
-  });
+  if (kDebugMode && Platform.isAndroid) {
+    log(
+      name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
+      message.toString(),
+      time: now,
+    );
+  }
 }
 
 void YurShowPicker({
