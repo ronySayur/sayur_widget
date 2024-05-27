@@ -14,7 +14,6 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' show Random;
-import 'dart:isolate';
 
 import 'package:intl/intl.dart';
 import 'package:no_screenshot/no_screenshot.dart';
@@ -97,35 +96,26 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 }
 
 extension DateFormatExtension on DateTime {
-  String dateFormat(String format) {
-    return DateFormat(format).format(this);
-  }
+  String dateFormat(String format) => DateFormat(format).format(this);
 }
 
-extension EmailValidator on String {
-  bool isValidEmail() {
-    return RegExp(
-            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(this);
-  }
-}
-
-extension PhoneValidator on String {
-  bool isValidPhone() {
-    return RegExp(r'^[0-9]{10,13}$').hasMatch(this);
-  }
-}
-
-extension NikValidator on String {
-  bool isValidNik() {
-    return RegExp(r'^[0-9]{16}$').hasMatch(this);
-  }
+extension BoolExtension on String {
+  bool isValidEmail() => RegExp(
+          r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+      .hasMatch(this);
+  bool isValidPhone() => RegExp(r'^[0-9]{10,13}$').hasMatch(this);
+  bool isValidNik() => RegExp(r'^[0-9]{16}$').hasMatch(this);
 }
 
 extension StringExtension on String {
-  String toCapitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
-  }
+  String toCapitalize() =>
+      "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  String toRupiah() =>
+      NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+          .format(int.parse(this));
+  String toDollar() =>
+      NumberFormat.currency(locale: 'en', symbol: '\$', decimalDigits: 0)
+          .format(int.parse(this));
 }
 
 void dfp(dynamic parameter) {
@@ -253,6 +243,8 @@ void YurToast({
         break;
     }
   }
+
+  YurLog(name: "YurToast", message);
 
   Fluttertoast.showToast(
     msg: message,
@@ -403,14 +395,15 @@ void YurSnackBar({
 
 YurAlertDialog({
   required BuildContext context,
-  DialogType dialogType = DialogType.confirmation,
   required String title,
   required String message,
-  String? message2,
-  String? message3,
   required String buttonText,
   required Function() onConfirm,
+  DialogType dialogType = DialogType.confirmation,
+  String? message2,
+  String? message3,
   Function()? onCancel,
+  String? cancelText,
   Color barrierColor = Colors.black54,
   double elevasi = 24,
   textAlign = TextAlign.justify,
@@ -500,25 +493,33 @@ YurAlertDialog({
                     maxLines: maxMessageLine,
                     color: Colors.black87,
                   ),
-                  if (message2 != null) gap8,
                   if (message2 != null)
-                    YurText(
-                      fontWeight: fontWeight,
-                      text: message2,
-                      textAlign: textAlign,
-                      letterSpacing: 0.2,
-                      maxLines: maxMessageLine,
-                      color: primaryRed,
+                    Column(
+                      children: [
+                        gap8,
+                        YurText(
+                          fontWeight: fontWeight,
+                          text: message2,
+                          textAlign: textAlign,
+                          letterSpacing: 0.2,
+                          maxLines: maxMessageLine,
+                          color: primaryRed,
+                        ),
+                      ],
                     ),
-                  if (message3 != null) gap8,
                   if (message3 != null)
-                    YurText(
-                      fontWeight: fontWeight,
-                      text: message3,
-                      textAlign: textAlign,
-                      letterSpacing: 0.2,
-                      maxLines: maxMessageLine,
-                      color: primaryRed,
+                    Column(
+                      children: [
+                        gap8,
+                        YurText(
+                          fontWeight: fontWeight,
+                          text: message3,
+                          textAlign: textAlign,
+                          letterSpacing: 0.2,
+                          maxLines: maxMessageLine,
+                          color: primaryRed,
+                        ),
+                      ],
                     ),
                 ],
               ),
@@ -534,12 +535,11 @@ YurAlertDialog({
                       if (dialogType == DialogType.confirmation)
                         Expanded(
                             child: YurButton(
-                          text: "Batal",
+                          text: cancelText ?? "Batal",
                           buttonStyle: BStyle.secondaryRed,
                           fontSize: 12,
-                          onPressed: () {
-                            onCancel != null ? onCancel() : Get.back();
-                          },
+                          onPressed: () =>
+                              onCancel != null ? onCancel() : Get.back(),
                         )),
                       if (dialogType == DialogType.confirmation) gap8,
                       Expanded(

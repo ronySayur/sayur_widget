@@ -73,7 +73,14 @@ enum LottieEnum { loading, success, failed }
 
 enum InfoType { info, warning, error, success }
 
-enum BStyle { fullWhite, fullRed, primaryRed, secondaryRed, primaryBlue }
+enum BStyle {
+  fullWhite,
+  fullRed,
+  primaryRed,
+  secondaryRed,
+  secondaryYellow,
+  primaryBlue,
+}
 
 enum DialogType { confirmation, info }
 
@@ -256,11 +263,12 @@ class PermissionConstants {
   static String notification =
       "Please allow notifications to receive the latest updates, important information, and exclusive offers tailored to your needs, ensuring an optimal app user experience.";
 }
-class SayurTextConstants{
+
+class SayurTextConstants {
   static String appName = "Sayur";
   static String appVersion = "1.0.0";
-  static String appDescription = "Sayur is a mobile application that provides a variety of fresh vegetables and fruits that are guaranteed to be fresh and healthy. Sayur is here to help you get fresh vegetables and fruits easily and quickly.";
+  static String appDescription =
+      "Sayur is a mobile application that provides a variety of fresh vegetables and fruits that are guaranteed to be fresh and healthy. Sayur is here to help you get fresh vegetables and fruits easily and quickly.";
   static String appContact = "For more information, please contact us at:";
   static String noInternet = "No internet connection";
-
 }

@@ -4,14 +4,20 @@ import 'package:sayur_widget/sayur_core.dart';
 
 class YurGoogle {
 //Sign-in
-  static Future<UserCredential?> signIn() async {
+  static Future<UserCredential?> signIn({
+    String? clientID,
+    String? serverClientID,
+  }) async {
     try {
       YurLoading(
         loadingStatus: LoadingStatus.show,
         message: "Signing in with Google",
       );
       // Trigger the Google Sign-In process
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(
+        clientId: clientID,
+        serverClientId: serverClientID,
+      ).signIn();
 
       if (googleUser == null) {
         // The user canceled the sign-in process

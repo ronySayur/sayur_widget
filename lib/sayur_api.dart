@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +18,7 @@ class YurApi {
       onTimeout() => http.Response('', 500);
 
       bool result = await InternetConnectionChecker().hasConnection;
+      
       if (!result) {
         YurToast(
           message: SayurTextConstants.noInternet,
@@ -39,12 +41,13 @@ class YurApi {
       } else if (isEncoded) {
         String body = jsonEncode(dataMap);
 
-        var respon = await http.post(url, body: body).timeout(
-              const Duration(seconds: timeout),
-              onTimeout: onTimeout,
-            );
+        var responEncode = await http
+            .post(url, body: body)
+            .timeout(const Duration(seconds: timeout), onTimeout: onTimeout);
 
-        return json.decode(respon.body);
+        var decoded = await Isolate.run(() => json.decode(responEncode.body));
+
+        return decoded;
       } else {
         final request = http.MultipartRequest('POST', url);
         request.fields.addAll(dataMap.cast<String, String>());
@@ -63,7 +66,7 @@ class YurApi {
         if (cond) {
           return {"status": ""};
         } else {
-          return json.decode(responseStream);
+          return await Isolate.run(() => json.decode(responseStream));
         }
       }
     } catch (e) {

@@ -55,7 +55,6 @@ class PermissionRequest {
       } else {
         isLocation = true;
       }
-      YurLog(permission.toString());
       return isLocation;
     } catch (e) {
       YurLog(e);

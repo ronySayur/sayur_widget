@@ -809,6 +809,140 @@ class YurDropdown extends StatelessWidget {
   }
 }
 
+class YurCheckBox extends StatelessWidget {
+  final String labelText;
+  final List<String> options;
+  final List<String> selectedOptions;
+  final Function(List<String>) onChanged;
+  final bool isVertical;
+  final MainAxisAlignment mainAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
+  final YurBuildCheckbox buildCheckbox;
+
+  const YurCheckBox({
+    super.key,
+    required this.labelText,
+    required this.options,
+    required this.selectedOptions,
+    required this.onChanged,
+    this.isVertical = false,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
+    this.buildCheckbox = YurBuildCheckbox.chip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        YurText(text: labelText, fontSize: 14, fontWeight: FontWeight.bold),
+        gap8,
+        isVertical
+            ? Row(
+                mainAxisAlignment: mainAxisAlignment,
+                children: buildCheckboxOptions())
+            : Column(
+                crossAxisAlignment: crossAxisAlignment,
+                children: buildCheckboxOptions()),
+      ],
+    );
+  }
+
+  List<Widget> buildCheckboxOptions() {
+    return options.map((option) {
+      return buildCheckbox == YurBuildCheckbox.card
+          ? Expanded(
+              child: InkWell(
+                onTap: () => handleOption(option),
+                borderRadius: br48,
+                child: card(option),
+              ),
+            )
+          : InkWell(
+              onTap: () => handleOption(option),
+              borderRadius: br48,
+              child: chip(option),
+            );
+    }).toList();
+  }
+
+  void handleOption(String option) {
+    final newSelectedOptions = List<String>.from(selectedOptions);
+    if (selectedOptions.contains(option)) {
+      newSelectedOptions.remove(option);
+    } else {
+      newSelectedOptions.add(option);
+    }
+    onChanged(newSelectedOptions);
+  }
+
+  Widget card(String option) {
+    return YurCard(
+      margin: isVertical ? eW4 : eH8,
+      padding: e8,
+      child: Row(
+        children: [
+          Checkbox(
+            value: selectedOptions.contains(option),
+            onChanged: (bool? value) {
+              handleOption(option);
+            },
+            activeColor: Colors.red,
+          ),
+          YurText(
+              text: option,
+              fontWeight: selectedOptions.contains(option)
+                  ? FontWeight.bold
+                  : FontWeight.normal),
+        ],
+      ),
+    );
+  }
+
+  Widget chip(String option) {
+    return Container(
+      margin: isVertical ? eW4 : eH8,
+      child: Chip(
+        padding: e8,
+        backgroundColor: selectedOptions.contains(option)
+            ? Colors.red.withOpacity(0.2)
+            : Colors.grey.shade200,
+        shape: RoundedRectangleBorder(
+          borderRadius: br16,
+          side: BorderSide(
+            color: selectedOptions.contains(option)
+                ? Colors.red
+                : Colors.grey.shade500,
+          ),
+        ),
+        label: YurText(
+          text: option,
+          fontWeight: selectedOptions.contains(option)
+              ? FontWeight.bold
+              : FontWeight.normal,
+        ),
+        avatar: Checkbox(
+          value: selectedOptions.contains(option),
+          onChanged: (bool? value) => handleOption(option),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          activeColor: Colors.red,
+          shape: RoundedRectangleBorder(
+            borderRadius: br16,
+            side: BorderSide(
+              color: selectedOptions.contains(option)
+                  ? Colors.red
+                  : Colors.grey.shade500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+enum YurBuildCheckbox { card, chip }
+
 enum YurBuildRadio { chip, card }
 
 class YurRadioButton extends StatelessWidget {
@@ -1181,9 +1315,8 @@ class YurBottomSheet extends StatefulWidget {
 class _YurBottomSheetState extends State<YurBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return YurCard(
       color: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: brTop20),
       child: Container(
         padding: e12,
         child: YurListView(
@@ -1211,20 +1344,24 @@ class YurTab extends StatelessWidget {
   final List<Widget> tabViews;
   final Color color;
   final Color unselectedLabelColor;
+  final TabController? tabController;
+  int? selectedIndex;
 
-  const YurTab({
+  YurTab({
     super.key,
     required this.tabs,
     required this.tabViews,
     this.color = Colors.white,
     this.unselectedLabelColor = Colors.black,
+    this.tabController,
+    this.selectedIndex,
   });
 
   @override
   Widget build(BuildContext context) {
     TabController tab = TabController(
       length: tabs.length,
-      initialIndex: 0,
+      initialIndex: selectedIndex ?? 0,
       vsync: Navigator.of(Get.context),
     );
 
@@ -1235,7 +1372,7 @@ class YurTab extends StatelessWidget {
         child: Column(
           children: [
             TabBar(
-              controller: tab,
+              controller: tabController ?? tab,
               tabs: tabs,
               labelColor: primaryRed,
               unselectedLabelColor: unselectedLabelColor,
@@ -1259,6 +1396,7 @@ class YurTab extends StatelessWidget {
               mouseCursor: SystemMouseCursors.click,
               onTap: (index) {
                 YurLog(name: "TabBarHelper $tabs", "index: $index");
+                selectedIndex = index;
               },
               overlayColor: MaterialStateProperty.all(Colors.transparent),
               padding: eW12,
@@ -1267,7 +1405,7 @@ class YurTab extends StatelessWidget {
             ),
             Expanded(
               child: TabBarView(
-                controller: tab,
+                controller: tabController ?? tab,
                 physics: const ClampingScrollPhysics(),
                 viewportFraction: 1,
                 clipBehavior: Clip.antiAlias,
@@ -1404,6 +1542,7 @@ class YurButton extends StatelessWidget {
   final double? iconAssetsHeight;
   final String? iconNetwork;
   final double? iconNetworkHeight;
+  final EdgeInsetsGeometry? padding;
 
   const YurButton({
     super.key,
@@ -1426,6 +1565,7 @@ class YurButton extends StatelessWidget {
     this.iconAssetsHeight,
     this.iconNetwork,
     this.iconNetworkHeight,
+    this.padding,
   });
 
   @override
@@ -1443,6 +1583,9 @@ class YurButton extends StatelessWidget {
                   return primaryBlue;
                 case BStyle.fullWhite:
                   return Colors.white;
+                case BStyle.secondaryYellow:
+                  return Colors.white;
+
                 default:
                   return secondaryYellow;
               }
@@ -1474,7 +1617,8 @@ class YurButton extends StatelessWidget {
                   return primaryRed;
                 case BStyle.primaryBlue:
                   return primaryBlue;
-                // return Colors.black87;
+                case BStyle.secondaryYellow:
+                  return Colors.white;
                 case BStyle.secondaryRed:
                   return primaryRed;
                 default:
@@ -1482,78 +1626,81 @@ class YurButton extends StatelessWidget {
               }
             })();
 
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        alignment: Alignment.center,
-        splashFactory: InkRipple.splashFactory,
-        enableFeedback: true,
-        side: BorderSide(color: borderColor, width: 1),
-        backgroundColor: backgroundColor,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        disabledForegroundColor: Colors.grey.withOpacity(0.38),
-        disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius)),
-        padding: EdgeInsets.symmetric(
-          vertical: paddingVertical,
-          horizontal: paddingHorizontal,
+    return Padding(
+      padding: padding ?? e0,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          alignment: Alignment.center,
+          splashFactory: InkRipple.splashFactory,
+          enableFeedback: true,
+          side: BorderSide(color: borderColor, width: 1),
+          backgroundColor: backgroundColor,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          disabledForegroundColor: Colors.grey.withOpacity(0.38),
+          disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius)),
+          padding: EdgeInsets.symmetric(
+            vertical: paddingVertical,
+            horizontal: paddingHorizontal,
+          ),
+          elevation: 4,
+          shadowColor: Colors.grey,
+          animationDuration: const Duration(milliseconds: 200),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          enabledMouseCursor: SystemMouseCursors.click,
+          surfaceTintColor: Colors.grey.withOpacity(0.12),
         ),
-        elevation: 4,
-        shadowColor: Colors.grey,
-        animationDuration: const Duration(milliseconds: 200),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        enabledMouseCursor: SystemMouseCursors.click,
-        surfaceTintColor: Colors.grey.withOpacity(0.12),
-      ),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedDefaultTextStyle(
-            curve: Curves.easeInOut,
-            softWrap: true,
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: fontWeight ?? FontWeight.w500,
-              fontStyle: FontStyle.normal,
-              overflow: overflow,
-              decorationStyle: TextDecorationStyle.solid,
-              decoration: TextDecoration.none,
-              color: colorText,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (icon != null)
-                  YurIcon(
-                    icon: icon!,
-                    color: iconColor ?? primaryRed,
-                    size: iconSize ?? fontSize * 1.5,
-                  ),
-                if (iconNetwork != null)
-                  YurImageNet(
-                    imageUrl: iconNetwork!,
-                    height: iconNetworkHeight ?? 24,
-                  ),
-                if (iconAssets != null)
-                  YurImageAsset(
-                    imageUrl: iconAssets!,
-                    height: iconAssetsHeight ?? 24,
-                  ),
-                if (text != null)
-                  Expanded(
-                    child: Text(
-                      text!,
-                      maxLines: maxlines,
-                      overflow: overflow,
-                      softWrap: true,
-                      textAlign: TextAlign.center,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: AnimatedDefaultTextStyle(
+              curve: Curves.easeInOut,
+              softWrap: true,
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: fontWeight ?? FontWeight.w500,
+                fontStyle: FontStyle.normal,
+                overflow: overflow,
+                decorationStyle: TextDecorationStyle.solid,
+                decoration: TextDecoration.none,
+                color: colorText,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (icon != null)
+                    YurIcon(
+                      icon: icon!,
+                      color: iconColor ?? primaryRed,
+                      size: iconSize ?? fontSize * 1.5,
                     ),
-                  ),
-              ],
-            )),
-      ),
+                  if (iconNetwork != null)
+                    YurImageNet(
+                      imageUrl: iconNetwork!,
+                      height: iconNetworkHeight ?? 24,
+                    ),
+                  if (iconAssets != null)
+                    YurImageAsset(
+                      imageUrl: iconAssets!,
+                      height: iconAssetsHeight ?? 24,
+                    ),
+                  if (text != null)
+                    Expanded(
+                      child: Text(
+                        text!,
+                        maxLines: maxlines,
+                        overflow: overflow,
+                        softWrap: true,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                ],
+              )),
+        ),
+      ).animate().shimmer(duration: 3.seconds),
     );
   }
 }
@@ -1653,7 +1800,7 @@ class YurImageAsset extends StatelessWidget {
         excludeFromSemantics: true,
         semanticLabel: imageUrl,
       ),
-    ).animate().shimmer(duration: 2000.ms);
+    ).animate().shimmer(duration: 3.seconds);
   }
 }
 
@@ -1670,6 +1817,10 @@ class YurImageNet extends StatelessWidget {
     this.borderRadius,
     this.color,
     this.iconError = Icons.error,
+    this.border,
+    this.gradient,
+    this.shape = BoxShape.rectangle,
+    this.boxShadow,
   });
 
   final String imageUrl;
@@ -1682,6 +1833,10 @@ class YurImageNet extends StatelessWidget {
   final BorderRadiusGeometry? borderRadius;
   final Color? color;
   final IconData iconError;
+  final BoxBorder? border;
+  final Gradient? gradient;
+  final BoxShape shape;
+  final List<BoxShadow>? boxShadow;
 
   @override
   Widget build(BuildContext context) {
@@ -1690,7 +1845,15 @@ class YurImageNet extends StatelessWidget {
       imageBuilder: (context, imageProvider) => Container(
         width: width,
         height: height,
+        alignment: alignment,
+        margin: margin,
+        padding: padding,
         decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          border: border,
+          gradient: gradient,
+          shape: shape,
+          boxShadow: boxShadow,
           image: DecorationImage(
             image: imageProvider,
             fit: fit,
@@ -1698,20 +1861,36 @@ class YurImageNet extends StatelessWidget {
                 ? ColorFilter.mode(color!, BlendMode.color)
                 : null,
           ),
-          borderRadius: borderRadius,
         ),
-        alignment: alignment,
-        margin: margin,
-        padding: padding,
       ),
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator(color: primaryRed)),
+      placeholder: (context, url) => const Center(
+        child: CircularProgressIndicator(color: primaryRed),
+      ),
       errorWidget: (context, url, error) {
         return Center(
-          child: YurIcon(icon: iconError, color: primaryRed),
+          child: Container(
+            height: height,
+            width: width,
+            margin: margin,
+            padding: padding,
+            alignment: alignment,
+            decoration: BoxDecoration(
+              shape: shape,
+              border: border,
+              gradient: gradient,
+              boxShadow: boxShadow,
+              borderRadius: borderRadius,
+            ),
+            child: YurIcon(
+              icon: iconError,
+              color: primaryRed,
+              padding: padding,
+              margin: margin,
+            ),
+          ),
         );
       },
-    );
+    ).animate().shimmer(duration: 3.seconds);
   }
 }
 
@@ -1736,7 +1915,7 @@ class YurDivider extends StatelessWidget {
       indent: indent,
       endIndent: endIndent,
       color: color,
-    );
+    ).animate().shimmer(duration: 3.seconds);
   }
 }
 
@@ -1760,6 +1939,9 @@ class YurListView extends StatelessWidget {
     this.clipBehavior = Clip.hardEdge,
     this.restorationId,
     this.scrollDirection = Axis.vertical,
+    this.onRefresh,
+    this.controller,
+    this.margin = e0,
   });
 
   final List<Widget> children;
@@ -1779,27 +1961,43 @@ class YurListView extends StatelessWidget {
   final Clip clipBehavior;
   final String? restorationId;
   final Axis scrollDirection;
+  final Future<void> Function()? onRefresh;
+  final ScrollController? controller;
+  final EdgeInsetsGeometry margin;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      shrinkWrap: shrinkWrap,
-      reverse: reverse,
-      primary: primary,
-      physics: physics,
-      padding: padding,
-      itemExtent: itemExtent,
-      addAutomaticKeepAlives: addAutomaticKeepAlives,
-      addRepaintBoundaries: addRepaintBoundaries,
-      addSemanticIndexes: addSemanticIndexes,
-      cacheExtent: cacheExtent,
-      semanticChildCount: semanticChildCount,
-      dragStartBehavior: dragStartBehavior,
-      keyboardDismissBehavior: keyboardDismissBehavior,
-      clipBehavior: clipBehavior,
-      restorationId: restorationId,
-      scrollDirection: scrollDirection,
-      children: children,
+    return RefreshIndicator(
+      onRefresh: () {
+        if (onRefresh != null) {
+          return onRefresh!();
+        }
+
+        return Future.value();
+      },
+      child: Container(
+        margin: margin,
+        child: ListView(
+          shrinkWrap: shrinkWrap,
+          controller: controller,
+          reverse: reverse,
+          primary: primary,
+          physics: physics,
+          padding: padding,
+          itemExtent: itemExtent,
+          addAutomaticKeepAlives: addAutomaticKeepAlives,
+          addRepaintBoundaries: addRepaintBoundaries,
+          addSemanticIndexes: addSemanticIndexes,
+          cacheExtent: cacheExtent,
+          semanticChildCount: semanticChildCount,
+          dragStartBehavior: dragStartBehavior,
+          keyboardDismissBehavior: keyboardDismissBehavior,
+          clipBehavior: clipBehavior,
+          restorationId: restorationId,
+          scrollDirection: scrollDirection,
+          children: children,
+        ),
+      ),
     );
   }
 }
@@ -2171,11 +2369,19 @@ class _YurStarRatingState extends State<YurStarRating> {
                     YurLog(name: "Rating", starValue.toString());
                   });
                 },
-          child: YurIcon(
-            icon: starValue <= widget.rate ? Icons.grade : Icons.star_border,
-            color: starValue <= widget.rate ? widget.color : Colors.grey,
-            size: iconSize,
-          ),
+          child: starValue <= widget.rate
+              ? YurIcon(
+                  icon: Icons.star_rounded,
+                  color: widget.color,
+                  size: iconSize,
+                )
+                  .animate(onComplete: (c) => c.repeat())
+                  .shimmer(duration: 2000.ms)
+              : YurIcon(
+                  icon: Icons.star_outline_rounded,
+                  color: Colors.grey,
+                  size: iconSize,
+                ),
         );
       }),
     );
