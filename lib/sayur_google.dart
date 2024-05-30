@@ -20,6 +20,7 @@ class YurGoogle {
       ).signIn();
 
       if (googleUser == null) {
+        YurLoading(loadingStatus: LoadingStatus.dismiss);
         // The user canceled the sign-in process
         return null;
       }

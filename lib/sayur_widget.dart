@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -321,6 +323,7 @@ class YurForm extends StatelessWidget {
   final TimeOfDay? initialTime;
   final Color? borderSideColor;
   final Color? prefixIconColor;
+  final String? dateFormat;
 
   YurForm({
     super.key,
@@ -376,10 +379,14 @@ class YurForm extends StatelessWidget {
     this.prefixIconColor,
     this.selectableDayPredicate,
     this.isCantTap = false,
+    this.dateFormat,
   });
 
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting();
+    Intl.defaultLocale = 'id_ID';
+
     // Validasi input sesuai kriteria tertentu.
     String? validateInput(String? value) {
       // Jika tidak ada validator, langsung kembalikan null.
@@ -387,6 +394,11 @@ class YurForm extends StatelessWidget {
 
       // Validasi jika input tidak boleh kosong, kecuali jika opsional.
       if (!optional && (value?.isEmpty ?? true)) {
+        return '$label tidak boleh kosong';
+      }
+
+      // Validasi jika input tidak boleh ' ' (spasi), kecuali jika opsional.
+      if (!optional && (value?.trim() == '')) {
         return '$label tidak boleh kosong';
       }
 
@@ -468,8 +480,8 @@ class YurForm extends StatelessWidget {
                   if (value.isEmpty) {
                     return controller!.text = "";
                   } else {
-                    return controller!.text =
-                        DateTime.parse(value).dateFormat("yyyy-MM-dd");
+                    return controller!.text = DateTime.parse(value)
+                        .dateFormat(dateFormat ?? "yyyy-MM-dd");
                   }
                 });
               }
@@ -698,7 +710,7 @@ class YurDropdown extends StatelessWidget {
   final Color color;
   final FontStyle fontStyle;
   final FontWeight fontWeight;
-  final EdgeInsetsGeometry contentPadding;
+
   final String? suffixText;
 
   const YurDropdown({
@@ -708,18 +720,15 @@ class YurDropdown extends StatelessWidget {
     required this.items,
     required this.selectedValue,
     required this.onChanged,
-    this.fontSize = 14,
+    this.fontSize = 16,
     this.color = Colors.black,
     this.fontStyle = FontStyle.normal,
     this.fontWeight = FontWeight.normal,
-    this.contentPadding = eH16,
     this.suffixText,
   });
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData themeData = Theme.of(context);
-
     return IntrinsicWidth(
       child: DropdownButtonFormField(
         value: selectedValue,
@@ -727,16 +736,8 @@ class YurDropdown extends StatelessWidget {
           icon: Icons.keyboard_arrow_down,
           color: Colors.grey,
         ),
-        iconSize: 14,
-        iconEnabledColor: primaryRed,
-        iconDisabledColor: Colors.grey,
-        alignment: Alignment.center,
-        isDense: true,
+        iconSize: 16,
         isExpanded: true,
-        enableFeedback: true,
-        borderRadius: br16,
-        dropdownColor: themeData.scaffoldBackgroundColor,
-        elevation: 8,
         selectedItemBuilder: (context) {
           return items.map((item) {
             return Row(
@@ -771,9 +772,8 @@ class YurDropdown extends StatelessWidget {
             fontWeight: fontWeight,
             color: color,
           ),
-          floatingLabelAlignment: FloatingLabelAlignment.center,
+          floatingLabelAlignment: FloatingLabelAlignment.start,
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          contentPadding: contentPadding,
           filled: true,
           isDense: true,
           suffixText: suffixText,
@@ -793,10 +793,10 @@ class YurDropdown extends StatelessWidget {
           isCollapsed: false,
         ),
         items: items
-            .map((item) => DropdownMenuItem<String>(
-                  value: item,
+            .map((i) => DropdownMenuItem<String>(
+                  value: i,
                   child: YurText(
-                    text: item,
+                    text: i,
                     fontSize: fontSize,
                     fontWeight: fontWeight,
                     color: color,
@@ -1585,6 +1585,8 @@ class YurButton extends StatelessWidget {
                   return Colors.white;
                 case BStyle.secondaryYellow:
                   return Colors.white;
+                case BStyle.spaceGrey:
+                  return Colors.white;
 
                 default:
                   return secondaryYellow;
@@ -1601,6 +1603,8 @@ class YurButton extends StatelessWidget {
               return primaryRed;
             case BStyle.fullWhite:
               return Colors.white;
+            case BStyle.spaceGrey:
+              return Colors.grey;
             default:
               return secondaryYellow;
           }
@@ -1621,6 +1625,8 @@ class YurButton extends StatelessWidget {
                   return Colors.white;
                 case BStyle.secondaryRed:
                   return primaryRed;
+                case BStyle.spaceGrey:
+                  return Colors.white;
                 default:
                   return Colors.black87;
               }

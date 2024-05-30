@@ -12,63 +12,61 @@ class YurApi {
     required Map<String, dynamic> dataMap,
     bool isEncoded = false,
     bool isGet = false,
+    Map<String, String> headers = const {},
   }) async {
     try {
-      const timeout = 30;
-      onTimeout() => http.Response('', 500);
-
       bool result = await InternetConnectionChecker().hasConnection;
-      
       if (!result) {
         YurToast(
-          message: SayurTextConstants.noInternet,
-          toastType: InfoType.error,
-        );
+            message: SayurTextConstants.noInternet, toastType: InfoType.error);
         return {"status": ""};
       }
 
       final url = Uri.parse(urlHttp);
+      const timeout = 30;
+      onTimeout() => http.Response('', 500);
       YurLog(name: urlHttp, dataMap);
 
       if (isGet) {
-        var headers = {'content-type': 'application/json'};
-
-        final response = await http
-            .get(url, headers: headers)
-            .timeout(const Duration(seconds: timeout), onTimeout: onTimeout);
+        final response = await http.get(url, headers: {
+          'content-type': 'application/json'
+        }).timeout(const Duration(seconds: timeout), onTimeout: onTimeout);
 
         return json.decode(utf8.decoder.convert(response.bodyBytes));
-      } else if (isEncoded) {
-        String body = jsonEncode(dataMap);
+      }
 
+      if (isEncoded) {
         var responEncode = await http
-            .post(url, body: body)
+            .post(
+              url,
+              headers: headers,
+              body: jsonEncode(dataMap),
+            )
             .timeout(const Duration(seconds: timeout), onTimeout: onTimeout);
 
         var decoded = await Isolate.run(() => json.decode(responEncode.body));
 
         return decoded;
-      } else {
-        final request = http.MultipartRequest('POST', url);
-        request.fields.addAll(dataMap.cast<String, String>());
-
-        final response = await request.send().timeout(
-              const Duration(seconds: timeout),
-              onTimeout: () => request.send(),
-            );
-
-        final responseStream = await response.stream.bytesToString();
-
-        bool cond = responseStream.isEmpty ||
-            responseStream == "[]" ||
-            responseStream.contains("No data");
-
-        if (cond) {
-          return {"status": ""};
-        } else {
-          return await Isolate.run(() => json.decode(responseStream));
-        }
       }
+
+      final request = http.MultipartRequest('POST', url);
+      request.fields.addAll(dataMap.cast<String, String>());
+      request.headers.addAll(headers);
+
+      final response = await request.send().timeout(
+            1.seconds,
+            onTimeout: request.send,
+          );
+
+      final responseStream = await response.stream.bytesToString();
+
+      bool empty = responseStream.isEmpty ||
+          responseStream == "[]" ||
+          responseStream.contains("No data");
+
+      if (empty) return {"status": ""};
+
+      return await Isolate.run(() => json.decode(responseStream));
     } catch (e) {
       return {"status": ""};
     }

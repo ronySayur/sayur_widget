@@ -80,6 +80,7 @@ enum BStyle {
   secondaryRed,
   secondaryYellow,
   primaryBlue,
+  spaceGrey,
 }
 
 enum DialogType { confirmation, info }
