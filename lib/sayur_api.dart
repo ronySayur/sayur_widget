@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +17,9 @@ class YurApi {
       bool result = await InternetConnectionChecker().hasConnection;
       if (!result) {
         YurToast(
-            message: SayurTextConstants.noInternet, toastType: InfoType.error);
+          message: SayurTextConstants.noInternet,
+          toastType: InfoType.error,
+        );
         return {"status": ""};
       }
 
@@ -29,23 +30,17 @@ class YurApi {
 
       if (isGet) {
         final response = await http.get(url, headers: {
-          'content-type': 'application/json'
-        }).timeout(const Duration(seconds: timeout), onTimeout: onTimeout);
+          'content-type': 'application/json',
+        }).timeout(timeout.seconds, onTimeout: onTimeout);
 
         return json.decode(utf8.decoder.convert(response.bodyBytes));
       }
 
       if (isEncoded) {
         var responEncode = await http
-            .post(
-              url,
-              headers: headers,
-              body: jsonEncode(dataMap),
-            )
-            .timeout(const Duration(seconds: timeout), onTimeout: onTimeout);
-
-        var decoded = await Isolate.run(() => json.decode(responEncode.body));
-
+            .post(url, headers: headers, body: jsonEncode(dataMap))
+            .timeout(timeout.seconds, onTimeout: onTimeout);
+        var decoded = await json.decode(responEncode.body);
         return decoded;
       }
 
@@ -53,10 +48,8 @@ class YurApi {
       request.fields.addAll(dataMap.cast<String, String>());
       request.headers.addAll(headers);
 
-      final response = await request.send().timeout(
-            1.seconds,
-            onTimeout: request.send,
-          );
+      final response =
+          await request.send().timeout(1.seconds, onTimeout: request.send);
 
       final responseStream = await response.stream.bytesToString();
 
@@ -66,7 +59,7 @@ class YurApi {
 
       if (empty) return {"status": ""};
 
-      return await Isolate.run(() => json.decode(responseStream));
+      return await json.decode(responseStream);
     } catch (e) {
       return {"status": ""};
     }

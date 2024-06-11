@@ -20,9 +20,11 @@ Future<T> getShared<T>({required String key, required T defaultValue}) async {
 Future<bool> setShared<T>({required String key, required T value}) async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.reload();
     String valueJson = json.encode(value);
-    return await prefs.setString(key, valueJson);
+    var reloadedValue = await prefs.setString(key, valueJson);
+    prefs.reload();
+
+    return reloadedValue;
   } catch (e) {
     YurLog(name: "_getShared", e.toString());
 

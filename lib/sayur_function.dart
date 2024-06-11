@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -55,9 +56,7 @@ int parseStringToInt(String text) {
 class Generator {
   static String randomKey(int length) {
     const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
     final r = Random();
-
     return String.fromCharCodes(List.generate(
       length,
       (index) => c.codeUnitAt(r.nextInt(c.length)),
@@ -97,6 +96,30 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 
 extension DateFormatExtension on DateTime {
   String dateFormat(String format) => DateFormat(format).format(this);
+}
+
+extension TimeFormatExtension on int {
+  String toDigitalTime() {
+    int hour = this ~/ 60;
+    int minutes = this % 60;
+
+    String hourStr = hour.toString().padLeft(2, '0');
+    String minutesStr = minutes.toString().padLeft(2, '0');
+
+    return '$hourStr:$minutesStr';
+  }
+
+  String toDigitalHourMinuteSecondTime() {
+    int hour = this ~/ 3600;
+    int minutes = (this % 3600) ~/ 60;
+    int seconds = this % 60;
+
+    String hourStr = hour.toString().padLeft(2, '0');
+    String minutesStr = minutes.toString().padLeft(2, '0');
+    String secondsStr = seconds.toString().padLeft(2, '0');
+
+    return '$hourStr:$minutesStr:$secondsStr';
+  }
 }
 
 extension BoolExtension on String {
@@ -896,4 +919,21 @@ Position YurPosition({
   ).then((value) => position = value);
 
   return position;
+}
+
+class YurRing {
+  static void play() {
+    FlutterRingtonePlayer player = FlutterRingtonePlayer();
+    player.play(
+      android: AndroidSounds.notification,
+      ios: IosSounds.glass,
+      looping: true,
+      asAlarm: false,
+    );
+  }
+
+  static void stop() {
+    FlutterRingtonePlayer player = FlutterRingtonePlayer();
+    player.stop();
+  }
 }

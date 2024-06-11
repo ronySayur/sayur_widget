@@ -324,6 +324,7 @@ class YurForm extends StatelessWidget {
   final Color? borderSideColor;
   final Color? prefixIconColor;
   final String? dateFormat;
+  final EdgeInsetsGeometry padding;
 
   YurForm({
     super.key,
@@ -380,13 +381,11 @@ class YurForm extends StatelessWidget {
     this.selectableDayPredicate,
     this.isCantTap = false,
     this.dateFormat,
+    this.padding = e0,
   });
 
   @override
   Widget build(BuildContext context) {
-    initializeDateFormatting();
-    Intl.defaultLocale = 'id_ID';
-
     // Validasi input sesuai kriteria tertentu.
     String? validateInput(String? value) {
       // Jika tidak ada validator, langsung kembalikan null.
@@ -453,197 +452,198 @@ class YurForm extends StatelessWidget {
         break;
     }
 
-    return TextFormField(
-      controller: controller,
-      onTap: isCantTap
-          ? null
-          : () async {
-              if (isHours) {
-                YurShowPicker(
-                  context: context,
-                  controller: controller!,
-                  minHour: minHour,
-                  minMinute: minMinute,
+    return Padding(
+      padding: padding,
+      child: TextFormField(
+        controller: controller,
+        onTap: isCantTap
+            ? null
+            : () async {
+                if (isHours) {
+                  YurShowPicker(
+                    context: context,
+                    controller: controller!,
+                    minHour: minHour,
+                    minMinute: minMinute,
+                  );
+                }
+
+                if (isDate) {
+                  await selectDate(
+                    context: context,
+                    initialDate: initialDate ?? DateTime.now(),
+                    firstDate: firstDate ?? DateTime(1900),
+                    lastDate: lastDate ?? DateTime.now(),
+                    initialTime: initialTime,
+                    withTimePick: withTimePick,
+                    selectableDayPredicate: selectableDayPredicate,
+                  ).then((value) {
+                    if (value.isEmpty) {
+                      return controller!.text = "";
+                    } else {
+                      return controller!.text = DateTime.parse(value)
+                          .dateFormat(dateFormat ?? "yyyy-MM-dd");
+                    }
+                  });
+                }
+
+                onTap();
+                YurLog(
+                  name: label,
+                  controller?.text ?? "textController",
                 );
-              }
+              },
+        onEditingComplete: () {
+          onComplete();
+          FocusScope.of(context).unfocus();
+          YurLog(
+            name: label,
+            controller?.text ?? "textController",
+          );
+        },
+        focusNode: focusNode,
+        initialValue: initialValue,
+        onChanged: (value) => onChanged(value),
+        maxLines: maxLines,
+        obscureText: obscureText,
+        textInputAction: textInputAction,
+        readOnly: isDate ? true : readOnly,
+        validator: validateInput,
+        keyboardType: keyboardType,
+        textAlign: textAllignment,
+        style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
+        autocorrect: false,
+        autofocus: false,
+        scrollPhysics: const ClampingScrollPhysics(),
+        inputFormatters: [
+          ...inputFormatters ?? [],
+          LengthLimitingTextInputFormatter(maxLength),
+          if (keyboardType == TextInputType.number)
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+          if (isUpperCase) UpperCaseTextFormatter(),
+        ],
+        decoration: InputDecoration(
+          //Prefix
+          prefixIcon:
+              isDate ? const YurIcon(icon: Icons.calendar_today) : prefixIcon,
+          prefixIconColor: prefixIconColor ?? primaryRed,
 
-              if (isDate) {
-                await selectDate(
-                  context: context,
-                  initialDate: initialDate ?? DateTime.now(),
-                  firstDate: firstDate ?? DateTime(1900),
-                  lastDate: lastDate ?? DateTime.now(),
-                  initialTime: initialTime,
-                  withTimePick: withTimePick,
-                  selectableDayPredicate: selectableDayPredicate,
-                ).then((value) {
-                  if (value.isEmpty) {
-                    return controller!.text = "";
-                  } else {
-                    return controller!.text = DateTime.parse(value)
-                        .dateFormat(dateFormat ?? "yyyy-MM-dd");
-                  }
-                });
-              }
+          //Sufix
+          suffixText: suffixText,
+          suffixStyle: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+            color: primaryRed,
+          ),
+          suffixIcon: suffixType == SuffixType.none ? null : suffix,
 
-              onTap();
-              YurLog(
-                name: label,
-                controller?.text ?? "textController",
-              );
-            },
-      onEditingComplete: () {
-        onComplete();
-        FocusScope.of(context).unfocus();
-        YurLog(
-          name: label,
-          controller?.text ?? "textController",
-        );
-      },
-      focusNode: focusNode,
-      initialValue: initialValue,
-      onChanged: (value) => onChanged(value),
-      maxLines: maxLines,
-      obscureText: obscureText,
-      textInputAction: textInputAction,
-      readOnly: isDate ? true : readOnly,
-      validator: validateInput,
-      keyboardType: keyboardType,
-      textAlign: textAllignment,
-      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
-      inputFormatters: [
-        ...inputFormatters ?? [],
-        LengthLimitingTextInputFormatter(maxLength),
-        if (keyboardType == TextInputType.number)
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-        if (isUpperCase) UpperCaseTextFormatter(),
-      ],
-      autocorrect: false,
-      autofocus: false,
-      scrollPhysics: const ClampingScrollPhysics(),
-      decoration: InputDecoration(
-        //Prefix
-        prefixIcon:
-            isDate ? const YurIcon(icon: Icons.calendar_today) : prefixIcon,
-        prefixIconColor: prefixIconColor ?? primaryRed,
-
-        //Sufix
-        suffixText: suffixText,
-        suffixStyle: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-          fontStyle: FontStyle.italic,
-          color: primaryRed,
-        ),
-        suffixIcon: suffixType == SuffixType.none ? null : suffix,
-
-        // Label
-        label: withLabel
-            ? IntrinsicWidth(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: YurText(
-                        text: label,
-                        fontSize: labelSize,
-                        color: colorLabel,
-                        fontWeight: FontWeight.w700,
-                        maxLines: 1,
+          // Label
+          label: withLabel
+              ? IntrinsicWidth(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: YurText(
+                          text: label,
+                          fontSize: labelSize,
+                          color: colorLabel,
+                          fontWeight: FontWeight.w700,
+                          maxLines: 1,
+                        ),
                       ),
-                    ),
-                    YurText(
-                      fontSize: labelSize,
-                      text: suffixType == SuffixType.search
-                          ? ""
-                          : !optional
-                              ? ""
-                              : "(opsional)",
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              )
-            : null,
+                      YurText(
+                        fontSize: labelSize,
+                        text: suffixType == SuffixType.search
+                            ? ""
+                            : !optional
+                                ? ""
+                                : "(opsional)",
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                )
+              : null,
 
-        // Hint
-        hintText: hintText ?? label,
-        hintStyle: TextStyle(
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-        ),
+          // Hint
+          hintText: hintText ?? label,
+          hintStyle: TextStyle(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+          ),
 
-        // Floating Label
-        floatingLabelStyle: TextStyle(
-          fontStyle: FontStyle.normal,
-          fontSize: labelSize,
-          fontWeight: fontWeight,
-          decoration: TextDecoration.none,
-          overflow: TextOverflow.ellipsis,
-          decorationStyle: TextDecorationStyle.dashed,
-          shadows: const [
-            Shadow(
-              blurRadius: 3,
-              color: Colors.grey,
-              offset: Offset(0.5, 0.5),
+          // Floating Label
+          floatingLabelStyle: TextStyle(
+            fontStyle: FontStyle.normal,
+            fontSize: labelSize,
+            fontWeight: fontWeight,
+            decoration: TextDecoration.none,
+            overflow: TextOverflow.ellipsis,
+            decorationStyle: TextDecorationStyle.dashed,
+            shadows: const [
+              Shadow(
+                blurRadius: 3,
+                color: Colors.grey,
+                offset: Offset(0.5, 0.5),
+              ),
+            ],
+          ),
+          floatingLabelAlignment: FloatingLabelAlignment.start,
+          floatingLabelBehavior: floatingLabelBehavior,
+          filled: true,
+          fillColor: fillColor,
+          alignLabelWithHint: true,
+          isDense: true,
+          isCollapsed: false,
+          //border
+          border: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide(
+              color: Colors.grey.shade500,
+              width: 1,
             ),
-          ],
-        ),
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelBehavior: floatingLabelBehavior,
-        filled: true,
-        fillColor: fillColor,
-
-        alignLabelWithHint: true,
-        isDense: true,
-        isCollapsed: false,
-
-        //  ==================================> Border <==================================
-        border: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(
-            color: Colors.grey.shade500,
-            width: 1,
           ),
-        ),
 
-        // enable
-        enabledBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(
-            color: Colors.grey.shade500,
-            width: 1,
+          // enable
+          enabledBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide(
+              color: Colors.grey.shade500,
+              width: 1,
+            ),
           ),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(
-            color: Colors.grey.shade500,
-            width: 1,
+          disabledBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide(
+              color: Colors.grey.shade500,
+              width: 1,
+            ),
           ),
-        ),
 
-        //error
-        errorBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        errorStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.red,
-        ),
-        errorMaxLines: 2,
+          //error
+          errorBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          errorStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+          errorMaxLines: 2,
 
-        //focus
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(
-            color: borderSideColor ?? primaryRed,
-            width: 2,
+          //focus
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide(
+              color: borderSideColor ?? primaryRed,
+              width: 2,
+            ),
           ),
         ),
       ),
@@ -708,10 +708,14 @@ class YurDropdown extends StatelessWidget {
   final Function(String?) onChanged;
   final double fontSize;
   final Color color;
+  final Color? fillColor;
   final FontStyle fontStyle;
   final FontWeight fontWeight;
-
   final String? suffixText;
+  final EdgeInsetsGeometry padding;
+  final FloatingLabelBehavior floatingLabelBehavior;
+  final bool isExpanded;
+  final BorderRadius borderRadius;
 
   const YurDropdown({
     super.key,
@@ -722,90 +726,104 @@ class YurDropdown extends StatelessWidget {
     required this.onChanged,
     this.fontSize = 16,
     this.color = Colors.black,
+    this.fillColor,
     this.fontStyle = FontStyle.normal,
     this.fontWeight = FontWeight.normal,
     this.suffixText,
+    this.padding = e0,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
+    this.isExpanded = false,
+    this.borderRadius = br12,
   });
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicWidth(
-      child: DropdownButtonFormField(
-        value: selectedValue,
-        icon: const YurIcon(
-          icon: Icons.keyboard_arrow_down,
-          color: Colors.grey,
-        ),
-        iconSize: 16,
-        isExpanded: true,
-        selectedItemBuilder: (context) {
-          return items.map((item) {
-            return Row(
-              children: [
-                YurText(
-                  padding: eW12,
-                  text: item,
-                  fontSize: fontSize,
-                  fontWeight: fontWeight,
-                  color: color,
-                  fontStyle: fontStyle,
-                ),
-              ],
-            );
-          }).toList();
-        },
-        style: TextStyle(
+    DropdownButtonFormField dropdownButtonFormField = DropdownButtonFormField(
+      value: selectedValue,
+      iconSize: 16,
+      isExpanded: true,
+      elevation: 4,
+      borderRadius: br12,
+      isDense: true,
+      padding: padding,
+      icon: const YurIcon(
+        icon: Icons.keyboard_arrow_down,
+        color: Colors.grey,
+      ),
+      selectedItemBuilder: (context) {
+        return items.map((item) {
+          return Row(
+            children: [
+              YurText(
+                padding: eW12,
+                text: item,
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                color: color,
+                fontStyle: fontStyle,
+              ),
+            ],
+          );
+        }).toList();
+      },
+      style: TextStyle(
+        fontStyle: fontStyle,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      ),
+      onChanged: (value) {
+        onChanged(value);
+        YurLog(name: labelText, value!);
+      },
+      decoration: InputDecoration(
+        border: OutlineInputBorder(borderRadius: borderRadius),
+        floatingLabelStyle: TextStyle(
           fontStyle: fontStyle,
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: color,
         ),
-        onChanged: (value) {
-          onChanged(value);
-          YurLog(name: labelText, value!);
-        },
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(borderRadius: br16),
-          floatingLabelStyle: TextStyle(
-            fontStyle: fontStyle,
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
-          ),
-          floatingLabelAlignment: FloatingLabelAlignment.start,
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
-          filled: true,
-          isDense: true,
-          suffixText: suffixText,
-          suffixStyle: TextStyle(
-            fontStyle: fontStyle,
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
-          ),
-          label: YurText(
-            text: labelText,
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
-            fontStyle: fontStyle,
-          ),
-          isCollapsed: false,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        floatingLabelBehavior: floatingLabelBehavior,
+        filled: true,
+        isDense: true,
+        fillColor: fillColor,
+        suffixText: suffixText,
+        suffixStyle: TextStyle(
+          fontStyle: fontStyle,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
         ),
-        items: items
-            .map((i) => DropdownMenuItem<String>(
-                  value: i,
-                  child: YurText(
-                    text: i,
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                    color: color,
-                    fontStyle: fontStyle,
-                  ),
-                ))
-            .toList(),
+        label: YurText(
+          text: labelText,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: color,
+          fontStyle: fontStyle,
+        ),
+        isCollapsed: false,
       ),
+      items: items
+          .map((i) => DropdownMenuItem<String>(
+                value: i,
+                child: YurText(
+                  text: i,
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                  color: color,
+                  fontStyle: fontStyle,
+                ),
+              ))
+          .toList(),
     );
+
+    if (isExpanded) {
+      return dropdownButtonFormField;
+    } else {
+      return IntrinsicWidth(child: dropdownButtonFormField);
+    }
   }
 }
 
@@ -852,18 +870,8 @@ class YurCheckBox extends StatelessWidget {
   List<Widget> buildCheckboxOptions() {
     return options.map((option) {
       return buildCheckbox == YurBuildCheckbox.card
-          ? Expanded(
-              child: InkWell(
-                onTap: () => handleOption(option),
-                borderRadius: br48,
-                child: card(option),
-              ),
-            )
-          : InkWell(
-              onTap: () => handleOption(option),
-              borderRadius: br48,
-              child: chip(option),
-            );
+          ? Expanded(child: card(option))
+          : chip(option);
     }).toList();
   }
 
@@ -879,15 +887,14 @@ class YurCheckBox extends StatelessWidget {
 
   Widget card(String option) {
     return YurCard(
+      onTap: () => handleOption(option),
       margin: isVertical ? eW4 : eH8,
       padding: e8,
       child: Row(
         children: [
           Checkbox(
             value: selectedOptions.contains(option),
-            onChanged: (bool? value) {
-              handleOption(option);
-            },
+            onChanged: (bool? value) => handleOption(option),
             activeColor: Colors.red,
           ),
           YurText(
@@ -903,36 +910,39 @@ class YurCheckBox extends StatelessWidget {
   Widget chip(String option) {
     return Container(
       margin: isVertical ? eW4 : eH8,
-      child: Chip(
-        padding: e8,
-        backgroundColor: selectedOptions.contains(option)
-            ? Colors.red.withOpacity(0.2)
-            : Colors.grey.shade200,
-        shape: RoundedRectangleBorder(
-          borderRadius: br16,
-          side: BorderSide(
-            color: selectedOptions.contains(option)
-                ? Colors.red
-                : Colors.grey.shade500,
-          ),
-        ),
-        label: YurText(
-          text: option,
-          fontWeight: selectedOptions.contains(option)
-              ? FontWeight.bold
-              : FontWeight.normal,
-        ),
-        avatar: Checkbox(
-          value: selectedOptions.contains(option),
-          onChanged: (bool? value) => handleOption(option),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          activeColor: Colors.red,
+      child: InkWell(
+        onTap: () => handleOption(option),
+        borderRadius: br48,
+        child: Chip(
+          backgroundColor: selectedOptions.contains(option)
+              ? Colors.red.withOpacity(0.2)
+              : Colors.grey.shade200,
           shape: RoundedRectangleBorder(
             borderRadius: br16,
             side: BorderSide(
               color: selectedOptions.contains(option)
                   ? Colors.red
                   : Colors.grey.shade500,
+            ),
+          ),
+          label: YurText(
+            text: option,
+            fontWeight: selectedOptions.contains(option)
+                ? FontWeight.bold
+                : FontWeight.normal,
+          ),
+          avatar: Checkbox(
+            value: selectedOptions.contains(option),
+            onChanged: (bool? value) => handleOption(option),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            activeColor: Colors.red,
+            shape: RoundedRectangleBorder(
+              borderRadius: br16,
+              side: BorderSide(
+                color: selectedOptions.contains(option)
+                    ? Colors.red
+                    : Colors.grey.shade500,
+              ),
             ),
           ),
         ),
@@ -1772,9 +1782,7 @@ class YurImageAsset extends StatelessWidget {
     return Container(
       padding: padding,
       margin: margin,
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-      ),
+      decoration: BoxDecoration(borderRadius: borderRadius),
       child: Image.asset(
         imageUrl,
         width: width,
@@ -1782,29 +1790,31 @@ class YurImageAsset extends StatelessWidget {
         fit: fit,
         color: color,
         alignment: alignment,
-        errorBuilder: (context, error, stackTrace) {
-          return const YurIcon(icon: Icons.error, color: primaryRed);
-        },
-        scale: 1,
         centerSlice: centerSlice,
-        filterQuality: FilterQuality.high,
+        cacheHeight: height?.toInt(),
+        cacheWidth: width?.toInt(),
+        gaplessPlayback: true,
+        excludeFromSemantics: true,
+        semanticLabel: imageUrl,
+        errorBuilder: (context, error, stackTrace) {
+          YurLog(name: "YurImageAsset Error : ", error.toString());
+          return const YurIcon(
+            icon: Icons.error,
+            color: primaryRed,
+          );
+        },
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (wasSynchronouslyLoaded) {
             return child;
           } else {
             return AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
+              duration: 200.ms,
               child: frame != null
                   ? child
                   : const Center(child: CircularProgressIndicator()),
             );
           }
         },
-        cacheHeight: height?.toInt(),
-        cacheWidth: width?.toInt(),
-        gaplessPlayback: true,
-        excludeFromSemantics: true,
-        semanticLabel: imageUrl,
       ),
     ).animate().shimmer(duration: 3.seconds);
   }
@@ -1975,10 +1985,7 @@ class YurListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () {
-        if (onRefresh != null) {
-          return onRefresh!();
-        }
-
+        if (onRefresh != null) return onRefresh!();
         return Future.value();
       },
       child: Container(
@@ -2015,12 +2022,7 @@ class YurCard extends StatelessWidget {
     this.elevation = 4,
     this.color = Colors.white,
     this.shape = const RoundedRectangleBorder(
-      borderRadius: br16,
-      side: BorderSide(
-        color: Colors.grey,
-        width: 0.5,
-      ),
-    ),
+        borderRadius: br16, side: BorderSide(color: Colors.grey, width: 0.5)),
     this.clipBehavior = Clip.antiAlias,
     this.margin = e0,
     this.padding = e0,
@@ -2046,7 +2048,10 @@ class YurCard extends StatelessWidget {
       margin: margin,
       child: InkWell(
           onTap: onTap,
-          child: Container(padding: padding, margin: margin, child: child)),
+          child: Container(
+            padding: padding,
+            child: child,
+          )),
     );
   }
 }
@@ -2073,15 +2078,15 @@ class YurIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: backgroundColor,
-      ),
-      margin: margin,
-      child: InkWell(
-        onTap: onTap,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: backgroundColor,
+        ),
+        margin: margin,
         child: Icon(icon, color: color, size: size),
       ),
     ).animate(
@@ -2104,6 +2109,9 @@ class YurScaffold extends StatelessWidget {
     this.persistentFooterButtons,
     this.backgroundColor,
     this.resizeToAvoidBottomInset = true,
+    this.padding = e0,
+    this.canPop = true,
+    this.onPopInvoked,
   });
 
   final PreferredSizeWidget? appBar;
@@ -2116,20 +2124,30 @@ class YurScaffold extends StatelessWidget {
   final List<Widget>? persistentFooterButtons;
   final Color? backgroundColor;
   final bool resizeToAvoidBottomInset;
+  final EdgeInsetsGeometry padding;
+  final bool canPop;
+  final Function(bool)? onPopInvoked;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar,
-      body: body,
-      drawer: drawer,
-      endDrawer: endDrawer,
-      bottomNavigationBar: bottomNavigationBar,
-      bottomSheet: bottomSheet,
-      floatingActionButton: floatingActionButton,
-      persistentFooterButtons: persistentFooterButtons,
-      backgroundColor: backgroundColor ?? Colors.grey.shade100,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+    initializeDateFormatting();
+    Intl.defaultLocale = 'id_ID';
+
+    return PopScope(
+      canPop: canPop,
+      onPopInvoked: onPopInvoked,
+      child: Scaffold(
+        appBar: appBar,
+        body: Padding(padding: padding, child: body),
+        drawer: drawer,
+        endDrawer: endDrawer,
+        bottomNavigationBar: bottomNavigationBar,
+        bottomSheet: bottomSheet,
+        floatingActionButton: floatingActionButton,
+        persistentFooterButtons: persistentFooterButtons,
+        backgroundColor: backgroundColor ?? Colors.grey.shade100,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      ),
     );
   }
 }
@@ -2489,7 +2507,7 @@ class YurWebView extends StatefulWidget {
     super.key,
     required this.linkWebView,
     this.title = "",
-    this.isDismisable = true,
+    this.isDismisable = false,
     this.isSecured = false,
     this.withAppBar = false,
     this.onInit,
@@ -2513,27 +2531,15 @@ class _YurWebViewState extends State<YurWebView> {
   void initState() {
     super.initState();
     YurLoading(loadingStatus: LoadingStatus.show, isDismisable: false);
-
-    if (widget.onInit != null) {
-      widget.onInit!();
-    }
-
-    if (widget.isSecured) {
-      YurScreenShot(isOn: true);
-    }
+    if (widget.onInit != null) widget.onInit!();
+    if (widget.isSecured) YurScreenShot(isOn: true);
   }
 
   @override
   void dispose() {
     super.dispose();
-
-    if (widget.onDispose != null) {
-      widget.onDispose!();
-    }
-
-    if (widget.isSecured) {
-      YurScreenShot(isOn: false);
-    }
+    if (widget.onDispose != null) widget.onDispose!();
+    if (widget.isSecured) YurScreenShot(isOn: false);
   }
 
   @override
@@ -2545,7 +2551,8 @@ class _YurWebViewState extends State<YurWebView> {
       home: PopScope(
         canPop: widget.isDismisable,
         onPopInvoked: (didPop) {
-          if (didPop) {
+          YurLoading(loadingStatus: LoadingStatus.dismiss);
+          if (!didPop) {
             YurAlertDialog(
               context: context,
               title: "Keluar dari aplikasi",
@@ -2598,9 +2605,7 @@ class _YurWebViewState extends State<YurWebView> {
               onWebViewCreated: (InAppWebViewController controller) {
                 controller.addJavaScriptHandler(
                   handlerName: "messageChannel",
-                  callback: (args) {
-                    YurLog(args[0], name: "messageChannel");
-                  },
+                  callback: (args) => YurLog(args[0], name: "messageChannel"),
                 );
               },
               onLoadStart: (InAppWebViewController controller, Uri? url) {

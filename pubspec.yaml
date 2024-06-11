@@ -38,6 +38,8 @@ dependencies:
   url_launcher: ^6.2.5
   video_player: ^2.8.1
   flutter_animate: ^4.5.0
+  flutter_ringtone_player: ^4.0.0+2
+
 
 
 dev_dependencies:
