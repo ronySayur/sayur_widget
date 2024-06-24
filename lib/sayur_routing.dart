@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:sayur_widget/sayur_function.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -8,9 +9,16 @@ enum UrlScheme { http, telp }
 
 class Get {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   static get context => navigatorKey.currentState?.context;
+
   static double get width => MediaQuery.of(context).size.width;
   static double get height => MediaQuery.of(context).size.height;
+
+  static void close() {
+    YurLog("Close App", name: "Get.closeApp");
+    SystemNavigator.pop(animated: true);
+  }
 
   static void back({dynamic result}) {
     YurLog("Back", name: "Get.back");

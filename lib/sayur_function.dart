@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,7 +17,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' show Random;
 
-import 'package:intl/intl.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
@@ -65,9 +65,7 @@ class Generator {
 
   static String randomNumber(int length) {
     const c = "0123456789";
-
     final r = Random();
-
     return String.fromCharCodes(List.generate(
       length,
       (index) => c.codeUnitAt(r.nextInt(c.length)),
@@ -76,10 +74,11 @@ class Generator {
 }
 
 Future<void> YurScreenShot({required bool isOn}) async {
+  NoScreenshot i = NoScreenshot.instance;
   if (isOn) {
-    await NoScreenshot.instance.screenshotOff();
+    await i.screenshotOff();
   } else {
-    await NoScreenshot.instance.screenshotOn();
+    await i.screenshotOn();
   }
 }
 
@@ -92,53 +91,6 @@ class UpperCaseTextFormatter extends TextInputFormatter {
       selection: newValue.selection,
     );
   }
-}
-
-extension DateFormatExtension on DateTime {
-  String dateFormat(String format) => DateFormat(format).format(this);
-}
-
-extension TimeFormatExtension on int {
-  String toDigitalTime() {
-    int hour = this ~/ 60;
-    int minutes = this % 60;
-
-    String hourStr = hour.toString().padLeft(2, '0');
-    String minutesStr = minutes.toString().padLeft(2, '0');
-
-    return '$hourStr:$minutesStr';
-  }
-
-  String toDigitalHourMinuteSecondTime() {
-    int hour = this ~/ 3600;
-    int minutes = (this % 3600) ~/ 60;
-    int seconds = this % 60;
-
-    String hourStr = hour.toString().padLeft(2, '0');
-    String minutesStr = minutes.toString().padLeft(2, '0');
-    String secondsStr = seconds.toString().padLeft(2, '0');
-
-    return '$hourStr:$minutesStr:$secondsStr';
-  }
-}
-
-extension BoolExtension on String {
-  bool isValidEmail() => RegExp(
-          r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-      .hasMatch(this);
-  bool isValidPhone() => RegExp(r'^[0-9]{10,13}$').hasMatch(this);
-  bool isValidNik() => RegExp(r'^[0-9]{16}$').hasMatch(this);
-}
-
-extension StringExtension on String {
-  String toCapitalize() =>
-      "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
-  String toRupiah() =>
-      NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0)
-          .format(int.parse(this));
-  String toDollar() =>
-      NumberFormat.currency(locale: 'en', symbol: '\$', decimalDigits: 0)
-          .format(int.parse(this));
 }
 
 void dfp(dynamic parameter) {
@@ -164,8 +116,6 @@ ThemeData YurTheme() {
     useMaterial3: true,
     fontFamily: 'Poppins',
     visualDensity: VisualDensity.adaptivePlatformDensity,
-
-    //  ==================================> ColorScheme <==================================
     colorScheme: ColorScheme(
       brightness: Brightness.light,
       primary: primaryRed,
@@ -179,8 +129,6 @@ ThemeData YurTheme() {
       surface: Colors.grey.shade200,
       onSurface: Colors.black,
     ),
-
-    //  ==================================> Dialog <==================================
     dialogTheme: const DialogTheme(
       shape: RoundedRectangleBorder(
         borderRadius: br16,
@@ -190,14 +138,10 @@ ThemeData YurTheme() {
       shadowColor: Colors.black,
     ),
     dialogBackgroundColor: Colors.white,
-
-    //  ==================================> FAB <==================================
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: primaryRed,
       foregroundColor: Colors.white,
     ),
-
-    //  ==================================> Card <==================================
     cardColor: Colors.white,
     cardTheme: const CardTheme(
       elevation: 4,
@@ -207,16 +151,12 @@ ThemeData YurTheme() {
         borderRadius: br8,
       ),
     ),
-
-    //  ==================================> AppBar <==================================
     appBarTheme: const AppBarTheme(
       color: Colors.white,
       elevation: 4,
       iconTheme: IconThemeData(color: Colors.black),
       surfaceTintColor: Colors.white,
     ),
-
-    //  ==================================> BottomBar <==================================
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       elevation: 4,
@@ -590,103 +530,68 @@ YurAlertDialog({
   });
 }
 
-YurDialog({
-  required BuildContext context,
-  required String message,
-  String? message2,
-  bool isDialogShow = false,
-  bool isDismissable = false,
-  bool isSuccess = true,
-  double fontSize = 16,
-  Color fontColor = primaryRed,
-  FontWeight fontWeight = FontWeight.w500,
-  Function()? onConfirm,
-}) async {
-  if (isDialogShow) {
-    return;
-  }
-
-  isDialogShow = true;
-  return WidgetsBinding.instance.addPostFrameCallback((_) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black54,
-      useSafeArea: true,
-      useRootNavigator: true,
-      builder: (BuildContext context) {
-        var img = isSuccess ? 'accept_order_success' : 'failed';
-
-        return PopScope(
-          canPop: isDismissable,
-          onPopInvoked: (didPop) {
-            if (didPop) {
-              isDialogShow = true;
-            } else {
-              Get.back();
-              onConfirm!();
-            }
-          },
-          child: Dialog(
-            elevation: 3,
-            insetPadding: e16,
-            shape: const RoundedRectangleBorder(borderRadius: br16),
-            backgroundColor: Colors.white.withOpacity(0.99),
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            child: IntrinsicHeight(
-              child: Padding(
-                padding: e12,
-                child: Column(
-                  children: [
-                    YurImageAsset(
-                      imageUrl: 'assets/images/assignment/$img.png',
-                      height: 200,
-                    ),
-                    gapH20,
-                    YurText(
-                      fontSize: fontSize,
-                      text: message,
-                      textAlign: TextAlign.center,
-                      color: fontColor,
-                      fontWeight: fontWeight,
-                      maxLines: 10,
-                    ),
-                    if (message2 != null)
-                      Column(
-                        children: [
-                          gap12,
-                          YurText(
-                            fontSize: fontSize,
-                            text: message2,
-                            textAlign: TextAlign.center,
-                            color: primaryRed,
-                            fontWeight: fontWeight,
-                            maxLines: 3,
-                          ),
-                        ],
-                      ),
-                    if (onConfirm != null)
-                      Column(
-                        children: [
-                          gapH20,
-                          YurButton(
-                              buttonStyle: BStyle.primaryRed,
-                              text: "OK",
-                              onPressed: () {
-                                onConfirm();
-                                Get.back();
-                                YurLog(name: "YurcallDialog", "YurDialog");
-                              })
-                        ],
-                      ),
-                  ],
+Future<dynamic> YurDialog1({
+  required String title,
+  required String subtitle,
+  required String buttonConfirm,
+  required Function() onPressedConfirm,
+  String? buttonCancel,
+  Widget? icon,
+  bool isDismisable = true,
+}) {
+  return showDialog(
+    context: Get.context,
+    barrierDismissible: isDismisable,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: YurText(
+          text: title,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        content: YurText(
+          text: subtitle,
+          textAlign: TextAlign.start,
+          fontWeight: FontWeight.w300,
+          fontSize: 14,
+          maxLines: 10,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (buttonCancel != null)
+                Expanded(
+                  child: YurButton(
+                    buttonStyle: BStyle.primaryRed,
+                    text: buttonCancel,
+                    onPressed: Get.back,
+                  ),
+                ),
+              gap12,
+              Expanded(
+                child: YurButton(
+                  buttonStyle: BStyle.fullRed,
+                  text: buttonConfirm,
+                  onPressed: () {
+                    onPressedConfirm();
+                    Get.back();
+                  },
                 ),
               ),
-            ),
+            ],
           ),
-        );
-      },
-    );
-  });
+        ],
+        icon: icon,
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 24,
+        shadowColor: Colors.black,
+        surfaceTintColor: Colors.white,
+        shape: const RoundedRectangleBorder(borderRadius: br16),
+      );
+    },
+  );
 }
 
 YurSearch({
@@ -701,9 +606,7 @@ YurSearch({
 }) async {
   textController.text = "";
 
-  if (isDialogShow) {
-    return;
-  }
+  if (isDialogShow) return;
 
   isDialogShow = true;
 
@@ -913,11 +816,6 @@ Position YurPosition({
     altitudeAccuracy: altitudeAccuracy ?? 0.0,
     headingAccuracy: headingAccuracy ?? 0.0,
   );
-
-  Geolocator.getCurrentPosition(
-    desiredAccuracy: LocationAccuracy.best,
-  ).then((value) => position = value);
-
   return position;
 }
 
@@ -936,4 +834,19 @@ class YurRing {
     FlutterRingtonePlayer player = FlutterRingtonePlayer();
     player.stop();
   }
+}
+
+Future<void> YurDownload({
+  required String url,
+  required String fileName,
+  String? saveDir,
+}) async {
+  await FlutterDownloader.enqueue(
+    url: url,
+    savedDir: saveDir ?? '/storage/emulated/0/Download',
+    fileName: fileName,
+    showNotification: true,
+    openFileFromNotification: true,
+    allowCellular: true,
+  );
 }

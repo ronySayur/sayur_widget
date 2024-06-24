@@ -83,7 +83,11 @@ class AddressNominatim {
     return AddressNominatim(
       suburb: json['suburb'] ?? '',
       cityDistrict: json['city_district'] ?? '',
-      town: json['town'] ?? json['city'] ?? json['municipality'] ?? '',
+      town: json['town'] ??
+          json['city'] ??
+          json['municipality'] ??
+          json['village'] ??
+          '',
       state: json['state'] ?? '',
       iso31662Lvl4: json['ISO3166-2-lvl4'] ?? '',
       region: json['region'] ?? '',

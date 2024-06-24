@@ -25,6 +25,7 @@ import 'package:pinput/pinput.dart';
 import 'dart:async';
 
 import 'package:sayur_widget/sayur_core.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 TextStyle YurTextStyle({
@@ -702,7 +703,7 @@ class YurExpansionTile extends StatelessWidget {
 
 class YurDropdown extends StatelessWidget {
   final BuildContext context;
-  final String labelText;
+  final String? labelText;
   final List<String> items;
   final String? selectedValue;
   final Function(String?) onChanged;
@@ -720,7 +721,7 @@ class YurDropdown extends StatelessWidget {
   const YurDropdown({
     super.key,
     required this.context,
-    required this.labelText,
+    this.labelText,
     required this.items,
     required this.selectedValue,
     required this.onChanged,
@@ -797,7 +798,7 @@ class YurDropdown extends StatelessWidget {
           color: color,
         ),
         label: YurText(
-          text: labelText,
+          text: labelText ?? "",
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: color,
@@ -1349,43 +1350,69 @@ class _YurBottomSheetState extends State<YurBottomSheet> {
   }
 }
 
-class YurTab extends StatelessWidget {
+class YurTab extends StatefulWidget {
   final List<Widget> tabs;
   final List<Widget> tabViews;
   final Color color;
   final Color unselectedLabelColor;
   final TabController? tabController;
-  int? selectedIndex;
+  final int? initialIndex;
 
-  YurTab({
+  const YurTab({
     super.key,
     required this.tabs,
     required this.tabViews,
     this.color = Colors.white,
     this.unselectedLabelColor = Colors.black,
     this.tabController,
-    this.selectedIndex,
+    this.initialIndex,
   });
 
   @override
-  Widget build(BuildContext context) {
-    TabController tab = TabController(
-      length: tabs.length,
-      initialIndex: selectedIndex ?? 0,
-      vsync: Navigator.of(Get.context),
-    );
+  _YurTabState createState() => _YurTabState();
+}
 
+class _YurTabState extends State<YurTab> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = widget.tabController ??
+        TabController(
+          length: widget.tabs.length,
+          initialIndex: widget.initialIndex ?? 0,
+          vsync: this,
+        );
+  }
+
+  @override
+  void didUpdateWidget(YurTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialIndex != oldWidget.initialIndex) {
+      _tabController.index = widget.initialIndex ?? 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Material(
-      color: color,
+      color: widget.color,
       child: DefaultTabController(
-        length: tabs.length,
+        length: widget.tabs.length,
         child: Column(
           children: [
             TabBar(
-              controller: tabController ?? tab,
-              tabs: tabs,
+              controller: _tabController,
+              tabs: widget.tabs,
               labelColor: primaryRed,
-              unselectedLabelColor: unselectedLabelColor,
+              unselectedLabelColor: widget.unselectedLabelColor,
               indicatorColor: primaryRed,
               indicatorSize: TabBarIndicatorSize.label,
               indicatorWeight: 2,
@@ -1405,8 +1432,10 @@ class YurTab extends StatelessWidget {
               labelPadding: eW12,
               mouseCursor: SystemMouseCursors.click,
               onTap: (index) {
-                YurLog(name: "TabBarHelper $tabs", "index: $index");
-                selectedIndex = index;
+                YurLog(name: "TabBarHelper ${widget.tabs}", "index: $index");
+                setState(() {
+                  _tabController.index = index;
+                });
               },
               overlayColor: MaterialStateProperty.all(Colors.transparent),
               padding: eW12,
@@ -1415,12 +1444,12 @@ class YurTab extends StatelessWidget {
             ),
             Expanded(
               child: TabBarView(
-                controller: tabController ?? tab,
+                controller: _tabController,
                 physics: const ClampingScrollPhysics(),
                 viewportFraction: 1,
                 clipBehavior: Clip.antiAlias,
                 dragStartBehavior: DragStartBehavior.start,
-                children: tabViews,
+                children: widget.tabViews,
               ),
             ),
           ],
@@ -1837,9 +1866,11 @@ class YurImageNet extends StatelessWidget {
     this.gradient,
     this.shape = BoxShape.rectangle,
     this.boxShadow,
+    this.errorWidget,
   });
 
   final String imageUrl;
+  final Widget? errorWidget;
   final double? width;
   final double? height;
   final BoxFit fit;
@@ -1883,28 +1914,29 @@ class YurImageNet extends StatelessWidget {
         child: CircularProgressIndicator(color: primaryRed),
       ),
       errorWidget: (context, url, error) {
-        return Center(
-          child: Container(
-            height: height,
-            width: width,
-            margin: margin,
-            padding: padding,
-            alignment: alignment,
-            decoration: BoxDecoration(
-              shape: shape,
-              border: border,
-              gradient: gradient,
-              boxShadow: boxShadow,
-              borderRadius: borderRadius,
-            ),
-            child: YurIcon(
-              icon: iconError,
-              color: primaryRed,
-              padding: padding,
-              margin: margin,
-            ),
-          ),
-        );
+        return errorWidget ??
+            Center(
+              child: Container(
+                height: height,
+                width: width,
+                margin: margin,
+                padding: padding,
+                alignment: alignment,
+                decoration: BoxDecoration(
+                  shape: shape,
+                  border: border,
+                  gradient: gradient,
+                  boxShadow: boxShadow,
+                  borderRadius: borderRadius,
+                ),
+                child: YurIcon(
+                  icon: iconError,
+                  color: primaryRed,
+                  padding: padding,
+                  margin: margin,
+                ),
+              ),
+            );
       },
     ).animate().shimmer(duration: 3.seconds);
   }
@@ -2112,6 +2144,9 @@ class YurScaffold extends StatelessWidget {
     this.padding = e0,
     this.canPop = true,
     this.onPopInvoked,
+    this.floatingActionButtonAnimator,
+    this.floatingActionButtonLocation,
+    this.safeArea = false,
   });
 
   final PreferredSizeWidget? appBar;
@@ -2127,17 +2162,25 @@ class YurScaffold extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final bool canPop;
   final Function(bool)? onPopInvoked;
+  final FloatingActionButtonAnimator? floatingActionButtonAnimator;
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+  final bool safeArea;
 
   @override
   Widget build(BuildContext context) {
     initializeDateFormatting();
     Intl.defaultLocale = 'id_ID';
+    return safeArea ? SafeArea(child: content()) : content();
+  }
 
+  PopScope content() {
     return PopScope(
       canPop: canPop,
       onPopInvoked: onPopInvoked,
       child: Scaffold(
         appBar: appBar,
+        floatingActionButtonAnimator: floatingActionButtonAnimator,
+        floatingActionButtonLocation: floatingActionButtonLocation,
         body: Padding(padding: padding, child: body),
         drawer: drawer,
         endDrawer: endDrawer,
@@ -2306,7 +2349,7 @@ class YurSwiper extends StatelessWidget {
         itemHeight: itemHeight ?? Get.height * 0.35,
         itemWidth: itemWidth ?? Get.width * 0.8,
         physics: const ClampingScrollPhysics(),
-        viewportFraction: fullscreen ? 1 : 0.8,
+        viewportFraction: fullscreen ? 1 : 0.95,
         containerWidth: double.infinity,
         control: control
             ? children.length == 1
@@ -2507,7 +2550,6 @@ class YurWebView extends StatefulWidget {
     super.key,
     required this.linkWebView,
     this.title = "",
-    this.isDismisable = false,
     this.isSecured = false,
     this.withAppBar = false,
     this.onInit,
@@ -2516,7 +2558,6 @@ class YurWebView extends StatefulWidget {
 
   final String title;
   final String linkWebView;
-  final bool isDismisable;
   final bool isSecured;
   final bool withAppBar;
   final Function()? onInit;
@@ -2547,208 +2588,114 @@ class _YurWebViewState extends State<YurWebView> {
     String userAgent =
         "Mozilla/5.0 (Linux; Android 10; SM-A107F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36";
 
-    return MaterialApp(
-      home: PopScope(
-        canPop: widget.isDismisable,
-        onPopInvoked: (didPop) {
-          YurLoading(loadingStatus: LoadingStatus.dismiss);
-          if (!didPop) {
-            YurAlertDialog(
-              context: context,
-              title: "Keluar dari aplikasi",
-              message: "Yakin Mau Keluar?",
-              buttonText: "Ya",
-              onConfirm: () => Get.back(),
-            );
-          }
-        },
-        child: SafeArea(
-          child: YurScaffold(
-            appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
-            body: InAppWebView(
-              initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
-              initialOptions: InAppWebViewGroupOptions(
-                ios: IOSInAppWebViewOptions(
-                  allowsInlineMediaPlayback: true,
-                  allowsAirPlayForMediaPlayback: true,
-                  allowsBackForwardNavigationGestures: true,
-                  allowsLinkPreview: true,
-                  isFraudulentWebsiteWarningEnabled: true,
-                  sharedCookiesEnabled: true,
-                  suppressesIncrementalRendering: true,
-                  selectionGranularity: IOSWKSelectionGranularity.DYNAMIC,
-                ),
-                android: AndroidInAppWebViewOptions(
-                  builtInZoomControls: false,
-                  displayZoomControls: false,
-                  supportMultipleWindows: false,
-                  thirdPartyCookiesEnabled: true,
-                  useWideViewPort: true,
-                  forceDark: AndroidForceDark.FORCE_DARK_OFF,
-                  domStorageEnabled: true,
-                  serifFontFamily: "Roboto",
-                  sansSerifFontFamily: "Roboto",
-                  defaultFixedFontSize: 12,
-                ),
-                crossPlatform: InAppWebViewOptions(
-                  javaScriptEnabled: true,
-                  useShouldOverrideUrlLoading: true,
-                  useOnDownloadStart: true,
-                  useOnLoadResource: true,
-                  useShouldInterceptAjaxRequest: true,
-                  useShouldInterceptFetchRequest: true,
-                  supportZoom: false,
-                  incognito: true,
-                  userAgent: userAgent,
-                ),
-              ),
-              onWebViewCreated: (InAppWebViewController controller) {
-                controller.addJavaScriptHandler(
-                  handlerName: "messageChannel",
-                  callback: (args) => YurLog(args[0], name: "messageChannel"),
-                );
-              },
-              onLoadStart: (InAppWebViewController controller, Uri? url) {
-                YurLog(url.toString(), name: "onLoadStart");
-              },
-              onLoadStop: (InAppWebViewController controller, Uri? url) async {
-                YurLog(url.toString(), name: "onLoadStop");
+    return YurScaffold(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        YurLoading(loadingStatus: LoadingStatus.dismiss);
 
-                YurLoading(loadingStatus: LoadingStatus.dismiss);
-              },
-              onLoadError: (InAppWebViewController controller, Uri? url,
-                  int code, String message) {
-                YurLog(message, name: "onLoadError");
-              },
-              onProgressChanged:
-                  (InAppWebViewController controller, int progress) {
-                YurLog(progress.toString(), name: "progress");
-              },
-              onDownloadStartRequest: (controller, url) async {
-                if (url.toString().toLowerCase().endsWith('.pdf')) {
-                  if (await canLaunch(url.toString())) {
-                    await launch(url.toString());
-                  } else {
-                    YurLog("Could not launch PDF viewer");
-                  }
-                } else {
-                  Directory? tempDir = await getExternalStorageDirectory();
-
-                  setState(() {});
-
-                  YurNotification.showNotification(
-                    channel: YurChannel.download,
-                    body: "Downloading ${url.suggestedFilename}",
-                    title: "Downloading",
-                  );
-
-                  await FlutterDownloader.enqueue(
-                    url: url.url.toString(),
-                    fileName: url.suggestedFilename,
-                    savedDir: tempDir?.path ?? "",
-                    showNotification: true,
-                    requiresStorageNotLow: false,
-                    openFileFromNotification: true,
-                    saveInPublicStorage: true,
-                    allowCellular: true,
-                  );
-                }
-              },
-              onConsoleMessage: (InAppWebViewController controller,
-                  ConsoleMessage consoleMessage) async {},
+        if (!didPop) {
+          YurDialog1(
+            title: "Peringatan",
+            subtitle: "Apakah Anda yakin ingin keluar dari halaman ini?",
+            buttonConfirm: 'Ya',
+            buttonCancel: 'Tidak',
+            onPressedConfirm: Get.back,
+          );
+        }
+        setState(() {});
+      },
+      appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
+      body: SafeArea(
+        child: InAppWebView(
+          initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
+          initialOptions: InAppWebViewGroupOptions(
+            ios: IOSInAppWebViewOptions(
+              allowsInlineMediaPlayback: true,
+              allowsAirPlayForMediaPlayback: true,
+              allowsBackForwardNavigationGestures: true,
+              allowsLinkPreview: true,
+              isFraudulentWebsiteWarningEnabled: true,
+              sharedCookiesEnabled: true,
+              suppressesIncrementalRendering: true,
+              selectionGranularity: IOSWKSelectionGranularity.DYNAMIC,
+            ),
+            android: AndroidInAppWebViewOptions(
+              builtInZoomControls: false,
+              displayZoomControls: false,
+              supportMultipleWindows: false,
+              thirdPartyCookiesEnabled: true,
+              useWideViewPort: true,
+              forceDark: AndroidForceDark.FORCE_DARK_OFF,
+              domStorageEnabled: true,
+              serifFontFamily: "Roboto",
+              sansSerifFontFamily: "Roboto",
+              defaultFixedFontSize: 12,
+            ),
+            crossPlatform: InAppWebViewOptions(
+              javaScriptEnabled: true,
+              useShouldOverrideUrlLoading: true,
+              useOnDownloadStart: true,
+              useOnLoadResource: true,
+              useShouldInterceptAjaxRequest: true,
+              useShouldInterceptFetchRequest: true,
+              supportZoom: false,
+              incognito: true,
+              userAgent: userAgent,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  MaterialApp content() {
-    String userAgent =
-        "Mozilla/5.0 (Linux; Android 10; SM-A107F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36";
-
-    return MaterialApp(
-      home: PopScope(
-        canPop: widget.isDismisable,
-        onPopInvoked: (didPop) {
-          if (didPop) {
-            YurAlertDialog(
-              context: context,
-              title: "Keluar dari aplikasi",
-              message: "Yakin Mau Keluar?",
-              buttonText: "Ya",
-              onConfirm: () => Get.back(),
+          onWebViewCreated: (InAppWebViewController controller) {
+            controller.addJavaScriptHandler(
+              handlerName: "messageChannel",
+              callback: (args) => YurLog(args[0], name: "messageChannel"),
             );
-          }
-        },
-        child: SafeArea(
-          child: YurScaffold(
-            appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
-            body: InAppWebView(
-              initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
-              initialOptions: InAppWebViewGroupOptions(
-                ios: IOSInAppWebViewOptions(
-                  allowsInlineMediaPlayback: true,
-                  allowsAirPlayForMediaPlayback: true,
-                  allowsBackForwardNavigationGestures: true,
-                  allowsLinkPreview: true,
-                  isFraudulentWebsiteWarningEnabled: true,
-                  sharedCookiesEnabled: true,
-                  suppressesIncrementalRendering: true,
-                  selectionGranularity: IOSWKSelectionGranularity.DYNAMIC,
-                ),
-                android: AndroidInAppWebViewOptions(
-                  builtInZoomControls: false,
-                  displayZoomControls: false,
-                  supportMultipleWindows: false,
-                  thirdPartyCookiesEnabled: true,
-                  useWideViewPort: true,
-                  forceDark: AndroidForceDark.FORCE_DARK_OFF,
-                  domStorageEnabled: true,
-                  serifFontFamily: "Roboto",
-                  sansSerifFontFamily: "Roboto",
-                  defaultFixedFontSize: 12,
-                ),
-                crossPlatform: InAppWebViewOptions(
-                  javaScriptEnabled: true,
-                  useShouldOverrideUrlLoading: true,
-                  useOnDownloadStart: true,
-                  useOnLoadResource: true,
-                  useShouldInterceptAjaxRequest: true,
-                  useShouldInterceptFetchRequest: true,
-                  supportZoom: false,
-                  incognito: true,
-                  userAgent: userAgent,
-                ),
-              ),
-              onWebViewCreated: (InAppWebViewController controller) {
-                controller.addJavaScriptHandler(
-                  handlerName: "messageChannel",
-                  callback: (args) {
-                    YurLog(args[0], name: "messageChannel");
-                  },
-                );
-              },
-              onLoadStart: (InAppWebViewController controller, Uri? url) {
-                YurLog(url.toString(), name: "onLoadStart");
-              },
-              onLoadStop: (InAppWebViewController controller, Uri? url) async {
-                YurLog(url.toString(), name: "onLoadStop");
+          },
+          onLoadStart: (InAppWebViewController controller, Uri? url) {
+            YurLog(url.toString(), name: "onLoadStart");
+          },
+          onLoadStop: (InAppWebViewController controller, Uri? url) async {
+            YurLog(url.toString(), name: "onLoadStop");
 
-                YurLoading(loadingStatus: LoadingStatus.dismiss);
-              },
-              onLoadError: (InAppWebViewController controller, Uri? url,
-                  int code, String message) {
-                YurLog(message, name: "onLoadError");
-              },
-              onProgressChanged:
-                  (InAppWebViewController controller, int progress) {
-                YurLog(progress.toString(), name: "progress");
-              },
-              onConsoleMessage: (InAppWebViewController controller,
-                  ConsoleMessage consoleMessage) async {},
-            ),
-          ),
+            YurLoading(loadingStatus: LoadingStatus.dismiss);
+          },
+          onLoadError: (InAppWebViewController controller, Uri? url, int code,
+              String message) {
+            YurLog(message, name: "onLoadError");
+          },
+          onProgressChanged: (InAppWebViewController controller, int progress) {
+            YurLog(progress.toString(), name: "progress");
+          },
+          onDownloadStartRequest: (controller, url) async {
+            if (url.toString().toLowerCase().endsWith('.pdf')) {
+              if (await canLaunch(url.toString())) {
+                await launch(url.toString());
+              } else {
+                YurLog("Could not launch PDF viewer");
+              }
+            } else {
+              Directory? tempDir = await getExternalStorageDirectory();
+
+              setState(() {});
+
+              YurNotification.showNotification(
+                channel: YurChannel.download,
+                body: "Downloading ${url.suggestedFilename}",
+                title: "Downloading",
+              );
+
+              await FlutterDownloader.enqueue(
+                url: url.url.toString(),
+                fileName: url.suggestedFilename,
+                savedDir: tempDir?.path ?? "",
+                showNotification: true,
+                requiresStorageNotLow: false,
+                openFileFromNotification: true,
+                saveInPublicStorage: true,
+                allowCellular: true,
+              );
+            }
+          },
+          onConsoleMessage: (InAppWebViewController controller,
+              ConsoleMessage consoleMessage) {},
         ),
       ),
     );
@@ -3041,4 +2988,47 @@ class ReceiveNotification {
   final String? title;
   final String? body;
   final String? payload;
+}
+
+ListView YurListBuilder<T>({
+  required List<dynamic> list,
+  required Widget Function(T) widgetBuilder,
+  Widget? widgetEmpty,
+  bool? shrinkWrap,
+  ScrollPhysics? physics,
+  ScrollController? controller,
+  Axis scrollDirection = Axis.vertical,
+  EdgeInsetsGeometry? padding,
+  ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior,
+  bool? reverse,
+}) {
+  return ListView.builder(
+    shrinkWrap: shrinkWrap ?? true,
+    physics: physics ?? const NeverScrollableScrollPhysics(),
+    itemCount: list.length,
+    controller: controller,
+    scrollDirection: scrollDirection,
+    padding: padding ?? e0,
+    keyboardDismissBehavior:
+        keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.onDrag,
+    reverse: reverse ?? false,
+    itemBuilder: (context, index) {
+      if (list.isEmpty) {
+        return widgetEmpty ??
+            Center(
+                child: Column(
+              children: [
+                const YurIcon(
+                  icon: Icons.info,
+                  color: primaryRed,
+                  size: 48,
+                ),
+                gap20,
+                YurText(text: "Data Kosong$T", fontWeight: FontWeight.bold),
+              ],
+            ));
+      }
+      return widgetBuilder(list[index] as T);
+    },
+  );
 }
