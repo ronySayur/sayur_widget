@@ -753,17 +753,13 @@ class YurDropdown extends StatelessWidget {
       ),
       selectedItemBuilder: (context) {
         return items.map((item) {
-          return Row(
-            children: [
-              YurText(
-                padding: eW12,
-                text: item,
-                fontSize: fontSize,
-                fontWeight: fontWeight,
-                color: color,
-                fontStyle: fontStyle,
-              ),
-            ],
+          return YurText(
+            padding: eW12,
+            text: item,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: color,
+            fontStyle: fontStyle,
           );
         }).toList();
       },
@@ -1019,9 +1015,7 @@ class YurRadioButton extends StatelessWidget {
   }
 
   void handleOption(String option) {
-    if (selectedOption != option) {
-      onChanged(option);
-    }
+    if (selectedOption != option) onChanged(option);
   }
 
   Widget card(String option) {
@@ -1151,7 +1145,6 @@ class _YurDateTimePickerState extends State<YurDateTimePicker> {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
 
-    // time = picked date + picked time
     String time = widget.withTimePick
         ? "${widget.initialDate.dateFormat("dd-MM-yyyy")} ${widget.initialTime.format(context)}"
         : widget.initialDate.dateFormat("dd-MM-yyyy");
@@ -1626,6 +1619,8 @@ class YurButton extends StatelessWidget {
                   return Colors.white;
                 case BStyle.spaceGrey:
                   return Colors.white;
+                case BStyle.tertiaryGreen:
+                  return Colors.white;
 
                 default:
                   return secondaryYellow;
@@ -1644,6 +1639,8 @@ class YurButton extends StatelessWidget {
               return Colors.white;
             case BStyle.spaceGrey:
               return Colors.grey;
+            case BStyle.tertiaryGreen:
+              return tertiaryGreen;
             default:
               return secondaryYellow;
           }
@@ -1665,6 +1662,8 @@ class YurButton extends StatelessWidget {
                 case BStyle.secondaryRed:
                   return primaryRed;
                 case BStyle.spaceGrey:
+                  return Colors.white;
+                case BStyle.tertiaryGreen:
                   return Colors.white;
                 default:
                   return Colors.black87;
@@ -3030,5 +3029,45 @@ ListView YurListBuilder<T>({
       }
       return widgetBuilder(list[index] as T);
     },
+  );
+}
+
+Widget YurEmptyItem(
+  String title,
+  String subtitle, {
+  EdgeInsetsGeometry? padding,
+}) {
+  return Center(
+    child: Container(
+      padding: padding ?? e12,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const YurIcon(
+            icon: Icons.shopping_cart,
+            size: 120,
+            color: primaryRed,
+          ).animate(onComplete: (c) => c.repeat(reverse: true)).move(
+                duration: 500.ms,
+                curve: Curves.easeInOut,
+                begin: const Offset(0, -10),
+                end: const Offset(0, 10),
+              ),
+          gap20,
+          YurText(
+            text: title,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w500,
+            fontSize: 24,
+            maxLines: 3,
+          ),
+          gap12,
+          YurText(
+            text: subtitle,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
   );
 }

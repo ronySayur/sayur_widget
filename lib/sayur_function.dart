@@ -535,11 +535,14 @@ Future<dynamic> YurDialog1({
   required String subtitle,
   required String buttonConfirm,
   required Function() onPressedConfirm,
+  double? sizeSubtitle,
   String? buttonCancel,
   Widget? icon,
   bool isDismisable = true,
+  bool? isWithPostFrame,
+  FontWeight? fontWeight,
 }) {
-  return showDialog(
+  var showDialog2 = showDialog(
     context: Get.context,
     barrierDismissible: isDismisable,
     builder: (BuildContext context) {
@@ -553,8 +556,8 @@ Future<dynamic> YurDialog1({
         content: YurText(
           text: subtitle,
           textAlign: TextAlign.start,
-          fontWeight: FontWeight.w300,
-          fontSize: 14,
+          fontWeight: fontWeight ?? FontWeight.w300,
+          fontSize: sizeSubtitle ?? 14,
           maxLines: 10,
         ),
         actions: [
@@ -592,6 +595,11 @@ Future<dynamic> YurDialog1({
       );
     },
   );
+
+  if (isWithPostFrame ?? false) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => showDialog2);
+  }
+  return showDialog2;
 }
 
 YurSearch({

@@ -27,7 +27,9 @@ extension StringExtension on String {
   bool isValidEmail() => RegExp(
           r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
       .hasMatch(this);
+
   bool isValidPhone() => RegExp(r'^[0-9]{10,13}$').hasMatch(this);
+
   bool isValidNik() => RegExp(r'^[0-9]{16}$').hasMatch(this);
 
   String toCapitalize() {
@@ -50,7 +52,33 @@ extension StringExtension on String {
   String toDollar() =>
       NumberFormat.currency(locale: 'en', symbol: '\$', decimalDigits: 0)
           .format(int.parse(this));
+
+  String toAge() {
+    DateTime now = DateTime.now();
+    DateTime birth = DateTime.parse(this);
+    int ageInYears = now.year - birth.year;
+
+    if (now.month < birth.month ||
+        (now.month == birth.month && now.day < birth.day)) {
+      ageInYears--;
+    }
+
+    return "$ageInYears tahun";
+  }
 }
+
+// static String convertAge(String dateOfBirth) {
+//   DateTime now = DateTime.now();
+//   DateTime birth = DateTime.parse(dateOfBirth);
+//   int ageInYears = now.year - birth.year;
+
+//   if (now.month < birth.month ||
+//       (now.month == birth.month && now.day < birth.day)) {
+//     ageInYears--;
+//   }
+
+//   return "$ageInYears tahun";
+// }
 
 extension IntExtension on int {
   String toDigitalTime() {
