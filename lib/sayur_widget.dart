@@ -2375,8 +2375,8 @@ class YurSwiper extends StatelessWidget {
                 : SwiperPagination(
                     alignment: dotAllignment ?? Alignment.bottomCenter,
                     builder: const DotSwiperPaginationBuilder(
-                      activeColor: Colors.grey,
-                      color: Colors.white,
+                      activeColor: primaryRed,
+                      color: Colors.grey,
                       activeSize: 12,
                       size: 6,
                     ),
