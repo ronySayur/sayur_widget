@@ -65,20 +65,30 @@ extension StringExtension on String {
 
     return "$ageInYears tahun";
   }
+
+  //hasilnya 01:30
+  String toHours() {
+    DateTime now = DateTime.now(), time = DateTime.parse(this);
+    int diff = now.difference(time).inMinutes;
+
+    return diff.toDigitalTime();
+  }
+
+  String toHoursMinuteNonNumeric() {
+    DateTime now = DateTime.now(), time = DateTime.parse(this);
+    int diff = now.difference(time).inMinutes;
+    String hour = (diff ~/ 60).toString(), minute = (diff % 60).toString();
+    return "$hour jam $minute menit";
+  }
+
+  String toMinuteNonNumeric() {
+    DateTime now = DateTime.now();
+    DateTime time = DateTime.parse(this);
+    int diff = now.difference(time).inMinutes;
+
+    return "$diff menit";
+  }
 }
-
-// static String convertAge(String dateOfBirth) {
-//   DateTime now = DateTime.now();
-//   DateTime birth = DateTime.parse(dateOfBirth);
-//   int ageInYears = now.year - birth.year;
-
-//   if (now.month < birth.month ||
-//       (now.month == birth.month && now.day < birth.day)) {
-//     ageInYears--;
-//   }
-
-//   return "$ageInYears tahun";
-// }
 
 extension IntExtension on int {
   String toDigitalTime() {

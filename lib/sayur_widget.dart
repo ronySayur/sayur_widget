@@ -2350,6 +2350,16 @@ class YurSwiper extends StatelessWidget {
         physics: const ClampingScrollPhysics(),
         viewportFraction: fullscreen ? 1 : 0.95,
         containerWidth: double.infinity,
+        curve: Curves.easeInOut,
+        fade: 0.3,
+        loop: loop,
+        indicatorLayout: PageIndicatorLayout.COLOR,
+        transformer: ScaleAndFadeTransformer(),
+        controller: swiperController ?? SwiperController(),
+        layout: swiperLayout,
+        autoplay: true,
+        autoplayDelay: 10000,
+        allowImplicitScrolling: true,
         control: control
             ? children.length == 1
                 ? null
@@ -2359,9 +2369,6 @@ class YurSwiper extends StatelessWidget {
                     size: 24,
                   )
             : null,
-        curve: Curves.easeInOut,
-        fade: 0.3,
-        loop: loop,
         pagination: dotSwiper
             ? children.length == 1
                 ? null
@@ -2375,18 +2382,11 @@ class YurSwiper extends StatelessWidget {
                     ),
                   )
             : null,
-        indicatorLayout: PageIndicatorLayout.COLOR,
         onIndexChanged: (index) {
           if (onPageChanged != null) {
             onPageChanged!(index);
           }
         },
-        transformer: ScaleAndFadeTransformer(),
-        controller: swiperController ?? SwiperController(),
-        layout: swiperLayout,
-        autoplay: true,
-        autoplayDelay: 10000,
-        allowImplicitScrolling: true,
       ),
     );
   }
