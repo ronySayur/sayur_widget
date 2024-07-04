@@ -326,6 +326,7 @@ class YurForm extends StatelessWidget {
   final Color? prefixIconColor;
   final String? dateFormat;
   final EdgeInsetsGeometry padding;
+  List<dynamic>? listDropDown;
 
   YurForm({
     super.key,
@@ -383,6 +384,7 @@ class YurForm extends StatelessWidget {
     this.isCantTap = false,
     this.dateFormat,
     this.padding = e0,
+    this.listDropDown,
   });
 
   @override
@@ -467,9 +469,7 @@ class YurForm extends StatelessWidget {
                     minHour: minHour,
                     minMinute: minMinute,
                   );
-                }
-
-                if (isDate) {
+                } else if (isDate) {
                   await selectDate(
                     context: context,
                     initialDate: initialDate ?? DateTime.now(),
@@ -486,6 +486,82 @@ class YurForm extends StatelessWidget {
                           .dateFormat(dateFormat ?? "yyyy-MM-dd");
                     }
                   });
+                } else if (listDropDown != null) {
+                  var listLocal = listDropDown;
+                  await showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: StatefulBuilder(builder: (context, setState) {
+                          return Padding(
+                            padding: e12,
+                            child: Column(
+                              children: [
+                                YurForm(
+                                  label: "Cari...",
+                                  hintText: "Cari...",
+                                  borderSideColor: borderSideColor,
+                                  onChanged: (value) => setState(() {
+                                    listLocal = listDropDown!
+                                        .where((element) => element
+                                            .toString()
+                                            .toLowerCase()
+                                            .contains(value.toLowerCase()))
+                                        .toList();
+                                  }),
+                                  suffixType: SuffixType.search,
+                                ),
+                                gap4,
+                                Row(
+                                  children: [
+                                    const Expanded(
+                                        child: YurDivider(color: Colors.grey)),
+                                    gap4,
+                                    YurText(
+                                      text:
+                                          "Total $label : ${listLocal!.length}",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ],
+                                ),
+                                gap4,
+                                Expanded(
+                                  child: YurListBuilder(
+                                    list: listLocal!,
+                                    shrinkWrap: true,
+                                    physics: const ClampingScrollPhysics(),
+                                    widgetBuilder: (p0) {
+                                      return YurCard(
+                                        onTap: () {
+                                          controller!.text = p0.toString();
+                                          YurLoading(
+                                            loadingStatus: LoadingStatus.info,
+                                            message:
+                                                "Data $label berhasil dipilih",
+                                          );
+                                          onTap();
+                                          Get.back();
+                                        },
+                                        padding: e12,
+                                        margin: e4,
+                                        child: YurText(
+                                          text: p0.toString(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      );
+                    },
+                  );
                 }
 
                 onTap();
@@ -717,6 +793,7 @@ class YurDropdown extends StatelessWidget {
   final FloatingLabelBehavior floatingLabelBehavior;
   final bool isExpanded;
   final BorderRadius borderRadius;
+  final Function()? onTap;
 
   const YurDropdown({
     super.key,
@@ -735,12 +812,14 @@ class YurDropdown extends StatelessWidget {
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.isExpanded = false,
     this.borderRadius = br12,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     DropdownButtonFormField dropdownButtonFormField = DropdownButtonFormField(
       value: selectedValue,
+      onTap: onTap,
       iconSize: 16,
       isExpanded: true,
       elevation: 4,
