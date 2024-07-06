@@ -124,8 +124,6 @@ ThemeData YurTheme() {
       onSecondary: secondaryYellow,
       error: Colors.red,
       onError: Colors.red,
-      background: Colors.white,
-      onBackground: Colors.white,
       surface: Colors.grey.shade200,
       onSurface: Colors.black,
     ),
@@ -600,6 +598,37 @@ Future<dynamic> YurDialog1({
     WidgetsBinding.instance.addPostFrameCallback((_) => showDialog2);
   }
   return showDialog2;
+}
+
+Future<dynamic> YurCustomDialog({
+  required String title,
+  required Widget content,
+  required List<Widget> actions,
+  Widget? icon,
+  bool isDismisable = true,
+}) {
+  return showDialog(
+    context: Get.context,
+    barrierDismissible: isDismisable,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: YurText(
+          text: title,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        content: IntrinsicHeight(child: content),
+        actions: actions,
+        icon: icon,
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 24,
+        shadowColor: Colors.black,
+        surfaceTintColor: Colors.white,
+        shape: const RoundedRectangleBorder(borderRadius: br16),
+      );
+    },
+  );
 }
 
 YurSearch({
