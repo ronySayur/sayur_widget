@@ -3082,7 +3082,7 @@ ListView YurListBuilder<T>({
 }) {
   return ListView.builder(
     shrinkWrap: shrinkWrap ?? true,
-    physics: physics ?? const NeverScrollableScrollPhysics(),
+    physics: physics ?? const ClampingScrollPhysics(),
     itemCount: list.length,
     controller: controller,
     scrollDirection: scrollDirection,
