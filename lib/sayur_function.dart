@@ -601,7 +601,7 @@ Future<dynamic> YurDialog1({
 }
 
 Future<dynamic> YurCustomDialog({
-  required String title,
+  String? title,
   required Widget content,
   required List<Widget> actions,
   Widget? icon,
@@ -612,12 +612,14 @@ Future<dynamic> YurCustomDialog({
     barrierDismissible: isDismisable,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: YurText(
-          text: title,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
+        title: title == null
+            ? null
+            : YurText(
+                text: title,
+                textAlign: TextAlign.center,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
         content: IntrinsicHeight(child: content),
         actions: actions,
         icon: icon,
