@@ -719,7 +719,7 @@ YurSearch({
 void YurLog(dynamic message, {String? name}) {
   DateTime now = DateTime.now();
 
-  if (kDebugMode && Platform.isAndroid) {
+  if (kDebugMode) {
     log(
       name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
       message.toString(),

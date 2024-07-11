@@ -21,7 +21,7 @@ class PermissionRequest {
         permission = await Geolocator.requestPermission();
         return false;
       }
-      
+
       if (permission == LocationPermission.deniedForever) {
         if (isShow) {
           isShow = false;
@@ -29,7 +29,7 @@ class PermissionRequest {
           YurAlertDialog(
             context: Get.context,
             title: "Izinkan Lokasi",
-            message: "Medi-Call membutuhkan izin lokasi anda",
+            message: "Aplikasi ini membutuhkan izin lokasi anda",
             buttonText: "Izinkan",
             onCancel: () {
               isShow = true;
@@ -83,8 +83,6 @@ class PermissionRequest {
 
       if (Platform.isAndroid) {
         isDeveloperOn = await FlutterJailbreakDetection.developerMode;
-      } else {
-        isDeveloperOn = await FlutterJailbreakDetection.jailbroken;
       }
 
       return isDeveloperOn;
@@ -101,10 +99,8 @@ class PermissionRequest {
       );
 
       bool isMocked = false;
-      bool geolocator = position.isMocked;
-      if (geolocator) {
-        isMocked = true;
-      }
+      if (position.isMocked) isMocked = true;
+      if (Platform.isIOS) isMocked = false;
 
       return isMocked;
     } catch (e) {

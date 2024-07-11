@@ -531,6 +531,11 @@ class YurForm extends StatelessWidget {
                                 gap4,
                                 Expanded(
                                   child: YurListBuilder(
+                                    onRefresh: () {
+                                      setState(() {
+                                        listLocal = listDropDown;
+                                      });
+                                    },
                                     list: listLocal!,
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
@@ -1312,74 +1317,14 @@ class _YurAddFieldState extends State<YurAddField> {
             ),
           ),
           gapW12,
-          InkWell(
+          YurIcon(
             onTap: () => widget.onDelete(),
-            child: const YurIcon(
-              icon: Icons.delete_forever,
-              color: Colors.red,
-            ),
+            icon: Icons.delete_forever,
+            color: Colors.red,
           ),
         ],
       ),
     );
-  }
-}
-
-class YurListViewBuilder extends StatefulWidget {
-  const YurListViewBuilder(
-      {super.key, required this.listItem, required this.listWidget});
-
-  final List<dynamic> listItem;
-  final List<Widget> listWidget;
-
-  @override
-  _YurListViewBuilderState createState() => _YurListViewBuilderState();
-}
-
-class _YurListViewBuilderState extends State<YurListViewBuilder> {
-  final ScrollController scrollController = ScrollController();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: scrollController,
-      physics: const ClampingScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: widget.listItem.length,
-      itemBuilder: (context, index) {
-        return AnimatedBuilder(
-          animation: scrollController,
-          builder: (context, child) {
-            double itemPositionOffset = index * 80.0;
-            double difference = scrollController.offset - itemPositionOffset;
-
-            double centerScreen = Get.height * 0.8 + 60;
-
-            double translateY = 0.0;
-            double translateX = 0.0;
-
-            if (difference > 0) {
-              translateY = 0;
-              translateX = (difference) / 2;
-            } else if (difference < -centerScreen + 80) {
-              translateY = 0;
-              translateX = (difference + centerScreen - 80) / 2;
-            }
-
-            return Transform.translate(
-              offset: Offset(translateX, translateY),
-              child: widget.listWidget[index],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
   }
 }
 
@@ -3068,7 +3013,7 @@ class ReceiveNotification {
   final String? payload;
 }
 
-ListView YurListBuilder<T>({
+Widget YurListBuilder<T>({
   required List<dynamic> list,
   required Widget Function(T) widgetBuilder,
   Widget? widgetEmpty,
@@ -3079,35 +3024,52 @@ ListView YurListBuilder<T>({
   EdgeInsetsGeometry? padding,
   ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior,
   bool? reverse,
+  required Function() onRefresh,
 }) {
-  return ListView.builder(
-    shrinkWrap: shrinkWrap ?? true,
-    physics: physics ?? const ClampingScrollPhysics(),
-    itemCount: list.length,
-    controller: controller,
-    scrollDirection: scrollDirection,
-    padding: padding ?? e0,
-    keyboardDismissBehavior:
-        keyboardDismissBehavior ?? ScrollViewKeyboardDismissBehavior.onDrag,
-    reverse: reverse ?? false,
-    itemBuilder: (context, index) {
-      if (list.isEmpty) {
-        return widgetEmpty ??
-            Center(
-                child: Column(
-              children: [
-                const YurIcon(
-                  icon: Icons.info,
-                  color: primaryRed,
-                  size: 48,
-                ),
-                gap20,
-                YurText(text: "Data Kosong$T", fontWeight: FontWeight.bold),
-              ],
-            ));
-      }
-      return widgetBuilder(list[index] as T);
+  return RefreshIndicator(
+    onRefresh: () {
+      onRefresh();
+      return Future.value();
     },
+    child: SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: Get.height,
+        ),
+        child: ListView.builder(
+          shrinkWrap: true,
+          physics: physics ?? const ClampingScrollPhysics(),
+          itemCount: list.isEmpty ? 1 : list.length,
+          controller: controller,
+          scrollDirection: scrollDirection,
+          padding: padding ?? EdgeInsets.zero,
+          keyboardDismissBehavior: keyboardDismissBehavior ??
+              ScrollViewKeyboardDismissBehavior.onDrag,
+          reverse: reverse ?? false,
+          itemBuilder: (context, index) {
+            if (list.isEmpty) {
+              return widgetEmpty ??
+                  const Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.info,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      SizedBox(height: 20),
+                      Text("Data Kosong",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ));
+            }
+            return widgetBuilder(list[index] as T);
+          },
+        ),
+      ),
+    ),
   );
 }
 
