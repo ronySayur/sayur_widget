@@ -240,7 +240,7 @@ class YurStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 3), () => function());
+    Future.delayed(3.seconds, () => function());
 
     return Material(
       color: Colors.transparent,
@@ -537,7 +537,6 @@ class YurForm extends StatelessWidget {
                                       });
                                     },
                                     list: listLocal!,
-                                    shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
                                     widgetBuilder: (p0) {
                                       return YurCard(
@@ -1532,7 +1531,7 @@ class YurFAB extends StatelessWidget {
         child: AnimatedDefaultTextStyle(
             curve: Curves.easeInOut,
             softWrap: true,
-            duration: const Duration(milliseconds: 200),
+            duration: 200.ms,
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: fontWeight ?? FontWeight.w500,
@@ -1715,7 +1714,7 @@ class YurButton extends StatelessWidget {
           ),
           elevation: 4,
           shadowColor: Colors.grey,
-          animationDuration: const Duration(milliseconds: 200),
+          animationDuration: 200.ms,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           enabledMouseCursor: SystemMouseCursors.click,
           surfaceTintColor: Colors.grey.withOpacity(0.12),
@@ -1725,7 +1724,7 @@ class YurButton extends StatelessWidget {
           child: AnimatedDefaultTextStyle(
               curve: Curves.easeInOut,
               softWrap: true,
-              duration: const Duration(milliseconds: 200),
+              duration: 200.ms,
               style: TextStyle(
                 fontSize: fontSize,
                 fontWeight: fontWeight ?? FontWeight.w500,
@@ -2145,7 +2144,7 @@ class YurIcon extends StatelessWidget {
         child: Icon(icon, color: color, size: size),
       ),
     ).animate(
-      delay: const Duration(milliseconds: 500),
+      delay: 500.ms,
       effects: [const ShakeEffect()],
     );
   }
@@ -2256,7 +2255,7 @@ class YurPieChart extends StatelessWidget {
           dataMap: dataMap,
           colorList: colorList,
           initialAngleInDegree: 270,
-          animationDuration: const Duration(seconds: 2),
+          animationDuration: 2.seconds,
           chartRadius: chartRadius,
           ringStrokeWidth: chartRadius,
           chartType: ChartType.ring,
@@ -2560,7 +2559,7 @@ Pinput YurPinput({
     enabled: !isReadOnly,
     obscureText: isObscure,
     enableIMEPersonalizedLearning: true,
-    animationDuration: const Duration(milliseconds: 300),
+    animationDuration: 300.ms,
     defaultPinTheme: defaultPinTheme,
     focusedPinTheme: focusedPinTheme,
     submittedPinTheme: submittedPinTheme,
@@ -3017,7 +3016,6 @@ Widget YurListBuilder<T>({
   required List<dynamic> list,
   required Widget Function(T) widgetBuilder,
   Widget? widgetEmpty,
-  bool? shrinkWrap,
   ScrollPhysics? physics,
   ScrollController? controller,
   Axis scrollDirection = Axis.vertical,
@@ -3025,6 +3023,7 @@ Widget YurListBuilder<T>({
   ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior,
   bool? reverse,
   required Function() onRefresh,
+  Color? color,
 }) {
   return RefreshIndicator(
     onRefresh: () {
@@ -3034,39 +3033,36 @@ Widget YurListBuilder<T>({
     child: SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: Get.height,
-        ),
-        child: ListView.builder(
-          shrinkWrap: true,
-          physics: physics ?? const ClampingScrollPhysics(),
-          itemCount: list.isEmpty ? 1 : list.length,
-          controller: controller,
-          scrollDirection: scrollDirection,
+        constraints: BoxConstraints(minHeight: Get.height),
+        child: Container(
           padding: padding ?? EdgeInsets.zero,
-          keyboardDismissBehavior: keyboardDismissBehavior ??
-              ScrollViewKeyboardDismissBehavior.onDrag,
-          reverse: reverse ?? false,
-          itemBuilder: (context, index) {
-            if (list.isEmpty) {
-              return widgetEmpty ??
-                  const Center(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.info,
-                        color: Colors.red,
-                        size: 48,
-                      ),
-                      SizedBox(height: 20),
-                      Text("Data Kosong",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ));
-            }
-            return widgetBuilder(list[index] as T);
-          },
+          color: color,
+          child: ListView.builder(
+            controller: controller,
+            shrinkWrap: true,
+            physics: physics ?? const ClampingScrollPhysics(),
+            itemCount: list.isEmpty ? 1 : list.length,
+            scrollDirection: scrollDirection,
+            keyboardDismissBehavior: keyboardDismissBehavior ??
+                ScrollViewKeyboardDismissBehavior.onDrag,
+            reverse: reverse ?? false,
+            itemBuilder: (context, index) {
+              if (list.isEmpty) {
+                return widgetEmpty ??
+                    const Center(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.info, color: Colors.red, size: 48),
+                        gap20,
+                        YurText(
+                            text: "Data Kosong", fontWeight: FontWeight.bold),
+                      ],
+                    ));
+              }
+              return widgetBuilder(list[index] as T);
+            },
+          ),
         ),
       ),
     ),

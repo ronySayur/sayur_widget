@@ -332,7 +332,7 @@ void YurSnackBar({
         parent: AnimationController(
           vsync: scaffoldMessenger,
           animationBehavior: AnimationBehavior.preserve,
-          duration: const Duration(milliseconds: 500),
+          duration: 500.ms,
         ),
         curve: Curves.easeInOut,
       ),
@@ -387,11 +387,7 @@ YurAlertDialog({
         return PopScope(
           canPop: (dialogType == DialogType.confirmation),
           onPopInvoked: (didPop) {
-            if (!didPop) {
-              Future.delayed(const Duration(microseconds: 500), () {
-                onConfirm();
-              });
-            }
+            if (!didPop) Future.delayed(500.ms, () => onConfirm());
           },
           child: AlertDialog(
             alignment: Alignment.center,
@@ -509,7 +505,7 @@ YurAlertDialog({
                         buttonStyle: BStyle.primaryRed,
                         fontSize: 12,
                         onPressed: () {
-                          Future.delayed(const Duration(microseconds: 500), () {
+                          Future.delayed(500.ms, () {
                             onConfirm();
                             Get.back();
                             YurLog(name: "YurcallDialog", title);
@@ -791,11 +787,9 @@ Future<String> selectDate({
     context: context,
     initialDate: initialDate,
     firstDate: firstDate ?? DateTime.now(),
-    lastDate: lastDate ?? DateTime.now().add(const Duration(days: 365)),
+    lastDate: lastDate ?? DateTime.now().add(365.days),
     selectableDayPredicate: (DateTime day) {
-      if (selectableDayPredicate != null) {
-        return selectableDayPredicate(day);
-      }
+      if (selectableDayPredicate != null) return selectableDayPredicate(day);
       return true;
     },
   );

@@ -75,19 +75,11 @@ class YurApi {
   static Future<Map<String, dynamic>> IP() async {
     try {
       bool result = await InternetConnectionChecker().hasConnection;
-
-      if (!result) {
-        return {"status": ""};
-      }
+      if (!result) return {"status": ""};
 
       final response = await http
-          .get(
-            Uri.parse('https://ipinfo.io/json'),
-          )
-          .timeout(
-            const Duration(seconds: 30),
-            onTimeout: () => http.Response('', 500),
-          );
+          .get(Uri.parse('https://ipinfo.io/json'))
+          .timeout(30.seconds, onTimeout: () => http.Response('', 500));
 
       if (response.body.isNotEmpty) {
         return json.decode(response.body);
@@ -114,7 +106,7 @@ class YurApi {
           'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lon&accept-language=id';
 
       final response = await http.get(Uri.parse(url)).timeout(
-            const Duration(seconds: 30),
+            30.seconds,
             onTimeout: () => http.Response('', 500),
           );
 
