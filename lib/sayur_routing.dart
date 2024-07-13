@@ -22,6 +22,7 @@ class Get {
 
   static void back({dynamic result}) {
     YurLog("Back", name: "Get.back");
+    EasyLoading.dismiss();
     if (Navigator.canPop(context)) Navigator.pop(context, result);
   }
 
