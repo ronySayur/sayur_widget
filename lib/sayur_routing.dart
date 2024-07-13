@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:sayur_widget/sayur_function.dart';
+import 'package:sayur_widget/sayur_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 BuildContext get globalContext => Get.context;
