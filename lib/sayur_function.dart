@@ -602,28 +602,33 @@ Future<dynamic> YurCustomDialog({
   required List<Widget> actions,
   Widget? icon,
   bool isDismisable = true,
+  Function(bool)? onPopInvoked,
 }) {
   return showDialog(
     context: Get.context,
     barrierDismissible: isDismisable,
     builder: (BuildContext context) {
-      return AlertDialog(
-        title: title == null
-            ? null
-            : YurText(
-                text: title,
-                textAlign: TextAlign.center,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-        content: IntrinsicHeight(child: content),
-        actions: actions,
-        icon: icon,
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 24,
-        shadowColor: Colors.black,
-        surfaceTintColor: Colors.white,
-        shape: const RoundedRectangleBorder(borderRadius: br16),
+      return PopScope(
+        canPop: isDismisable,
+        onPopInvoked: onPopInvoked,
+        child: AlertDialog(
+          title: title == null
+              ? null
+              : YurText(
+                  text: title,
+                  textAlign: TextAlign.center,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+          content: IntrinsicHeight(child: content),
+          actions: actions,
+          icon: icon,
+          backgroundColor: Colors.white.withOpacity(0.9),
+          elevation: 24,
+          shadowColor: Colors.black,
+          surfaceTintColor: Colors.white,
+          shape: const RoundedRectangleBorder(borderRadius: br16),
+        ),
       );
     },
   );
