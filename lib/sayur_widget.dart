@@ -2168,7 +2168,7 @@ class YurScaffold extends StatelessWidget {
     this.onPopInvoked,
     this.floatingActionButtonAnimator,
     this.floatingActionButtonLocation,
-    this.safeArea = false,
+    this.safeArea = true,
   });
 
   final PreferredSizeWidget? appBar;
