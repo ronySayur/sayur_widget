@@ -327,6 +327,7 @@ class YurForm extends StatelessWidget {
   final String? dateFormat;
   final EdgeInsetsGeometry padding;
   List<dynamic>? listDropDown;
+  dynamic selectedDropDown;
 
   YurForm({
     super.key,
@@ -348,7 +349,6 @@ class YurForm extends StatelessWidget {
     this.phoneNumberValidator = false,
     this.validator = true,
     this.optional = false,
-    //color labell grey 700 ambil dari class spacegrey
     this.colorLabel = spaceGrey,
     this.backgroundColor = Colors.white,
     this.keyboardType = TextInputType.text,
@@ -386,6 +386,7 @@ class YurForm extends StatelessWidget {
     this.dateFormat,
     this.padding = e0,
     this.listDropDown,
+    this.selectedDropDown,
   });
 
   @override
@@ -542,20 +543,22 @@ class YurForm extends StatelessWidget {
                                     widgetBuilder: (p0) {
                                       return YurCard(
                                         onTap: () {
+                                          selectedDropDown = p0;
                                           controller!.text = p0.toString();
+
                                           YurLoading(
-                                            loadingStatus: LoadingStatus.info,
-                                            message:
-                                                "Data $label berhasil dipilih",
-                                          );
+                                              loadingStatus: LoadingStatus.info,
+                                              message:
+                                                  "Data $label berhasil dipilih");
                                           onTap();
+
+                                          setState(() {});
+
                                           Get.back();
                                         },
                                         padding: e12,
                                         margin: e4,
-                                        child: YurText(
-                                          text: p0.toString(),
-                                        ),
+                                        child: YurText(text: p0.toString()),
                                       );
                                     },
                                   ),

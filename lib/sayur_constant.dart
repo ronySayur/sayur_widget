@@ -66,7 +66,7 @@ const MaterialColor tertiaryGreen = MaterialColor(
 );
 
 const MaterialColor spaceGrey = MaterialColor(
-  0xFF424242,
+  0xFF757575,
   <int, Color>{
     50: Color(0xFFFAFAFA),
     100: Color(0xFFF5F5F5),
