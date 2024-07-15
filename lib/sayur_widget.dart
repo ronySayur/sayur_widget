@@ -348,7 +348,8 @@ class YurForm extends StatelessWidget {
     this.phoneNumberValidator = false,
     this.validator = true,
     this.optional = false,
-    this.colorLabel = Colors.black,
+    //color labell grey 700 ambil dari class spacegrey
+    this.colorLabel = spaceGrey,
     this.backgroundColor = Colors.white,
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.done,
@@ -652,6 +653,7 @@ class YurForm extends StatelessWidget {
           hintStyle: TextStyle(
             fontSize: fontSize,
             fontWeight: fontWeight,
+            color: Colors.grey,
           ),
 
           // Floating Label
@@ -677,6 +679,7 @@ class YurForm extends StatelessWidget {
           alignLabelWithHint: true,
           isDense: true,
           isCollapsed: false,
+
           //border
           border: OutlineInputBorder(
             borderRadius: borderRadius,
