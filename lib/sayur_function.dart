@@ -12,6 +12,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -740,6 +741,7 @@ void YurShowPicker({
   required TextEditingController controller,
   double? minHour,
   double? minMinute,
+  Function(String)? onChanged,
 }) {
   Navigator.of(context).push(
     showPicker(
@@ -756,6 +758,7 @@ void YurShowPicker({
         String formattedMinute = value.minute.toString().padLeft(2, '0');
 
         controller.text = "$formattedHour:$formattedMinute";
+        if (onChanged != null) onChanged(controller.text);
       },
       is24HrFormat: true,
       iosStylePicker: true,
@@ -904,4 +907,22 @@ Future<Directory> _getDownloadDirectory() async {
   } else {
     return await getApplicationDocumentsDirectory();
   }
+}
+
+DateTime? tryParseDate(String input) {
+  List<String> formats = [
+    'dd-MM-yyyy',
+    'd MMMM yyyy',
+    'EEEE, dd-MM-yyyy',
+    'EEEE, d MMMM yyyy',
+    "EEEEE, dd MMMM yyyy",
+  ];
+  for (var format in formats) {
+    try {
+      return DateFormat(format).parseStrict(input);
+    } catch (e) {
+      continue;
+    }
+  }
+  return null;
 }

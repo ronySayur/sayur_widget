@@ -470,11 +470,15 @@ class YurForm extends StatelessWidget {
                     controller: controller!,
                     minHour: minHour,
                     minMinute: minMinute,
+                    onChanged: onChanged,
                   );
                 } else if (isDate) {
                   DateTime initDate = DateTime.now();
-                  if (controller!.text.isNotEmpty) {
-                    initDate = DateTime.parse(controller!.text);
+                  if (controller != null && controller!.text.isNotEmpty) {
+                    DateTime? parsedDate = tryParseDate(controller!.text);
+                    if (parsedDate != null) {
+                      initDate = parsedDate;
+                    }
                   }
 
                   await selectDate(
@@ -486,6 +490,7 @@ class YurForm extends StatelessWidget {
                     withTimePick: withTimePick,
                     selectableDayPredicate: selectableDayPredicate,
                   ).then((value) {
+                    onChanged(value.dateFormat(dateFormat ?? "yyyy-MM-dd"));
                     if (value.isEmpty) {
                       return controller!.text = "";
                     } else {
@@ -547,7 +552,7 @@ class YurForm extends StatelessWidget {
                                     physics: const ClampingScrollPhysics(),
                                     widgetBuilder: (p0) {
                                       return YurCard(
-                                        onTap: () {
+                                        onTap: () => setState(() {
                                           selectedDropDown = p0;
                                           controller!.text = p0.toString();
 
@@ -555,12 +560,9 @@ class YurForm extends StatelessWidget {
                                               loadingStatus: LoadingStatus.info,
                                               message:
                                                   "Data $label berhasil dipilih");
-                                          onTap();
-
-                                          setState(() {});
-
+                                          onChanged(p0.toString());
                                           Get.back();
-                                        },
+                                        }),
                                         padding: e12,
                                         margin: e4,
                                         child: YurText(text: p0.toString()),
