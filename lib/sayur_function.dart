@@ -126,6 +126,10 @@ ThemeData YurTheme() {
       onError: Colors.red,
       surface: Colors.grey.shade200,
       onSurface: Colors.black,
+      // ignore: deprecated_member_use
+      background: Colors.white,
+      // ignore: deprecated_member_use
+      onBackground: Colors.black,
     ),
     dialogTheme: const DialogTheme(
       shape: RoundedRectangleBorder(
@@ -877,14 +881,27 @@ class YurRing {
 Future<void> YurDownload({
   required String url,
   required String fileName,
-  String? saveDir,
 }) async {
+  String dir = (await _getDownloadDirectory()).path;
+  final directory = Directory(dir);
+  if (!await directory.exists()) {
+    await directory.create(recursive: true);
+  }
+
   await FlutterDownloader.enqueue(
     url: url,
-    savedDir: saveDir ?? '/storage/emulated/0/Download',
+    savedDir: dir,
     fileName: fileName,
     showNotification: true,
     openFileFromNotification: true,
     allowCellular: true,
   );
+}
+
+Future<Directory> _getDownloadDirectory() async {
+  if (Platform.isAndroid) {
+    return Directory('/storage/emulated/0/Download');
+  } else {
+    return await getApplicationDocumentsDirectory();
+  }
 }

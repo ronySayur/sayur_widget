@@ -470,9 +470,14 @@ class YurForm extends StatelessWidget {
                     minMinute: minMinute,
                   );
                 } else if (isDate) {
+                  DateTime initDate = DateTime.now();
+                  if (controller!.text.isNotEmpty) {
+                    initDate = DateTime.parse(controller!.text);
+                  }
+
                   await selectDate(
                     context: context,
-                    initialDate: initialDate ?? DateTime.now(),
+                    initialDate: initialDate ?? initDate,
                     firstDate: firstDate ?? DateTime(1900),
                     lastDate: lastDate ?? DateTime.now(),
                     initialTime: initialTime,
