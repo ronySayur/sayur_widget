@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:sayur_widget/sayur_function.dart';
 
 extension DateTimeExtension on DateTime {
   String dateFormat(String format) => DateFormat(format).format(this);
@@ -39,7 +40,9 @@ extension StringExtension on String {
 
   String toCapitalizeEachCase() {
     if (isEmpty) return '';
+
     return split(' ')
+        .where((word) => word.isNotEmpty)
         .map((word) =>
             "${word[0].toUpperCase()}${word.substring(1).toLowerCase()}")
         .toList()

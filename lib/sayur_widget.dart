@@ -2623,6 +2623,19 @@ class _YurWebViewState extends State<YurWebView> {
     String userAgent =
         "Mozilla/5.0 (Linux; Android 10; SM-A107F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36";
 
+    var androidInAppWebViewOptions = AndroidInAppWebViewOptions(
+      builtInZoomControls: false,
+      displayZoomControls: false,
+      supportMultipleWindows: false,
+      thirdPartyCookiesEnabled: true,
+      useWideViewPort: true,
+      forceDark: AndroidForceDark.FORCE_DARK_OFF,
+      domStorageEnabled: true,
+      serifFontFamily: "Roboto",
+      sansSerifFontFamily: "Roboto",
+      defaultFixedFontSize: 12,
+    );
+
     return YurScaffold(
       canPop: false,
       onPopInvoked: (didPop) {
@@ -2644,28 +2657,7 @@ class _YurWebViewState extends State<YurWebView> {
         child: InAppWebView(
           initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
           initialOptions: InAppWebViewGroupOptions(
-            ios: IOSInAppWebViewOptions(
-              allowsInlineMediaPlayback: true,
-              allowsAirPlayForMediaPlayback: true,
-              allowsBackForwardNavigationGestures: true,
-              allowsLinkPreview: true,
-              isFraudulentWebsiteWarningEnabled: true,
-              sharedCookiesEnabled: true,
-              suppressesIncrementalRendering: true,
-              selectionGranularity: IOSWKSelectionGranularity.DYNAMIC,
-            ),
-            android: AndroidInAppWebViewOptions(
-              builtInZoomControls: false,
-              displayZoomControls: false,
-              supportMultipleWindows: false,
-              thirdPartyCookiesEnabled: true,
-              useWideViewPort: true,
-              forceDark: AndroidForceDark.FORCE_DARK_OFF,
-              domStorageEnabled: true,
-              serifFontFamily: "Roboto",
-              sansSerifFontFamily: "Roboto",
-              defaultFixedFontSize: 12,
-            ),
+            android: androidInAppWebViewOptions,
             crossPlatform: InAppWebViewOptions(
               javaScriptEnabled: true,
               useShouldOverrideUrlLoading: true,
@@ -2729,8 +2721,7 @@ class _YurWebViewState extends State<YurWebView> {
               );
             }
           },
-          onConsoleMessage: (InAppWebViewController controller,
-              ConsoleMessage consoleMessage) {},
+          onConsoleMessage: (controller, consoleMessage) {},
         ),
       ),
     );

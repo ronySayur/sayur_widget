@@ -727,13 +727,16 @@ YurSearch({
 void YurLog(dynamic message, {String? name}) {
   DateTime now = DateTime.now();
 
-  if (kDebugMode) {
+  // if (kDebugMode) {
     log(
       name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
       message.toString(),
       time: now,
     );
-  }
+    debugPrint(
+      "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"} : $message",
+    );
+  // }
 }
 
 void YurShowPicker({
