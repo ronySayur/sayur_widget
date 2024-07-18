@@ -727,16 +727,13 @@ YurSearch({
 void YurLog(dynamic message, {String? name}) {
   DateTime now = DateTime.now();
 
-  // if (kDebugMode) {
+  if (kDebugMode) {
     log(
       name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
       message.toString(),
       time: now,
     );
-    debugPrint(
-      "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"} : $message",
-    );
-  // }
+  }
 }
 
 void YurShowPicker({
@@ -915,10 +912,19 @@ Future<Directory> _getDownloadDirectory() async {
 DateTime? tryParseDate(String input) {
   List<String> formats = [
     'dd-MM-yyyy',
+    'dd/MM/yyyy',
+    'dd MMMM yyyy',
     'd MMMM yyyy',
+    'dd-MM-yyyy HH:mm:ss',
+    'dd/MM/yyyy HH:mm:ss',
+    'dd MMMM yyyy HH:mm:ss',
+    'd MMMM yyyy HH:mm:ss',
     'EEEE, dd-MM-yyyy',
     'EEEE, d MMMM yyyy',
-    "EEEEE, dd MMMM yyyy",
+    'EEEEE, dd MMMM yyyy',
+    'yyyy-MM-dd',
+    'yyyy-MM-dd HH:mm:ss',
+    'yyyyMMddHHmmss',
   ];
   for (var format in formats) {
     try {

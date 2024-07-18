@@ -25,6 +25,7 @@ import 'package:pinput/pinput.dart';
 import 'dart:async';
 
 import 'package:sayur_widget/sayur_core.dart';
+import 'package:sayur_widget/sayur_function.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -474,16 +475,24 @@ class YurForm extends StatelessWidget {
                   );
                 } else if (isDate) {
                   DateTime initDate = DateTime.now();
-                  if (controller != null && controller!.text.isNotEmpty) {
+
+                  if (controller!.text.isNotEmpty) {
                     DateTime? parsedDate = tryParseDate(controller!.text);
+                    YurLog(parsedDate);
                     if (parsedDate != null) {
                       initDate = parsedDate;
                     }
                   }
 
+                  if (initialDate != null) {
+                    initDate = initialDate!;
+                  }
+                  YurLog("initDate");
+                  YurLog(initDate);
+                  YurLog(controller!.text);
                   await selectDate(
                     context: context,
-                    initialDate: initialDate ?? initDate,
+                    initialDate: initDate,
                     firstDate: firstDate ?? DateTime(1900),
                     lastDate: lastDate ?? DateTime.now(),
                     initialTime: initialTime,
