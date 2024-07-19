@@ -25,7 +25,6 @@ import 'package:pinput/pinput.dart';
 import 'dart:async';
 
 import 'package:sayur_widget/sayur_core.dart';
-import 'package:sayur_widget/sayur_function.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -2656,7 +2655,7 @@ class _YurWebViewState extends State<YurWebView> {
             subtitle: "Apakah Anda yakin ingin keluar dari halaman ini?",
             buttonConfirm: 'Ya',
             buttonCancel: 'Tidak',
-            onPressedConfirm: Get.back,
+            onPressedConfirm: Get.close,
           );
         }
         setState(() {});
