@@ -2615,6 +2615,7 @@ class YurWebView extends StatefulWidget {
 class _YurWebViewState extends State<YurWebView> {
   final Completer<void> _refreshCompleter = Completer<void>();
   late InAppWebViewController _webViewController;
+  late PullToRefreshController _pullToRefreshController;
 
   @override
   void initState() {
@@ -2622,6 +2623,14 @@ class _YurWebViewState extends State<YurWebView> {
     YurLoading(loadingStatus: LoadingStatus.show, isDismisable: false);
     if (widget.onInit != null) widget.onInit!();
     if (widget.isSecured) YurScreenShot(isOn: true);
+
+    _pullToRefreshController = PullToRefreshController(
+      options: PullToRefreshOptions(color: secondaryYellow),
+      onRefresh: () async {
+        _webViewController.reload();
+        return _refreshCompleter.future;
+      },
+    );
   }
 
   @override
@@ -2633,9 +2642,6 @@ class _YurWebViewState extends State<YurWebView> {
 
   @override
   Widget build(BuildContext context) {
-    String userAgent =
-        "Mozilla/5.0 (Linux; Android 10; SM-A107F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36";
-
     var androidInAppWebViewOptions = AndroidInAppWebViewOptions(
       builtInZoomControls: false,
       displayZoomControls: false,
@@ -2647,6 +2653,16 @@ class _YurWebViewState extends State<YurWebView> {
       serifFontFamily: "Roboto",
       sansSerifFontFamily: "Roboto",
       defaultFixedFontSize: 12,
+    );
+
+    var inAppWebViewOptions = InAppWebViewOptions(
+      javaScriptEnabled: true,
+      useShouldOverrideUrlLoading: true,
+      useOnDownloadStart: true,
+      useOnLoadResource: true,
+      useShouldInterceptAjaxRequest: true,
+      useShouldInterceptFetchRequest: true,
+      supportZoom: false,
     );
 
     return YurScaffold(
@@ -2666,97 +2682,65 @@ class _YurWebViewState extends State<YurWebView> {
         setState(() {});
       },
       appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _webViewController.reload();
-          await _refreshCompleter.future;
-        },
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: InAppWebView(
-                initialUrlRequest:
-                    URLRequest(url: Uri.parse(widget.linkWebView)),
-                initialOptions: InAppWebViewGroupOptions(
-                  android: androidInAppWebViewOptions,
-                  crossPlatform: InAppWebViewOptions(
-                    javaScriptEnabled: true,
-                    useShouldOverrideUrlLoading: true,
-                    useOnDownloadStart: true,
-                    useOnLoadResource: true,
-                    useShouldInterceptAjaxRequest: true,
-                    useShouldInterceptFetchRequest: true,
-                    supportZoom: false,
-                    incognito: true,
-                    userAgent: userAgent,
-                  ),
-                ),
-                onWebViewCreated: (InAppWebViewController controller) {
-                  _webViewController = controller;
-                  controller.addJavaScriptHandler(
-                    handlerName: "messageChannel",
-                    callback: (args) => YurLog(args[0], name: "messageChannel"),
-                  );
-                },
-                onLoadStart: (InAppWebViewController controller, Uri? url) {
-                  YurLog(url.toString(), name: "onLoadStart");
-                },
-                onLoadStop:
-                    (InAppWebViewController controller, Uri? url) async {
-                  YurLog(url.toString(), name: "onLoadStop");
-                  if (!_refreshCompleter.isCompleted) {
-                    _refreshCompleter.complete();
-                  }
-                  YurLoading(loadingStatus: LoadingStatus.dismiss);
-                },
-                onLoadError: (InAppWebViewController controller, Uri? url,
-                    int code, String message) {
-                  YurLog(message, name: "onLoadError");
-                  if (!_refreshCompleter.isCompleted) {
-                    _refreshCompleter.completeError(message);
-                  }
-                },
-                onProgressChanged:
-                    (InAppWebViewController controller, int progress) {
-                  YurLog(progress.toString(), name: "progress");
-                },
-                onDownloadStartRequest: (controller, url) async {
-                  if (url.toString().toLowerCase().endsWith('.pdf')) {
-                    if (await canLaunch(url.toString())) {
-                      await launch(url.toString());
-                    } else {
-                      YurLog("Could not launch PDF viewer");
-                    }
-                  } else {
-                    Directory? tempDir = await getExternalStorageDirectory();
-
-                    setState(() {});
-
-                    YurNotification.showNotification(
-                      channel: YurChannel.download,
-                      body: "Downloading ${url.suggestedFilename}",
-                      title: "Downloading",
-                    );
-
-                    await FlutterDownloader.enqueue(
-                      url: url.url.toString(),
-                      fileName: url.suggestedFilename,
-                      savedDir: tempDir?.path ?? "",
-                      showNotification: true,
-                      requiresStorageNotLow: false,
-                      openFileFromNotification: true,
-                      saveInPublicStorage: true,
-                      allowCellular: true,
-                    );
-                  }
-                },
-                onConsoleMessage: (controller, consoleMessage) {},
-              ),
-            ),
-          ),
+      body: InAppWebView(
+        pullToRefreshController: _pullToRefreshController,
+        initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
+        initialOptions: InAppWebViewGroupOptions(
+          android: androidInAppWebViewOptions,
+          crossPlatform: inAppWebViewOptions,
         ),
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+          controller.addJavaScriptHandler(
+            handlerName: "messageChannel",
+            callback: (args) => YurLog(args[0], name: "messageChannel"),
+          );
+        },
+        onLoadStop: (InAppWebViewController controller, Uri? url) async {
+          YurLog(url.toString(), name: "onLoadStop");
+          if (!_refreshCompleter.isCompleted) {
+            _refreshCompleter.complete();
+          }
+          YurLoading(loadingStatus: LoadingStatus.dismiss);
+          _pullToRefreshController.endRefreshing();
+        },
+        onLoadError: (controller, url, code, message) {
+          YurLog(message, name: "onLoadError");
+          if (!_refreshCompleter.isCompleted) {
+            _refreshCompleter.completeError(message);
+          }
+          _pullToRefreshController.endRefreshing();
+        },
+        onDownloadStartRequest: (controller, url) async {
+          if (url.toString().toLowerCase().endsWith('.pdf')) {
+            if (await canLaunch(url.toString())) {
+              await launch(url.toString());
+            } else {
+              YurLog("Could not launch PDF viewer");
+            }
+          } else {
+            Directory? tempDir = await getExternalStorageDirectory();
+
+            setState(() {});
+
+            YurNotification.showNotification(
+              channel: YurChannel.download,
+              body: "Downloading ${url.suggestedFilename}",
+              title: "Downloading",
+            );
+
+            await FlutterDownloader.enqueue(
+              url: url.url.toString(),
+              fileName: url.suggestedFilename,
+              savedDir: tempDir?.path ?? "",
+              showNotification: true,
+              requiresStorageNotLow: false,
+              openFileFromNotification: true,
+              saveInPublicStorage: true,
+              allowCellular: true,
+            );
+          }
+        },
       ),
     );
   }
