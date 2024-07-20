@@ -2597,6 +2597,7 @@ class YurWebView extends StatefulWidget {
     this.withAppBar = false,
     this.onInit,
     this.onDispose,
+    this.onClose,
   });
 
   final String title;
@@ -2605,12 +2606,16 @@ class YurWebView extends StatefulWidget {
   final bool withAppBar;
   final Function()? onInit;
   final Function()? onDispose;
+  final Function()? onClose;
 
   @override
   State<YurWebView> createState() => _YurWebViewState();
 }
 
 class _YurWebViewState extends State<YurWebView> {
+  final Completer<void> _refreshCompleter = Completer<void>();
+  late InAppWebViewController _webViewController;
+
   @override
   void initState() {
     super.initState();
@@ -2652,84 +2657,105 @@ class _YurWebViewState extends State<YurWebView> {
         if (!didPop) {
           YurDialog1(
             title: "Peringatan",
-            subtitle: "Apakah Anda yakin ingin keluar dari halaman ini?",
+            subtitle: "Apakah Anda yakin ingin keluar?",
             buttonConfirm: 'Ya',
             buttonCancel: 'Tidak',
-            onPressedConfirm: Get.close,
+            onPressedConfirm: widget.onClose ?? Get.back,
           );
         }
         setState(() {});
       },
       appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
-      body: SafeArea(
-        child: InAppWebView(
-          initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
-          initialOptions: InAppWebViewGroupOptions(
-            android: androidInAppWebViewOptions,
-            crossPlatform: InAppWebViewOptions(
-              javaScriptEnabled: true,
-              useShouldOverrideUrlLoading: true,
-              useOnDownloadStart: true,
-              useOnLoadResource: true,
-              useShouldInterceptAjaxRequest: true,
-              useShouldInterceptFetchRequest: true,
-              supportZoom: false,
-              incognito: true,
-              userAgent: userAgent,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _webViewController.reload();
+          await _refreshCompleter.future;
+        },
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: InAppWebView(
+                initialUrlRequest:
+                    URLRequest(url: Uri.parse(widget.linkWebView)),
+                initialOptions: InAppWebViewGroupOptions(
+                  android: androidInAppWebViewOptions,
+                  crossPlatform: InAppWebViewOptions(
+                    javaScriptEnabled: true,
+                    useShouldOverrideUrlLoading: true,
+                    useOnDownloadStart: true,
+                    useOnLoadResource: true,
+                    useShouldInterceptAjaxRequest: true,
+                    useShouldInterceptFetchRequest: true,
+                    supportZoom: false,
+                    incognito: true,
+                    userAgent: userAgent,
+                  ),
+                ),
+                onWebViewCreated: (InAppWebViewController controller) {
+                  _webViewController = controller;
+                  controller.addJavaScriptHandler(
+                    handlerName: "messageChannel",
+                    callback: (args) => YurLog(args[0], name: "messageChannel"),
+                  );
+                },
+                onLoadStart: (InAppWebViewController controller, Uri? url) {
+                  YurLog(url.toString(), name: "onLoadStart");
+                },
+                onLoadStop:
+                    (InAppWebViewController controller, Uri? url) async {
+                  YurLog(url.toString(), name: "onLoadStop");
+                  if (!_refreshCompleter.isCompleted) {
+                    _refreshCompleter.complete();
+                  }
+                  YurLoading(loadingStatus: LoadingStatus.dismiss);
+                },
+                onLoadError: (InAppWebViewController controller, Uri? url,
+                    int code, String message) {
+                  YurLog(message, name: "onLoadError");
+                  if (!_refreshCompleter.isCompleted) {
+                    _refreshCompleter.completeError(message);
+                  }
+                },
+                onProgressChanged:
+                    (InAppWebViewController controller, int progress) {
+                  YurLog(progress.toString(), name: "progress");
+                },
+                onDownloadStartRequest: (controller, url) async {
+                  if (url.toString().toLowerCase().endsWith('.pdf')) {
+                    if (await canLaunch(url.toString())) {
+                      await launch(url.toString());
+                    } else {
+                      YurLog("Could not launch PDF viewer");
+                    }
+                  } else {
+                    Directory? tempDir = await getExternalStorageDirectory();
+
+                    setState(() {});
+
+                    YurNotification.showNotification(
+                      channel: YurChannel.download,
+                      body: "Downloading ${url.suggestedFilename}",
+                      title: "Downloading",
+                    );
+
+                    await FlutterDownloader.enqueue(
+                      url: url.url.toString(),
+                      fileName: url.suggestedFilename,
+                      savedDir: tempDir?.path ?? "",
+                      showNotification: true,
+                      requiresStorageNotLow: false,
+                      openFileFromNotification: true,
+                      saveInPublicStorage: true,
+                      allowCellular: true,
+                    );
+                  }
+                },
+                onConsoleMessage: (controller, consoleMessage) {},
+              ),
             ),
           ),
-          onWebViewCreated: (InAppWebViewController controller) {
-            controller.addJavaScriptHandler(
-              handlerName: "messageChannel",
-              callback: (args) => YurLog(args[0], name: "messageChannel"),
-            );
-          },
-          onLoadStart: (InAppWebViewController controller, Uri? url) {
-            YurLog(url.toString(), name: "onLoadStart");
-          },
-          onLoadStop: (InAppWebViewController controller, Uri? url) async {
-            YurLog(url.toString(), name: "onLoadStop");
-
-            YurLoading(loadingStatus: LoadingStatus.dismiss);
-          },
-          onLoadError: (InAppWebViewController controller, Uri? url, int code,
-              String message) {
-            YurLog(message, name: "onLoadError");
-          },
-          onProgressChanged: (InAppWebViewController controller, int progress) {
-            YurLog(progress.toString(), name: "progress");
-          },
-          onDownloadStartRequest: (controller, url) async {
-            if (url.toString().toLowerCase().endsWith('.pdf')) {
-              if (await canLaunch(url.toString())) {
-                await launch(url.toString());
-              } else {
-                YurLog("Could not launch PDF viewer");
-              }
-            } else {
-              Directory? tempDir = await getExternalStorageDirectory();
-
-              setState(() {});
-
-              YurNotification.showNotification(
-                channel: YurChannel.download,
-                body: "Downloading ${url.suggestedFilename}",
-                title: "Downloading",
-              );
-
-              await FlutterDownloader.enqueue(
-                url: url.url.toString(),
-                fileName: url.suggestedFilename,
-                savedDir: tempDir?.path ?? "",
-                showNotification: true,
-                requiresStorageNotLow: false,
-                openFileFromNotification: true,
-                saveInPublicStorage: true,
-                allowCellular: true,
-              );
-            }
-          },
-          onConsoleMessage: (controller, consoleMessage) {},
         ),
       ),
     );
