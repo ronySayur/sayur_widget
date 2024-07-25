@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
@@ -103,6 +104,47 @@ class PermissionRequest {
       if (Platform.isIOS) isMocked = false;
 
       return isMocked;
+    } catch (e) {
+      YurLog(e);
+      return false;
+    }
+  }
+
+  static Future<bool> isCamera() async {
+    try {
+      PermissionStatus status = await Permission.camera.status;
+
+      YurLog(status.toString());
+
+      if (status.isDenied) {
+        status = await Permission.camera.request();
+        return false;
+      }
+
+      if (status.isPermanentlyDenied) {
+        if (isShow) {
+          isShow = false;
+          YurLoading(loadingStatus: LoadingStatus.dismiss);
+          YurAlertDialog(
+            context: Get.context,
+            title: "Izinkan Kamera",
+            message: "Aplikasi ini membutuhkan izin kamera anda",
+            buttonText: "Izinkan",
+            onCancel: () {
+              isShow = true;
+              Get.back();
+              return false;
+            },
+            onConfirm: () {
+              AppSettings.openAppSettings(type: AppSettingsType.settings);
+              isShow = true;
+              Get.back();
+            },
+          );
+        }
+      }
+
+      return true;
     } catch (e) {
       YurLog(e);
       return false;

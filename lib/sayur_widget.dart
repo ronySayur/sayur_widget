@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, must_be_immutable, library_private_types_in_public_api, deprecated_member_use
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:app_settings/app_settings.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -2683,6 +2682,10 @@ class _YurWebViewState extends State<YurWebView> {
       },
       appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
       body: InAppWebView(
+        androidOnPermissionRequest: (controller, origin, resources) async =>
+            PermissionRequestResponse(
+                resources: resources,
+                action: PermissionRequestResponseAction.GRANT),
         pullToRefreshController: _pullToRefreshController,
         initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
         initialOptions: InAppWebViewGroupOptions(
@@ -2721,14 +2724,6 @@ class _YurWebViewState extends State<YurWebView> {
           } else {
             Directory? tempDir = await getExternalStorageDirectory();
 
-            setState(() {});
-
-            YurNotification.showNotification(
-              channel: YurChannel.download,
-              body: "Downloading ${url.suggestedFilename}",
-              title: "Downloading",
-            );
-
             await FlutterDownloader.enqueue(
               url: url.url.toString(),
               fileName: url.suggestedFilename,
@@ -2740,6 +2735,7 @@ class _YurWebViewState extends State<YurWebView> {
               allowCellular: true,
             );
           }
+          setState(() {});
         },
       ),
     );
@@ -2877,131 +2873,6 @@ class YurNotification {
 
   static final StreamController<ReceiveNotification> streamLocalNotif =
       StreamController<ReceiveNotification>.broadcast();
-
-  @pragma('vm:entry-point')
-  static void onTapNotification(message) {
-    final StreamController<String?> selectNotification =
-        StreamController<String?>.broadcast();
-    String payload = message.payload!;
-    selectNotification.add(payload);
-  }
-
-  static Future<void> showNotification({
-    required YurChannel channel,
-    required String body,
-    String payload = "",
-    String title = "",
-    bool keepAlive = false,
-  }) async {
-    try {
-      String channelID = channel.toString().replaceAll("Channel.", "");
-      int IDNotif = channel.index + 1;
-
-      if (payload.isEmpty) {
-        payload = channelID;
-      }
-
-      RawResourceAndroidNotificationSound? sound;
-
-      const int insistentFlag = 4;
-      Int64List vibrationPattern = Int64List(7);
-      for (int i = 0; i < 7; i++) {
-        vibrationPattern[i] = (i + 2) * 100;
-      }
-
-      Int32List? insistent = Int32List.fromList(<int>[insistentFlag]);
-
-      AndroidNotificationDetails android = AndroidNotificationDetails(
-        IDNotif.toString(),
-        channelID,
-        importance: Importance.max,
-        priority: Priority.max,
-        vibrationPattern: vibrationPattern,
-        enableVibration: true,
-        enableLights: true,
-        channelDescription: 'Notification for Medi-Call',
-        sound: sound,
-        icon: 'app_icon',
-        color: primaryRed,
-        ledColor: primaryRed,
-        ledOnMs: 1000,
-        ledOffMs: 500,
-        ongoing: keepAlive,
-        additionalFlags: insistent,
-      );
-
-      final NotificationDetails notificationDetails =
-          NotificationDetails(android: android);
-
-      if (keepAlive) {
-        await startForegroundService(
-          IDNotif: IDNotif,
-          channel: channel,
-          title: title,
-          body: body,
-          payload: payload,
-          android: android,
-        );
-      } else {
-        await flutterNotif.show(
-          IDNotif,
-          title,
-          body,
-          notificationDetails,
-          payload: payload,
-        );
-      }
-
-      YurLog(
-        "Title : $title, Body : $body",
-        name: "Show Notif : $IDNotif $channelID",
-      );
-    } catch (e) {
-      YurLog(e, name: "Show Notif");
-    }
-  }
-
-  static Future<void> cancelNotification(YurChannel channel) async {
-    int id = channel.index + 1;
-
-    YurLog("Cancel Notif : $id", name: "cancelNotification");
-    await flutterNotif.cancel(id);
-  }
-
-  static Future<void> cancelAllNotification() async {
-    await flutterNotif.cancelAll();
-  }
-
-  static Future<void> startForegroundService({
-    required int IDNotif,
-    required YurChannel channel,
-    required String title,
-    required String body,
-    required String payload,
-    required AndroidNotificationDetails android,
-  }) async {
-    await flutterNotif
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.startForegroundService(
-      IDNotif,
-      title,
-      body,
-      notificationDetails: android,
-      payload: payload,
-      startType: AndroidServiceStartType.startSticky,
-      foregroundServiceTypes: {
-        AndroidServiceForegroundType.foregroundServiceTypeMediaPlayback,
-      },
-    );
-  }
-
-  Future<void> stopForegroundService() async {
-    await flutterNotif
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.stopForegroundService();
-  }
 
   Future<void> checkNotif(BuildContext context) async {
     await PermissionRequest.isNotification().then((value) {
