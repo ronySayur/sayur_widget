@@ -2641,6 +2641,10 @@ class _YurWebViewState extends State<YurWebView> {
 
   @override
   Widget build(BuildContext context) {
+    //set user agent ke chrome
+    String userAgent =
+        "Mozilla/5.0 (Linux; Android 10; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36";
+
     var androidInAppWebViewOptions = AndroidInAppWebViewOptions(
       builtInZoomControls: false,
       displayZoomControls: false,
@@ -2662,6 +2666,13 @@ class _YurWebViewState extends State<YurWebView> {
       useShouldInterceptAjaxRequest: true,
       useShouldInterceptFetchRequest: true,
       supportZoom: false,
+      userAgent: userAgent,
+    );
+
+    var iosInAppWebViewOptions = IOSInAppWebViewOptions(
+      allowsInlineMediaPlayback: true,
+      allowsBackForwardNavigationGestures: true,
+      isFraudulentWebsiteWarningEnabled: true,
     );
 
     return YurScaffold(
@@ -2678,7 +2689,6 @@ class _YurWebViewState extends State<YurWebView> {
             onPressedConfirm: widget.onClose ?? Get.back,
           );
         }
-        setState(() {});
       },
       appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
       body: InAppWebView(
@@ -2691,6 +2701,7 @@ class _YurWebViewState extends State<YurWebView> {
         initialOptions: InAppWebViewGroupOptions(
           android: androidInAppWebViewOptions,
           crossPlatform: inAppWebViewOptions,
+          ios: iosInAppWebViewOptions,
         ),
         onWebViewCreated: (controller) {
           _webViewController = controller;
@@ -2699,7 +2710,7 @@ class _YurWebViewState extends State<YurWebView> {
             callback: (args) => YurLog(args[0], name: "messageChannel"),
           );
         },
-        onLoadStop: (InAppWebViewController controller, Uri? url) async {
+        onLoadStop: (InAppWebViewController controller, Uri? url) {
           YurLog(url.toString(), name: "onLoadStop");
           if (!_refreshCompleter.isCompleted) {
             _refreshCompleter.complete();
@@ -2714,31 +2725,32 @@ class _YurWebViewState extends State<YurWebView> {
           }
           _pullToRefreshController.endRefreshing();
         },
-        onDownloadStartRequest: (controller, url) async {
-          if (url.toString().toLowerCase().endsWith('.pdf')) {
-            if (await canLaunch(url.toString())) {
-              await launch(url.toString());
-            } else {
-              YurLog("Could not launch PDF viewer");
-            }
-          } else {
-            Directory? tempDir = await getExternalStorageDirectory();
-
-            await FlutterDownloader.enqueue(
-              url: url.url.toString(),
-              fileName: url.suggestedFilename,
-              savedDir: tempDir?.path ?? "",
-              showNotification: true,
-              requiresStorageNotLow: false,
-              openFileFromNotification: true,
-              saveInPublicStorage: true,
-              allowCellular: true,
-            );
-          }
-          setState(() {});
-        },
+        onDownloadStartRequest: onDownloadStartRequest,
       ),
     );
+  }
+
+  Future<void> onDownloadStartRequest(
+      InAppWebViewController controller, DownloadStartRequest url) async {
+    if (url.toString().toLowerCase().endsWith('.pdf')) {
+      if (await canLaunch(url.toString())) {
+        await launch(url.toString());
+      } else {
+        YurLog("Could not launch PDF viewer");
+      }
+    } else {
+      Directory? tempDir = await getExternalStorageDirectory();
+      await FlutterDownloader.enqueue(
+        url: url.url.toString(),
+        fileName: url.suggestedFilename,
+        savedDir: tempDir?.path ?? "",
+        showNotification: true,
+        requiresStorageNotLow: false,
+        openFileFromNotification: true,
+        saveInPublicStorage: true,
+        allowCellular: true,
+      );
+    }
   }
 }
 
@@ -2906,7 +2918,8 @@ class ReceiveNotification {
 }
 
 Widget YurListBuilder<T>({
-  required List<dynamic> list,
+  required Function() onRefresh,
+  required List<T> list,
   required Widget Function(T) widgetBuilder,
   Widget? widgetEmpty,
   ScrollPhysics? physics,
@@ -2915,7 +2928,6 @@ Widget YurListBuilder<T>({
   EdgeInsetsGeometry? padding,
   ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior,
   bool? reverse,
-  required Function() onRefresh,
   Color? color,
 }) {
   return RefreshIndicator(
@@ -2953,7 +2965,7 @@ Widget YurListBuilder<T>({
                       ],
                     ));
               }
-              return widgetBuilder(list[index] as T);
+              return widgetBuilder(list[index]);
             },
           ),
         ),
