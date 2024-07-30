@@ -550,13 +550,13 @@ class YurForm extends StatelessWidget {
                                 gap4,
                                 Expanded(
                                   child: YurListBuilder(
+                                    label: label,
                                     onRefresh: () {
                                       setState(() {
                                         listLocal = listDropDown;
                                       });
                                     },
                                     list: listLocal!,
-                                    physics: const ClampingScrollPhysics(),
                                     widgetBuilder: (p0) {
                                       return YurCard(
                                         onTap: () => setState(() {
@@ -2641,97 +2641,119 @@ class _YurWebViewState extends State<YurWebView> {
 
   @override
   Widget build(BuildContext context) {
-    //set user agent ke chrome
-    String userAgent =
-        "Mozilla/5.0 (Linux; Android 10; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36";
-
-    var androidInAppWebViewOptions = AndroidInAppWebViewOptions(
-      builtInZoomControls: false,
-      displayZoomControls: false,
-      supportMultipleWindows: false,
-      thirdPartyCookiesEnabled: true,
-      useWideViewPort: true,
-      forceDark: AndroidForceDark.FORCE_DARK_OFF,
-      domStorageEnabled: true,
-      serifFontFamily: "Roboto",
-      sansSerifFontFamily: "Roboto",
-      defaultFixedFontSize: 12,
-    );
-
-    var inAppWebViewOptions = InAppWebViewOptions(
-      javaScriptEnabled: true,
-      useShouldOverrideUrlLoading: true,
-      useOnDownloadStart: true,
-      useOnLoadResource: true,
-      useShouldInterceptAjaxRequest: true,
-      useShouldInterceptFetchRequest: true,
-      supportZoom: false,
-      userAgent: userAgent,
-    );
-
-    var iosInAppWebViewOptions = IOSInAppWebViewOptions(
-      allowsInlineMediaPlayback: true,
-      allowsBackForwardNavigationGestures: true,
-      isFraudulentWebsiteWarningEnabled: true,
-    );
-
     return YurScaffold(
       canPop: false,
-      onPopInvoked: (didPop) {
-        YurLoading(loadingStatus: LoadingStatus.dismiss);
-
-        if (!didPop) {
-          YurDialog1(
-            title: "Peringatan",
-            subtitle: "Apakah Anda yakin ingin keluar?",
-            buttonConfirm: 'Ya',
-            buttonCancel: 'Tidak',
-            onPressedConfirm: widget.onClose ?? Get.back,
-          );
-        }
-      },
+      onPopInvoked: onPopInvoked,
       appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
       body: InAppWebView(
-        androidOnPermissionRequest: (controller, origin, resources) async =>
-            PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT),
-        pullToRefreshController: _pullToRefreshController,
         initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
+        androidOnPermissionRequest: androidOnPermission,
+        pullToRefreshController: _pullToRefreshController,
+        onWebViewCreated: onWebViewCreated,
+        onLoadStop: onLoadStop,
+        onLoadError: onLoadError,
+        onDownloadStartRequest: onDownloadStartRequest,
         initialOptions: InAppWebViewGroupOptions(
           android: androidInAppWebViewOptions,
           crossPlatform: inAppWebViewOptions,
           ios: iosInAppWebViewOptions,
         ),
-        onWebViewCreated: (controller) {
-          _webViewController = controller;
-          controller.addJavaScriptHandler(
-            handlerName: "messageChannel",
-            callback: (args) => YurLog(args[0], name: "messageChannel"),
-          );
-        },
-        onLoadStop: (InAppWebViewController controller, Uri? url) {
-          YurLog(url.toString(), name: "onLoadStop");
-          if (!_refreshCompleter.isCompleted) {
-            _refreshCompleter.complete();
-          }
-          YurLoading(loadingStatus: LoadingStatus.dismiss);
-          _pullToRefreshController.endRefreshing();
-        },
-        onLoadError: (controller, url, code, message) {
-          YurLog(message, name: "onLoadError");
-          if (!_refreshCompleter.isCompleted) {
-            _refreshCompleter.completeError(message);
-          }
-          _pullToRefreshController.endRefreshing();
-        },
-        onDownloadStartRequest: onDownloadStartRequest,
       ),
     );
   }
 
+  var androidInAppWebViewOptions = AndroidInAppWebViewOptions(
+    builtInZoomControls: false,
+    displayZoomControls: false,
+    supportMultipleWindows: false,
+    thirdPartyCookiesEnabled: true,
+    useWideViewPort: true,
+    forceDark: AndroidForceDark.FORCE_DARK_OFF,
+    domStorageEnabled: true,
+    serifFontFamily: "Roboto",
+    sansSerifFontFamily: "Roboto",
+    defaultFixedFontSize: 12,
+  );
+
+  var inAppWebViewOptions = InAppWebViewOptions(
+    javaScriptEnabled: true,
+    useShouldOverrideUrlLoading: true,
+    useOnDownloadStart: true,
+    useOnLoadResource: true,
+    useShouldInterceptAjaxRequest: true,
+    useShouldInterceptFetchRequest: true,
+    supportZoom: false,
+    userAgent:
+        "Mozilla/5.0 (Linux; Android 10; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36",
+  );
+
+  var iosInAppWebViewOptions = IOSInAppWebViewOptions(
+    allowsInlineMediaPlayback: true,
+    allowsBackForwardNavigationGestures: true,
+    isFraudulentWebsiteWarningEnabled: true,
+  );
+
+  onPopInvoked(didPop) {
+    YurLoading(loadingStatus: LoadingStatus.dismiss);
+
+    if (!didPop) {
+      YurDialog1(
+        title: "Peringatan",
+        subtitle: "Apakah Anda yakin ingin keluar?",
+        buttonConfirm: 'Ya',
+        buttonCancel: 'Tidak',
+        onPressedConfirm: widget.onClose ?? Get.back,
+      );
+    }
+  }
+
+  Future<PermissionRequestResponse?> androidOnPermission(
+    InAppWebViewController controller,
+    String origin,
+    List<String> resources,
+  ) async =>
+      PermissionRequestResponse(
+        resources: resources,
+        action: PermissionRequestResponseAction.GRANT,
+      );
+
+  void onWebViewCreated(InAppWebViewController controller) {
+    _webViewController = controller;
+    controller.addJavaScriptHandler(
+      handlerName: "messageChannel",
+      callback: (args) => YurLog(args[0], name: "messageChannel"),
+    );
+  }
+
+  void onLoadStop(
+    InAppWebViewController controller,
+    Uri? url,
+  ) {
+    YurLog(url.toString(), name: "onLoadStop");
+    if (!_refreshCompleter.isCompleted) {
+      _refreshCompleter.complete();
+    }
+    YurLoading(loadingStatus: LoadingStatus.dismiss);
+    _pullToRefreshController.endRefreshing();
+  }
+
+  void onLoadError(
+    InAppWebViewController controller,
+    Uri? url,
+    int code,
+    String message,
+  ) {
+    YurLog(message, name: "onLoadError");
+    if (!_refreshCompleter.isCompleted) {
+      _refreshCompleter.completeError(message);
+    }
+    _pullToRefreshController.endRefreshing();
+  }
+
   Future<void> onDownloadStartRequest(
-      InAppWebViewController controller, DownloadStartRequest url) async {
+    InAppWebViewController controller,
+    DownloadStartRequest url,
+  ) async {
     if (url.toString().toLowerCase().endsWith('.pdf')) {
       if (await canLaunch(url.toString())) {
         await launch(url.toString());
@@ -2917,61 +2939,132 @@ class ReceiveNotification {
   final String? payload;
 }
 
-Widget YurListBuilder<T>({
-  required Function() onRefresh,
-  required List<T> list,
-  required Widget Function(T) widgetBuilder,
-  Widget? widgetEmpty,
-  ScrollPhysics? physics,
-  ScrollController? controller,
-  Axis scrollDirection = Axis.vertical,
-  EdgeInsetsGeometry? padding,
-  ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior,
-  bool? reverse,
-  Color? color,
-}) {
-  return RefreshIndicator(
-    onRefresh: () {
-      onRefresh();
-      return Future.value();
-    },
-    child: SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: Get.height),
-        child: Container(
-          padding: padding ?? EdgeInsets.zero,
-          color: color,
-          child: ListView.builder(
-            controller: controller,
-            shrinkWrap: true,
-            physics: physics ?? const ClampingScrollPhysics(),
-            itemCount: list.isEmpty ? 1 : list.length,
-            scrollDirection: scrollDirection,
-            keyboardDismissBehavior: keyboardDismissBehavior ??
-                ScrollViewKeyboardDismissBehavior.onDrag,
-            reverse: reverse ?? false,
-            itemBuilder: (context, index) {
-              if (list.isEmpty) {
-                return widgetEmpty ??
-                    const Center(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.info, color: Colors.red, size: 48),
-                        gap20,
-                        YurText(
-                            text: "Data Kosong", fontWeight: FontWeight.bold),
-                      ],
-                    ));
-              }
-              return widgetBuilder(list[index]);
+class YurListBuilder<T> extends StatefulWidget {
+  final String label;
+  final Function() onRefresh;
+  final List<T> list;
+  final Widget Function(T) widgetBuilder;
+  final Widget? widgetEmpty;
+  final TextEditingController? searchController;
+  final ScrollController? controller;
+  final EdgeInsetsGeometry? padding;
+  final Color? color;
+
+  const YurListBuilder({
+    super.key,
+    required this.label,
+    required this.onRefresh,
+    required this.list,
+    required this.widgetBuilder,
+    this.widgetEmpty,
+    this.searchController,
+    this.controller,
+    this.padding,
+    this.color,
+  });
+
+  @override
+  _YurListBuilderState<T> createState() => _YurListBuilderState<T>();
+}
+
+class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
+  late List<T> filteredList;
+  String get label => widget.label;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredList = widget.list;
+    widget.searchController?.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.searchController?.removeListener(_onSearchChanged);
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      if (widget.searchController != null &&
+          widget.searchController!.text.isNotEmpty) {
+        filteredList = widget.list
+            .where((e) => e
+                .toString()
+                .toLowerCase()
+                .contains(widget.searchController!.text.toLowerCase()))
+            .toList();
+      } else {
+        filteredList = widget.list;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _onSearchChanged();
+    if (widget.list.isEmpty) {
+      return widget.widgetEmpty ??
+          YurEmptyItem("$label Kosong",
+              "Data $label tidak tersedia, silahkan coba lagi atau tambahkan data $label");
+    }
+
+    return Column(
+      children: [
+        if (widget.searchController != null) ...[
+          YurForm(
+            label: "Cari",
+            controller: widget.searchController,
+            prefixIcon: const YurIcon(icon: Icons.search),
+            onChanged: (value) {
+              setState(() {
+                filteredList = widget.list
+                    .where((e) => e
+                        .toString()
+                        .toLowerCase()
+                        .contains(value.toLowerCase()))
+                    .toList();
+              });
             },
           ),
+          gap16,
+        ],
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () {
+              widget.onRefresh();
+              return Future.value();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(),
+                child: Container(
+                  padding: widget.padding ?? EdgeInsets.zero,
+                  color: widget.color,
+                  child: ListView.builder(
+                    controller: widget.controller,
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    itemCount: filteredList.isEmpty ? 1 : filteredList.length,
+                    itemBuilder: (context, index) {
+                      if (filteredList.isEmpty) {
+                        return YurEmptyItem(
+                          "${widget.searchController!.text} tidak tersedia",
+                          "Tidak ada data yang sesuai dengan kriteria pencarian Anda. Silakan coba dengan kata kunci yang berbeda.",
+                        );
+                      }
+                      return widget.widgetBuilder(filteredList[index]);
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      ],
+    );
+  }
 }
 
 Widget YurEmptyItem(
@@ -2986,7 +3079,7 @@ Widget YurEmptyItem(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const YurIcon(
-            icon: Icons.shopping_cart,
+            icon: Icons.sentiment_dissatisfied_rounded,
             size: 120,
             color: primaryRed,
           ).animate(onComplete: (c) => c.repeat(reverse: true)).move(
@@ -3007,6 +3100,7 @@ Widget YurEmptyItem(
           YurText(
             text: subtitle,
             textAlign: TextAlign.center,
+            fontSize: 12,
           ),
         ],
       ),
