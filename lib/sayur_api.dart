@@ -17,15 +17,17 @@ class YurApi {
     try {
       bool result = await InternetConnectionChecker().hasConnection;
       if (!result) {
-        YurDialog1(
-          title: "Tidak Ada Koneksi Internet",
-          subtitle: "Silahkan cek koneksi internet Anda",
-          buttonConfirm: "OK",
-          onPressedConfirm: () {
-            Get.back();
-            AppSettings.openAppSettings(type: AppSettingsType.wireless);
-          },
-        );
+        if (!Get.isDialogShown) {
+          YurDialog1(
+            title: "Tidak Ada Koneksi Internet",
+            subtitle: "Silahkan cek koneksi internet Anda",
+            buttonConfirm: "OK",
+            onPressedConfirm: () {
+              Get.back();
+              AppSettings.openAppSettings(type: AppSettingsType.wireless);
+            },
+          );
+        }
         return {"status": ""};
       }
 

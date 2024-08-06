@@ -80,7 +80,6 @@ class YurText extends StatelessWidget {
   });
 
   final String text;
-
   final double? fontSize;
   final FontWeight? fontWeight;
   final double letterSpacing;

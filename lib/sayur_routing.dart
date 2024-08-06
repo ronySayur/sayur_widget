@@ -14,6 +14,7 @@ class Get {
 
   static double get width => MediaQuery.of(context).size.width;
   static double get height => MediaQuery.of(context).size.height;
+  static bool isDialogShown = false;
 
   static void close() {
     YurLog("Close App", name: "Get.closeApp");
