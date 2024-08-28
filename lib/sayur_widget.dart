@@ -754,48 +754,54 @@ class YurForm extends StatelessWidget {
 class YurExpansionTile extends StatelessWidget {
   final String title;
   final List<Widget> children;
+  final double? titleFontSize;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final bool initialExpanded;
+  final Widget? leading;
+  final Widget? subtitle;
+  final BorderRadius? borderRadius;
 
   const YurExpansionTile({
     super.key,
     required this.title,
     required this.children,
+    this.titleFontSize,
+    this.padding,
+    this.margin,
+    this.initialExpanded = false,
+    this.leading,
+    this.subtitle,
+    this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: YurText(
-        text: title,
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
-      clipBehavior: Clip.antiAlias,
-      shape: const RoundedRectangleBorder(borderRadius: br16),
-      expandedAlignment: Alignment.centerLeft,
-      children: [
-        Container(
-          padding: e12,
-          margin: e12,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: br12,
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3)),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ...children,
-            ],
-          ),
+    return YurCard(
+      padding: padding ?? e4,
+      margin: margin ?? e0,
+      child: ExpansionTile(
+        title: YurText(
+          text: title,
+          fontSize: titleFontSize,
+          fontWeight: FontWeight.bold,
         ),
-      ],
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: borderRadius ?? br8,
+        ),
+        expandedAlignment: Alignment.centerLeft,
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        initiallyExpanded: initialExpanded,
+        dense: true,
+        onExpansionChanged: (value) {
+          YurLog(name: title, value);
+        },
+        leading: leading,
+        subtitle: subtitle,
+        childrenPadding: e4,
+        children: children,
+      ),
     );
   }
 }
@@ -1908,6 +1914,7 @@ class YurImageNet extends StatelessWidget {
     this.shape = BoxShape.rectangle,
     this.boxShadow,
     this.errorWidget,
+    this.onTap,
   });
 
   final String imageUrl;
@@ -1925,61 +1932,65 @@ class YurImageNet extends StatelessWidget {
   final Gradient? gradient;
   final BoxShape shape;
   final List<BoxShadow>? boxShadow;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      imageUrl: imageUrl,
-      imageBuilder: (context, imageProvider) => Container(
-        width: width,
-        height: height,
-        alignment: alignment,
-        margin: margin,
-        padding: padding,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          border: border,
-          gradient: gradient,
-          shape: shape,
-          boxShadow: boxShadow,
-          image: DecorationImage(
-            image: imageProvider,
-            fit: fit,
-            colorFilter: color != null
-                ? ColorFilter.mode(color!, BlendMode.color)
-                : null,
+    return InkWell(
+      onTap: onTap,
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        imageBuilder: (context, imageProvider) => Container(
+          width: width,
+          height: height,
+          alignment: alignment,
+          margin: margin,
+          padding: padding,
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            border: border,
+            gradient: gradient,
+            shape: shape,
+            boxShadow: boxShadow,
+            image: DecorationImage(
+              image: imageProvider,
+              fit: fit,
+              colorFilter: color != null
+                  ? ColorFilter.mode(color!, BlendMode.color)
+                  : null,
+            ),
           ),
         ),
-      ),
-      placeholder: (context, url) => const Center(
-        child: CircularProgressIndicator(color: primaryRed),
-      ),
-      errorWidget: (context, url, error) {
-        return errorWidget ??
-            Center(
-              child: Container(
-                height: height,
-                width: width,
-                margin: margin,
-                padding: padding,
-                alignment: alignment,
-                decoration: BoxDecoration(
-                  shape: shape,
-                  border: border,
-                  gradient: gradient,
-                  boxShadow: boxShadow,
-                  borderRadius: borderRadius,
-                ),
-                child: YurIcon(
-                  icon: iconError,
-                  color: primaryRed,
-                  padding: padding,
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(color: primaryRed),
+        ),
+        errorWidget: (context, url, error) {
+          return errorWidget ??
+              Center(
+                child: Container(
+                  height: height,
+                  width: width,
                   margin: margin,
+                  padding: padding,
+                  alignment: alignment,
+                  decoration: BoxDecoration(
+                    shape: shape,
+                    border: border,
+                    gradient: gradient,
+                    boxShadow: boxShadow,
+                    borderRadius: borderRadius,
+                  ),
+                  child: YurIcon(
+                    icon: iconError,
+                    color: primaryRed,
+                    padding: padding,
+                    margin: margin,
+                  ),
                 ),
-              ),
-            );
-      },
-    ).animate().shimmer(duration: 3.seconds);
+              );
+        },
+      ).animate().shimmer(duration: 3.seconds),
+    );
   }
 }
 
@@ -2948,6 +2959,7 @@ class YurListBuilder<T> extends StatefulWidget {
   final ScrollController? controller;
   final EdgeInsetsGeometry? padding;
   final Color? color;
+  final bool? reverse;
 
   const YurListBuilder({
     super.key,
@@ -2960,6 +2972,7 @@ class YurListBuilder<T> extends StatefulWidget {
     this.controller,
     this.padding,
     this.color,
+    this.reverse,
   });
 
   @override
@@ -3042,6 +3055,7 @@ class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
                   padding: widget.padding ?? EdgeInsets.zero,
                   color: widget.color,
                   child: ListView.builder(
+                    reverse: widget.reverse ?? false,
                     controller: widget.controller,
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(),

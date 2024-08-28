@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 import 'dart:convert';
 
-import 'package:app_settings/app_settings.dart';
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -17,17 +16,6 @@ class YurApi {
     try {
       bool result = await InternetConnectionChecker().hasConnection;
       if (!result) {
-        if (!Get.isDialogShown) {
-          YurDialog1(
-            title: "Tidak Ada Koneksi Internet",
-            subtitle: "Silahkan cek koneksi internet Anda",
-            buttonConfirm: "OK",
-            onPressedConfirm: () {
-              Get.back();
-              AppSettings.openAppSettings(type: AppSettingsType.wireless);
-            },
-          );
-        }
         return {"status": ""};
       }
 

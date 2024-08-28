@@ -76,6 +76,7 @@ class Generator {
 
 Future<void> YurScreenShot({required bool isOn}) async {
   NoScreenshot i = NoScreenshot.instance;
+
   if (isOn) {
     await i.screenshotOff();
   } else {
@@ -639,7 +640,7 @@ Future<dynamic> YurCustomDialog({
   );
 }
 
-YurSearch({
+Future<T?> YurSearch<T>({
   required BuildContext context,
   required Function(TextEditingController textController) onConfirm,
   Function()? onCancel,
@@ -649,9 +650,9 @@ YurSearch({
   required String labelForm,
   required TextEditingController textController,
 }) async {
-  textController.text = "";
+  textController.clear();
 
-  if (isDialogShow) return;
+  if (isDialogShow) return null;
 
   isDialogShow = true;
 

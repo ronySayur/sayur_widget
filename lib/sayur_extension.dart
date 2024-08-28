@@ -68,7 +68,6 @@ extension StringExtension on String {
     return "$ageInYears tahun";
   }
 
-  //hasilnya 01:30
   String toHours() {
     DateTime now = DateTime.now(), time = DateTime.parse(this);
     int diff = now.difference(time).inMinutes;
@@ -90,6 +89,9 @@ extension StringExtension on String {
 
     return "$diff menit";
   }
+
+  int toInt() => int.parse(this);
+  DateTime toDateTime() => DateTime.parse(this);
 }
 
 extension IntExtension on int {
