@@ -92,9 +92,7 @@ class YurApi {
     try {
       bool result = await InternetConnectionChecker().hasConnection;
 
-      if (!result) {
-        return {"status": ""};
-      }
+      if (!result) return {"status": ""};
 
       String url =
           'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lon&accept-language=id';
