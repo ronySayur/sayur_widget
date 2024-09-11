@@ -1860,21 +1860,15 @@ class YurImageAsset extends StatelessWidget {
     return Container(
       padding: padding,
       margin: margin,
+      width: width,
+      height: height,
       decoration: BoxDecoration(borderRadius: borderRadius),
       child: Image.asset(
         imageUrl,
-        width: width,
-        height: height,
         fit: fit,
         color: color,
         alignment: alignment,
-        centerSlice: centerSlice,
-        cacheHeight: height?.toInt(),
-        cacheWidth: width?.toInt(),
-        gaplessPlayback: true,
-        excludeFromSemantics: true,
-        semanticLabel: imageUrl,
-        errorBuilder: (context, error, stackTrace) {
+        errorBuilder: (context, error, _) {
           YurLog(name: "YurImageAsset Error : ", error.toString());
           return const YurIcon(
             icon: Icons.error,

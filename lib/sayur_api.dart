@@ -14,9 +14,11 @@ class YurApi {
     Map<String, String> headers = const {'content-type': 'application/json'},
   }) async {
     String body = "";
+    Map<String, String> emptyStatus = {"status": ""};
+
     try {
       bool result = await InternetConnectionChecker().hasConnection;
-      if (!result) return {"status": ""};
+      if (!result) return emptyStatus;
 
       YurLog(name: urlHttp, dataMap);
       final url = Uri.parse(urlHttp);
@@ -28,8 +30,8 @@ class YurApi {
             .get(url, headers: headers)
             .timeout(timeout.seconds, onTimeout: onTimeout);
 
+        body = response.body;
         var decoded = json.decode(utf8.decoder.convert(response.bodyBytes));
-        body = decoded.toString();
         return decoded;
       }
 
@@ -38,8 +40,8 @@ class YurApi {
             .post(url, headers: headers, body: jsonEncode(dataMap))
             .timeout(timeout.seconds, onTimeout: onTimeout);
 
-        var decoded = await json.decode(responEncode.body);
-        body = decoded.toString();
+        body = responEncode.body;
+        var decoded = await json.decode(body);
         return decoded;
       }
 
@@ -53,16 +55,15 @@ class YurApi {
           .send()
           .timeout(timeout.seconds, onTimeout: serverRequest.send);
 
-      final data = await response.stream.bytesToString();
-      body = data;
+      body = await response.stream.bytesToString();
 
-      bool empty = data.isEmpty || data == "[]" || data.contains("No data");
-      if (empty) return {"status": ""};
+      bool empty = body.isEmpty || body == "[]" || body.contains("No data");
+      if (empty) return emptyStatus;
 
-      return await json.decode(data);
+      return await json.decode(body);
     } catch (e) {
       YurLog(name: urlHttp, "Error: $e | $body");
-      return {"status": ""};
+      return emptyStatus;
     }
   }
 
