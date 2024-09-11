@@ -96,3 +96,13 @@ Future<bool> setSharedList(
     {required String key, required List<String> setListTo}) async {
   return await setShared<List<String>>(key: key, value: setListTo);
 }
+
+// DateTime <==================================
+Future<DateTime> getSharedDateTime({required String key}) async {
+  return await getShared<DateTime>(key: key, defaultValue: DateTime(1970));
+}
+
+Future<bool> setSharedDateTime(
+    {required String key, required DateTime setDateTimeTo}) async {
+  return await setShared<DateTime>(key: key, value: setDateTimeTo);
+}

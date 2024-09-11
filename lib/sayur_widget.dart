@@ -1395,6 +1395,7 @@ class YurTab extends StatefulWidget {
   final List<Widget> tabs;
   final List<Widget> tabViews;
   final Color color;
+  final Color textColor;
   final Color unselectedLabelColor;
   final TabController? tabController;
   final int? initialIndex;
@@ -1404,6 +1405,7 @@ class YurTab extends StatefulWidget {
     required this.tabs,
     required this.tabViews,
     this.color = Colors.white,
+    this.textColor = primaryRed,
     this.unselectedLabelColor = Colors.black,
     this.tabController,
     this.initialIndex,
@@ -1452,9 +1454,9 @@ class _YurTabState extends State<YurTab> with SingleTickerProviderStateMixin {
             TabBar(
               controller: _tabController,
               tabs: widget.tabs,
-              labelColor: primaryRed,
+              labelColor: widget.textColor,
               unselectedLabelColor: widget.unselectedLabelColor,
-              indicatorColor: primaryRed,
+              indicatorColor: widget.textColor,
               indicatorSize: TabBarIndicatorSize.label,
               indicatorWeight: 2,
               labelStyle: const TextStyle(
@@ -3119,4 +3121,52 @@ Widget YurEmptyItem(
       ),
     ),
   );
+}
+
+//badge
+class YurBadge extends StatelessWidget {
+  final String text;
+  final Color color;
+  final Color textColor;
+  final double fontSize;
+  final double padding;
+  final double borderRadius;
+  final double elevation;
+  final double margin;
+
+  const YurBadge({
+    super.key,
+    required this.text,
+    this.color = primaryRed,
+    this.textColor = Colors.white,
+    this.fontSize = 12,
+    this.padding = 4,
+    this.borderRadius = 8,
+    this.elevation = 0,
+    this.margin = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(margin),
+      padding: EdgeInsets.all(padding),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.5),
+            blurRadius: elevation,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: YurText(
+        text: text,
+        color: textColor,
+        fontSize: fontSize,
+      ),
+    );
+  }
 }
