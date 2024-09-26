@@ -121,7 +121,7 @@ class YurText extends StatelessWidget {
           softWrap: softWrap,
           overflow: overflow,
           maxLines: maxLines,
-        ).animate().shimmer(duration: 2000.ms),
+        ),
       ),
     );
   }
@@ -1352,43 +1352,60 @@ class _YurAddFieldState extends State<YurAddField> {
   }
 }
 
-class YurBottomSheet extends StatefulWidget {
-  YurBottomSheet({
-    super.key,
-    this.title,
-    required this.widget,
-  });
-  String? title;
-  final Widget Function() widget;
-  @override
-  _YurBottomSheetState createState() => _YurBottomSheetState();
-}
-
-class _YurBottomSheetState extends State<YurBottomSheet> {
-  @override
-  Widget build(BuildContext context) {
-    return YurCard(
-      color: Colors.white,
-      child: Container(
-        padding: e12,
-        child: YurListView(
-          children: [
-            gap4,
-            if (widget.title != null)
-              Center(
-                  child: YurText(
-                fontSize: 20,
-                text: widget.title ?? "",
-              )),
-            gap4,
-            const YurDivider(),
-            gap4,
-            widget.widget(),
-          ],
+Future<dynamic> YurBottomSheet({
+  required BuildContext context,
+  required Widget Function() widget,
+  String? title,
+  String? subTitle,
+  double? height,
+}) {
+  var defaultHeight = MediaQuery.of(context).size.height;
+  return showModalBottomSheet(
+    context: context,
+    useSafeArea: true,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    constraints: BoxConstraints(maxHeight: defaultHeight),
+    builder: (context) {
+      return SizedBox(
+        height: height ?? defaultHeight * 0.5,
+        child: YurCard(
+          color: Colors.white,
+          shape: const RoundedRectangleBorder(borderRadius: brTop20),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 20,
+            right: 20,
+            top: 20,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (title != null)
+                  YurText(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    text: title,
+                  ),
+                if (subTitle != null)
+                  YurText(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    text: subTitle,
+                  ),
+                if (title != null || subTitle != null) ...[
+                  gap4,
+                  const YurDivider(),
+                  gap4,
+                ],
+                widget(),
+              ],
+            ),
+          ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
 }
 
 class YurTab extends StatefulWidget {
@@ -2464,7 +2481,7 @@ class YurStarRating extends StatefulWidget {
 class _YurStarRatingState extends State<YurStarRating> {
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    double screenWidth = Get.width;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -2954,8 +2971,14 @@ class YurListBuilder<T> extends StatefulWidget {
   final TextEditingController? searchController;
   final ScrollController? controller;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
   final Color? color;
   final bool? reverse;
+  final String? labelEmpty;
+  final bool? shrinkWrap;
+  final ScrollPhysics? physics;
+  final int? displayedItemMax;
+  final Widget Function(int)? separatedWidget;
 
   const YurListBuilder({
     super.key,
@@ -2967,8 +2990,14 @@ class YurListBuilder<T> extends StatefulWidget {
     this.searchController,
     this.controller,
     this.padding,
+    this.margin,
     this.color,
     this.reverse,
+    this.labelEmpty,
+    this.shrinkWrap,
+    this.physics,
+    this.displayedItemMax,
+    this.separatedWidget,
   });
 
   @override
@@ -3011,67 +3040,90 @@ class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
   @override
   Widget build(BuildContext context) {
     _onSearchChanged();
+
     if (widget.list.isEmpty) {
       return widget.widgetEmpty ??
-          YurEmptyItem("$label Kosong",
-              "Data $label tidak tersedia, silahkan coba lagi atau tambahkan data $label");
+          YurEmptyItem(
+            widget.labelEmpty ?? "$label tidak tersedia",
+            "$label tidak tersedia, Silakan periksa koneksi jaringan atau coba lagi nanti.",
+          );
     }
 
-    return Column(
-      children: [
-        if (widget.searchController != null) ...[
-          YurForm(
-            label: "Cari",
-            controller: widget.searchController,
-            prefixIcon: const YurIcon(icon: Icons.search),
-            onChanged: (value) {
-              setState(() {
-                filteredList = widget.list
-                    .where((e) => e
-                        .toString()
-                        .toLowerCase()
-                        .contains(value.toLowerCase()))
-                    .toList();
-              });
-            },
-          ),
-          gap16,
-        ],
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () {
-              widget.onRefresh();
-              return Future.value();
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(),
-                child: Container(
-                  padding: widget.padding ?? EdgeInsets.zero,
-                  color: widget.color,
-                  child: ListView.builder(
-                    reverse: widget.reverse ?? false,
-                    controller: widget.controller,
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    itemCount: filteredList.isEmpty ? 1 : filteredList.length,
-                    itemBuilder: (context, index) {
-                      if (filteredList.isEmpty) {
-                        return YurEmptyItem(
-                          "${widget.searchController!.text} tidak tersedia",
-                          "Tidak ada data yang sesuai dengan kriteria pencarian Anda. Silakan coba dengan kata kunci yang berbeda.",
-                        );
-                      }
-                      return widget.widgetBuilder(filteredList[index]);
-                    },
+    // Batasi jumlah item yang ditampilkan dengan `itemMax`
+    final maxItems = widget.displayedItemMax ?? filteredList.length;
+    // Jika jumlah item yang ditampilkan lebih dari `itemMax`, maka tampilkan `itemMax` item saja
+    final displayedList = filteredList.length > maxItems
+        ? filteredList.sublist(0, maxItems)
+        : filteredList;
+
+    return Container(
+      margin: widget.margin ?? EdgeInsets.zero,
+      child: Column(
+        children: [
+          if (widget.searchController != null) ...[
+            YurForm(
+              label: "Cari",
+              controller: widget.searchController,
+              prefixIcon: const YurIcon(icon: Icons.search),
+              onChanged: (value) {
+                setState(() {
+                  if (value.isNotEmpty) {
+                    filteredList = widget.list
+                        .where((e) => e
+                            .toString()
+                            .toLowerCase()
+                            .contains(value.toLowerCase()))
+                        .toList();
+                  } else {
+                    filteredList = widget.list;
+                  }
+                });
+              },
+            ),
+            gapH16,
+          ],
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () {
+                widget.onRefresh();
+                return Future.value();
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(),
+                  child: Container(
+                    padding: widget.padding ?? EdgeInsets.zero,
+                    color: widget.color,
+                    child: ListView.separated(
+                      reverse: widget.reverse ?? false,
+                      controller: widget.controller,
+                      separatorBuilder: (context, index) {
+                        return widget.separatedWidget != null
+                            ? widget.separatedWidget!(index)
+                            : gap0;
+                      },
+                      shrinkWrap: widget.shrinkWrap ?? true,
+                      physics: widget.physics ?? const ClampingScrollPhysics(),
+                      itemCount:
+                          displayedList.isEmpty ? 1 : displayedList.length,
+                      itemBuilder: (context, index) {
+                        if (displayedList.isEmpty) {
+                          return YurEmptyItem(
+                            "${widget.searchController!.text} tidak tersedia",
+                            "Tidak ada data yang sesuai dengan kriteria pencarian Anda. Silakan coba dengan kata kunci yang berbeda.",
+                          );
+                        }
+                        return widget.widgetBuilder(displayedList[index]);
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

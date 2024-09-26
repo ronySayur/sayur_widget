@@ -99,7 +99,7 @@ Future<bool> setSharedList(
 
 // DateTime <==================================
 Future<DateTime> getSharedDateTime({required String key}) async {
-  return await getShared<DateTime>(key: key, defaultValue: DateTime(1970));
+  return await getShared<DateTime>(key: key, defaultValue: DateTime.now());
 }
 
 Future<bool> setSharedDateTime(
