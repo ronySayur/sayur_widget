@@ -27,13 +27,28 @@ import 'package:sayur_widget/sayur_core.dart';
 //String to Map
 Map<String, String> parseStringToMap(String input) {
   Map<String, String> result = {};
-  List<String> keyValuePairs =
-      input.replaceAll('{', '').replaceAll('}', '').split(', ');
+
+  // Mengganti pembagian berdasarkan koma hanya untuk pemisahan utama
+  List<String> keyValuePairs = input
+      .replaceAll('{', '')
+      .replaceAll('}', '')
+      .split(RegExp(r',\s(?=\w+:)'));
 
   for (String pair in keyValuePairs) {
     List<String> keyValue = pair.split(': ');
+
+    if (keyValue.length < 2) {
+      // Jika tidak ada nilai, atau formatnya tidak sesuai, abaikan atau log errornya
+      YurLog("Error: Invalid key-value pair: $pair");
+      continue;
+    }
+
     String key = keyValue[0].trim();
-    String value = keyValue[1].trim();
+    String value = keyValue
+        .sublist(1)
+        .join(': ')
+        .trim(); // Gabungkan kembali untuk nilai yang mungkin mengandung tanda ":"
+
     result[key] = value;
   }
 

@@ -1360,49 +1360,55 @@ Future<dynamic> YurBottomSheet({
   double? height,
 }) {
   var defaultHeight = MediaQuery.of(context).size.height;
+
   return showModalBottomSheet(
     context: context,
     useSafeArea: true,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    constraints: BoxConstraints(maxHeight: defaultHeight),
     builder: (context) {
-      return SizedBox(
-        height: height ?? defaultHeight * 0.5,
-        child: YurCard(
-          color: Colors.white,
-          shape: const RoundedRectangleBorder(borderRadius: brTop20),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                if (title != null)
-                  YurText(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    text: title,
+      return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return AnimatedPadding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            child: SizedBox(
+              height: height ?? defaultHeight * 0.5,
+              child: YurCard(
+                color: Colors.white,
+                shape: const RoundedRectangleBorder(borderRadius: brTop20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (title != null)
+                        YurText(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          text: title,
+                        ),
+                      if (subTitle != null)
+                        YurText(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          text: subTitle,
+                        ),
+                      if (title != null || subTitle != null) ...[
+                        gap4,
+                        const YurDivider(),
+                        gap4,
+                      ],
+                      widget(),
+                    ],
                   ),
-                if (subTitle != null)
-                  YurText(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    text: subTitle,
-                  ),
-                if (title != null || subTitle != null) ...[
-                  gap4,
-                  const YurDivider(),
-                  gap4,
-                ],
-                widget(),
-              ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       );
     },
   );
@@ -1738,81 +1744,80 @@ class YurButton extends StatelessWidget {
             })();
 
     return Padding(
-      padding: padding ?? e0,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          alignment: Alignment.center,
-          splashFactory: InkRipple.splashFactory,
-          enableFeedback: true,
-          side: BorderSide(color: borderColor, width: 1),
-          backgroundColor: backgroundColor,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          disabledForegroundColor: Colors.grey.withOpacity(0.38),
-          disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius)),
-          padding: EdgeInsets.symmetric(
-            vertical: paddingVertical,
-            horizontal: paddingHorizontal,
+        padding: padding ?? e0,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            alignment: Alignment.center,
+            splashFactory: InkRipple.splashFactory,
+            enableFeedback: true,
+            side: BorderSide(color: borderColor, width: 1),
+            backgroundColor: backgroundColor,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            disabledForegroundColor: Colors.grey.withOpacity(0.38),
+            disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius)),
+            padding: EdgeInsets.symmetric(
+              vertical: paddingVertical,
+              horizontal: paddingHorizontal,
+            ),
+            elevation: 4,
+            shadowColor: Colors.grey,
+            animationDuration: 200.ms,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            enabledMouseCursor: SystemMouseCursors.click,
+            surfaceTintColor: Colors.grey.withOpacity(0.12),
           ),
-          elevation: 4,
-          shadowColor: Colors.grey,
-          animationDuration: 200.ms,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          enabledMouseCursor: SystemMouseCursors.click,
-          surfaceTintColor: Colors.grey.withOpacity(0.12),
-        ),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: AnimatedDefaultTextStyle(
-              curve: Curves.easeInOut,
-              softWrap: true,
-              duration: 200.ms,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: fontWeight ?? FontWeight.w500,
-                fontStyle: FontStyle.normal,
-                overflow: overflow,
-                decorationStyle: TextDecorationStyle.solid,
-                decoration: TextDecoration.none,
-                color: colorText,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (icon != null)
-                    YurIcon(
-                      icon: icon!,
-                      color: iconColor ?? primaryRed,
-                      size: iconSize ?? fontSize * 1.5,
-                    ),
-                  if (iconNetwork != null)
-                    YurImageNet(
-                      imageUrl: iconNetwork!,
-                      height: iconNetworkHeight ?? 24,
-                    ),
-                  if (iconAssets != null)
-                    YurImageAsset(
-                      imageUrl: iconAssets!,
-                      height: iconAssetsHeight ?? 24,
-                    ),
-                  if (text != null)
-                    Expanded(
-                      child: Text(
-                        text!,
-                        maxLines: maxlines,
-                        overflow: overflow,
-                        softWrap: true,
-                        textAlign: TextAlign.center,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: AnimatedDefaultTextStyle(
+                curve: Curves.easeInOut,
+                softWrap: true,
+                duration: 200.ms,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: fontWeight ?? FontWeight.w500,
+                  fontStyle: FontStyle.normal,
+                  overflow: overflow,
+                  decorationStyle: TextDecorationStyle.solid,
+                  decoration: TextDecoration.none,
+                  color: colorText,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (icon != null)
+                      YurIcon(
+                        icon: icon!,
+                        color: iconColor ?? primaryRed,
+                        size: iconSize ?? fontSize * 1.5,
                       ),
-                    ),
-                ],
-              )),
-        ),
-      ).animate().shimmer(duration: 3.seconds),
-    );
+                    if (iconNetwork != null)
+                      YurImageNet(
+                        imageUrl: iconNetwork!,
+                        height: iconNetworkHeight ?? 24,
+                      ),
+                    if (iconAssets != null)
+                      YurImageAsset(
+                        imageUrl: iconAssets!,
+                        height: iconAssetsHeight ?? 24,
+                      ),
+                    if (text != null)
+                      Expanded(
+                        child: Text(
+                          text!,
+                          maxLines: maxlines,
+                          overflow: overflow,
+                          softWrap: true,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                  ],
+                )),
+          ),
+        ));
   }
 }
 
@@ -1905,7 +1910,7 @@ class YurImageAsset extends StatelessWidget {
           }
         },
       ),
-    ).animate().shimmer(duration: 3.seconds);
+    );
   }
 }
 
@@ -1950,60 +1955,59 @@ class YurImageNet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        imageBuilder: (context, imageProvider) => Container(
-          width: width,
-          height: height,
-          alignment: alignment,
-          margin: margin,
-          padding: padding,
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            border: border,
-            gradient: gradient,
-            shape: shape,
-            boxShadow: boxShadow,
-            image: DecorationImage(
-              image: imageProvider,
-              fit: fit,
-              colorFilter: color != null
-                  ? ColorFilter.mode(color!, BlendMode.color)
-                  : null,
+        onTap: onTap,
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          imageBuilder: (context, imageProvider) => Container(
+            width: width,
+            height: height,
+            alignment: alignment,
+            margin: margin,
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              border: border,
+              gradient: gradient,
+              shape: shape,
+              boxShadow: boxShadow,
+              image: DecorationImage(
+                image: imageProvider,
+                fit: fit,
+                colorFilter: color != null
+                    ? ColorFilter.mode(color!, BlendMode.color)
+                    : null,
+              ),
             ),
           ),
-        ),
-        placeholder: (context, url) => const Center(
-          child: CircularProgressIndicator(color: primaryRed),
-        ),
-        errorWidget: (context, url, error) {
-          return errorWidget ??
-              Center(
-                child: Container(
-                  height: height,
-                  width: width,
-                  margin: margin,
-                  padding: padding,
-                  alignment: alignment,
-                  decoration: BoxDecoration(
-                    shape: shape,
-                    border: border,
-                    gradient: gradient,
-                    boxShadow: boxShadow,
-                    borderRadius: borderRadius,
-                  ),
-                  child: YurIcon(
-                    icon: iconError,
-                    color: primaryRed,
-                    padding: padding,
+          placeholder: (context, url) => const Center(
+            child: CircularProgressIndicator(color: primaryRed),
+          ),
+          errorWidget: (context, url, error) {
+            return errorWidget ??
+                Center(
+                  child: Container(
+                    height: height,
+                    width: width,
                     margin: margin,
+                    padding: padding,
+                    alignment: alignment,
+                    decoration: BoxDecoration(
+                      shape: shape,
+                      border: border,
+                      gradient: gradient,
+                      boxShadow: boxShadow,
+                      borderRadius: borderRadius,
+                    ),
+                    child: YurIcon(
+                      icon: iconError,
+                      color: primaryRed,
+                      padding: padding,
+                      margin: margin,
+                    ),
                   ),
-                ),
-              );
-        },
-      ).animate().shimmer(duration: 3.seconds),
-    );
+                );
+          },
+        ));
   }
 }
 
@@ -2028,7 +2032,7 @@ class YurDivider extends StatelessWidget {
       indent: indent,
       endIndent: endIndent,
       color: color,
-    ).animate().shimmer(duration: 3.seconds);
+    );
   }
 }
 
@@ -2852,8 +2856,12 @@ class LottieHelper extends StatelessWidget {
   final String? text;
   final double height;
 
-  const LottieHelper(
-      {super.key, required this.lottieEnum, this.height = 200, this.text});
+  const LottieHelper({
+    super.key,
+    required this.lottieEnum,
+    this.height = 200,
+    this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2904,7 +2912,7 @@ class LottieHelper extends StatelessWidget {
       if (text != null) {
         children.add(gap20);
         children.add(YurText(
-          fontSize: 20,
+          fontSize: 18,
           text: text!,
           maxLines: 3,
           textAlign: TextAlign.center,
