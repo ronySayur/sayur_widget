@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:app_settings/app_settings.dart';
-import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 @pragma('vm:entry-point')
@@ -112,21 +111,6 @@ class YurPermissionRequest {
       }
 
       return notification;
-    } catch (e) {
-      YurLog(e);
-      return false;
-    }
-  }
-
-  static Future<bool> isDeveloperOn() async {
-    try {
-      bool isDeveloperOn = false;
-
-      if (Platform.isAndroid) {
-        isDeveloperOn = await FlutterJailbreakDetection.developerMode;
-      }
-
-      return isDeveloperOn;
     } catch (e) {
       YurLog(e);
       return false;
