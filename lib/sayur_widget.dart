@@ -1744,80 +1744,82 @@ class YurButton extends StatelessWidget {
             })();
 
     return Padding(
-        padding: padding ?? e0,
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            alignment: Alignment.center,
-            splashFactory: InkRipple.splashFactory,
-            enableFeedback: true,
-            side: BorderSide(color: borderColor, width: 1),
-            backgroundColor: backgroundColor,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            disabledForegroundColor: Colors.grey.withOpacity(0.38),
-            disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius)),
-            padding: EdgeInsets.symmetric(
-              vertical: paddingVertical,
-              horizontal: paddingHorizontal,
-            ),
-            elevation: 4,
-            shadowColor: Colors.grey,
-            animationDuration: 200.ms,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            enabledMouseCursor: SystemMouseCursors.click,
-            surfaceTintColor: Colors.grey.withOpacity(0.12),
+      padding: padding ?? e0,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          alignment: Alignment.center,
+          splashFactory: InkRipple.splashFactory,
+          enableFeedback: true,
+          side: BorderSide(color: borderColor, width: 1),
+          backgroundColor: backgroundColor,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          disabledForegroundColor: Colors.grey.withOpacity(0.38),
+          disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
           ),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: AnimatedDefaultTextStyle(
-                curve: Curves.easeInOut,
-                softWrap: true,
-                duration: 200.ms,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: fontWeight ?? FontWeight.w500,
-                  fontStyle: FontStyle.normal,
-                  overflow: overflow,
-                  decorationStyle: TextDecorationStyle.solid,
-                  decoration: TextDecoration.none,
-                  color: colorText,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (icon != null)
-                      YurIcon(
-                        icon: icon!,
-                        color: iconColor ?? primaryRed,
-                        size: iconSize ?? fontSize * 1.5,
-                      ),
-                    if (iconNetwork != null)
-                      YurImageNet(
-                        imageUrl: iconNetwork!,
-                        height: iconNetworkHeight ?? 24,
-                      ),
-                    if (iconAssets != null)
-                      YurImageAsset(
-                        imageUrl: iconAssets!,
-                        height: iconAssetsHeight ?? 24,
-                      ),
-                    if (text != null)
-                      Expanded(
-                        child: Text(
-                          text!,
-                          maxLines: maxlines,
-                          overflow: overflow,
-                          softWrap: true,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                  ],
-                )),
+          padding: EdgeInsets.symmetric(
+            vertical: paddingVertical,
+            horizontal: paddingHorizontal,
           ),
-        ));
+          elevation: 4,
+          shadowColor: Colors.grey,
+          animationDuration: 200.ms,
+          visualDensity: VisualDensity.comfortable,
+          enabledMouseCursor: SystemMouseCursors.click,
+          surfaceTintColor: Colors.grey.withOpacity(0.12),
+        ),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: AnimatedDefaultTextStyle(
+              curve: Curves.easeInOut,
+              softWrap: true,
+              duration: 200.ms,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: fontWeight ?? FontWeight.w500,
+                fontStyle: FontStyle.normal,
+                overflow: overflow,
+                decorationStyle: TextDecorationStyle.solid,
+                decoration: TextDecoration.none,
+                color: colorText,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (icon != null)
+                    YurIcon(
+                      icon: icon!,
+                      color: iconColor ?? primaryRed,
+                      size: iconSize ?? fontSize * 1.5,
+                    ),
+                  if (iconNetwork != null)
+                    YurImage(
+                      imageUrl: iconNetwork!,
+                      height: iconNetworkHeight ?? 24,
+                    ),
+                  if (iconAssets != null)
+                    YurImage(
+                      imageUrl: iconAssets!,
+                      height: iconAssetsHeight ?? 24,
+                    ),
+                  if (text != null)
+                    Expanded(
+                      child: Text(
+                        text!,
+                        maxLines: maxlines,
+                        overflow: overflow,
+                        softWrap: true,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                ],
+              )),
+        ),
+      ),
+    );
   }
 }
 
@@ -1851,8 +1853,8 @@ class YurSwitch extends StatelessWidget {
   }
 }
 
-class YurImageAsset extends StatelessWidget {
-  const YurImageAsset({
+class YurImage extends StatelessWidget {
+  const YurImage({
     super.key,
     required this.imageUrl,
     this.width,
@@ -1863,10 +1865,18 @@ class YurImageAsset extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.color,
+    this.iconError = Icons.error,
+    this.border,
+    this.gradient,
+    this.shape = BoxShape.rectangle,
+    this.boxShadow,
+    this.errorWidget,
+    this.onTap,
     this.centerSlice,
   });
 
   final String imageUrl;
+  final Widget? errorWidget;
   final double? width;
   final double? height;
   final BoxFit fit;
@@ -1875,21 +1885,100 @@ class YurImageAsset extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final BorderRadiusGeometry? borderRadius;
   final Color? color;
+  final IconData iconError;
+  final BoxBorder? border;
+  final Gradient? gradient;
+  final BoxShape shape;
+  final List<BoxShadow>? boxShadow;
+  final Function()? onTap;
   final Rect? centerSlice;
+
+  bool get _isNetworkImage => imageUrl.startsWith('https');
 
   @override
   Widget build(BuildContext context) {
+    return _isNetworkImage
+        ? _buildNetworkImage(context)
+        : _buildAssetImage(context);
+  }
+
+  Widget _buildNetworkImage(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        imageBuilder: (context, imageProvider) => Container(
+          width: width,
+          height: height,
+          alignment: alignment,
+          margin: margin,
+          padding: padding,
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            border: border,
+            gradient: gradient,
+            shape: shape,
+            boxShadow: boxShadow,
+            image: DecorationImage(
+              image: imageProvider,
+              fit: fit,
+              colorFilter: color != null
+                  ? ColorFilter.mode(color!, BlendMode.color)
+                  : null,
+            ),
+          ),
+        ),
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(color: primaryRed),
+        ),
+        errorWidget: (context, url, error) {
+          return errorWidget ??
+              Center(
+                child: Container(
+                  height: height,
+                  width: width,
+                  margin: margin,
+                  padding: padding,
+                  alignment: alignment,
+                  decoration: BoxDecoration(
+                    shape: shape,
+                    border: border,
+                    gradient: gradient,
+                    boxShadow: boxShadow,
+                    borderRadius: borderRadius,
+                  ),
+                  child: YurIcon(
+                    icon: iconError,
+                    color: primaryRed,
+                    padding: padding,
+                    margin: margin,
+                  ),
+                ),
+              );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAssetImage(BuildContext context) {
     return Container(
       padding: padding,
       margin: margin,
       width: width,
       height: height,
-      decoration: BoxDecoration(borderRadius: borderRadius),
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        border: border,
+        gradient: gradient,
+        shape: shape,
+        boxShadow: boxShadow,
+      ),
       child: Image.asset(
         imageUrl,
         fit: fit,
         color: color,
         alignment: alignment,
+        centerSlice: centerSlice,
         errorBuilder: (context, error, _) {
           YurLog(name: "YurImageAsset Error : ", error.toString());
           return const YurIcon(
@@ -1911,103 +2000,6 @@ class YurImageAsset extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-class YurImageNet extends StatelessWidget {
-  const YurImageNet({
-    super.key,
-    required this.imageUrl,
-    this.width,
-    this.height,
-    this.fit = BoxFit.fill,
-    this.alignment = Alignment.center,
-    this.margin,
-    this.padding,
-    this.borderRadius,
-    this.color,
-    this.iconError = Icons.error,
-    this.border,
-    this.gradient,
-    this.shape = BoxShape.rectangle,
-    this.boxShadow,
-    this.errorWidget,
-    this.onTap,
-  });
-
-  final String imageUrl;
-  final Widget? errorWidget;
-  final double? width;
-  final double? height;
-  final BoxFit fit;
-  final AlignmentGeometry alignment;
-  final EdgeInsetsGeometry? margin;
-  final EdgeInsetsGeometry? padding;
-  final BorderRadiusGeometry? borderRadius;
-  final Color? color;
-  final IconData iconError;
-  final BoxBorder? border;
-  final Gradient? gradient;
-  final BoxShape shape;
-  final List<BoxShadow>? boxShadow;
-  final Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-        onTap: onTap,
-        child: CachedNetworkImage(
-          imageUrl: imageUrl,
-          imageBuilder: (context, imageProvider) => Container(
-            width: width,
-            height: height,
-            alignment: alignment,
-            margin: margin,
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              border: border,
-              gradient: gradient,
-              shape: shape,
-              boxShadow: boxShadow,
-              image: DecorationImage(
-                image: imageProvider,
-                fit: fit,
-                colorFilter: color != null
-                    ? ColorFilter.mode(color!, BlendMode.color)
-                    : null,
-              ),
-            ),
-          ),
-          placeholder: (context, url) => const Center(
-            child: CircularProgressIndicator(color: primaryRed),
-          ),
-          errorWidget: (context, url, error) {
-            return errorWidget ??
-                Center(
-                  child: Container(
-                    height: height,
-                    width: width,
-                    margin: margin,
-                    padding: padding,
-                    alignment: alignment,
-                    decoration: BoxDecoration(
-                      shape: shape,
-                      border: border,
-                      gradient: gradient,
-                      boxShadow: boxShadow,
-                      borderRadius: borderRadius,
-                    ),
-                    child: YurIcon(
-                      icon: iconError,
-                      color: primaryRed,
-                      padding: padding,
-                      margin: margin,
-                    ),
-                  ),
-                );
-          },
-        ));
   }
 }
 
@@ -2593,7 +2585,6 @@ Pinput YurPinput({
     inputFormatters: [
       if (isDigitsOnly) FilteringTextInputFormatter.digitsOnly,
     ],
-    listenForMultipleSmsOnAndroid: true,
     closeKeyboardWhenCompleted: true,
     length: length,
     animationCurve: Curves.easeInOut,
@@ -2673,7 +2664,7 @@ class _YurWebViewState extends State<YurWebView> {
       onPopInvoked: onPopInvoked,
       appBar: widget.withAppBar ? YurAppBar(title: widget.title) : null,
       body: InAppWebView(
-        initialUrlRequest: URLRequest(url: Uri.parse(widget.linkWebView)),
+        initialUrlRequest: URLRequest(url: WebUri(widget.linkWebView)),
         androidOnPermissionRequest: androidOnPermission,
         pullToRefreshController: _pullToRefreshController,
         onWebViewCreated: onWebViewCreated,
@@ -2940,16 +2931,17 @@ class YurNotification {
       StreamController<ReceiveNotification>.broadcast();
 
   Future<void> checkNotif(BuildContext context) async {
-    await PermissionRequest.isNotification().then((value) {
+    await YurPermissionRequest.isNotification().then((value) {
       if (!value) {
         return YurAlertDialog(
-          context: context,
+          context: Get.context,
           title: "Notifikasi",
           isDismissable: true,
           message: PermissionConstants.notification,
           buttonText: "Aktifkan Notifikasi",
-          onConfirm: () =>
-              AppSettings.openAppSettings(type: AppSettingsType.notification),
+          onConfirm: () => AppSettings.openAppSettings(
+            type: AppSettingsType.notification,
+          ),
         );
       }
     });

@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +22,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:sayur_widget/sayur_core.dart';
+import 'package:toastification/toastification.dart';
 
 //String to Map
 Map<String, String> parseStringToMap(String input) {
@@ -204,7 +204,6 @@ void YurToast({
   InfoType toastType = InfoType.info,
   Toast duration = Toast.LENGTH_SHORT,
   ToastGravity gravity = ToastGravity.CENTER,
-  int timeInSecForIosWeb = 1,
   Color? backgroundColor,
   Color? textColor = Colors.white,
   double fontSize = 14.0,
@@ -232,7 +231,6 @@ void YurToast({
     msg: message,
     toastLength: duration,
     gravity: gravity,
-    timeInSecForIosWeb: timeInSecForIosWeb,
     backgroundColor: backgroundColor,
     textColor: textColor,
     fontSize: fontSize,
@@ -240,17 +238,15 @@ void YurToast({
 }
 
 void YurLoading({
+  required LoadingStatus loadingStatus,
   String? message,
   bool isDismisable = false,
-  required LoadingStatus loadingStatus,
   InfoType toastType = InfoType.info,
   EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
   Color? backgroundColor,
   int duration = 2,
 }) {
-  EasyLoading i = EasyLoading.instance;
-
-  i
+  EasyLoading.instance
     ..displayDuration = Duration(seconds: duration)
     ..indicatorType = indicatorType
     ..indicatorSize = 45.0
@@ -262,7 +258,6 @@ void YurLoading({
     ..maskColor = Colors.black.withOpacity(0.5)
     ..userInteractions = true
     ..dismissOnTap = isDismisable
-    ..customAnimation
     ..loadingStyle = EasyLoadingStyle.custom;
 
   EasyLoading.addStatusCallback(
@@ -271,39 +266,77 @@ void YurLoading({
 
   switch (loadingStatus) {
     case LoadingStatus.show:
+      EasyLoading.dismiss();
       EasyLoading.show(
         status: message ?? "Loading...",
-        dismissOnTap: isDismisable,
-      );
-      break;
-    case LoadingStatus.error:
-      i.backgroundColor = backgroundColor ?? Colors.red;
-
-      EasyLoading.showError(
-        message ?? "Terjadi kesalahan...",
-        dismissOnTap: isDismisable,
-      );
-      break;
-    case LoadingStatus.info:
-      i.backgroundColor = backgroundColor ?? Colors.blue;
-
-      EasyLoading.showInfo(
-        message ?? "Perhatian",
-        dismissOnTap: isDismisable,
-      );
-      break;
-    case LoadingStatus.success:
-      i.backgroundColor = backgroundColor ?? Colors.green;
-
-      EasyLoading.showSuccess(
-        message ?? "Berhasil",
         dismissOnTap: isDismisable,
       );
       break;
     case LoadingStatus.dismiss:
       EasyLoading.dismiss();
       break;
+    case LoadingStatus.error:
+      _showToast(
+        "Peringatan",
+        message ?? "Terjadi kesalahan",
+        ToastificationType.error,
+      );
+      break;
+    case LoadingStatus.info:
+      _showToast(
+        "Informasi",
+        message ?? "Informasi",
+        ToastificationType.info,
+      );
+      break;
+    case LoadingStatus.success:
+      _showToast(
+        "Berhasil",
+        message ?? "Berhasil",
+        ToastificationType.success,
+      );
+      break;
   }
+}
+
+void _showToast(
+  String title,
+  String description,
+  ToastificationType type,
+) {
+  toastification.show(
+    context: Get.context,
+    title: YurText(
+      text: title,
+      fontWeight: FontWeight.bold,
+    ),
+    description: YurText(
+      text: description,
+      maxLines: 20,
+      fontSize: 16,
+    ),
+    type: type,
+    showIcon: true,
+    style: ToastificationStyle.minimal,
+    closeButtonShowType: CloseButtonShowType.onHover,
+    autoCloseDuration: 5.seconds,
+    showProgressBar: false,
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.1),
+        spreadRadius: 5,
+        blurRadius: 7,
+        offset: const Offset(0, 3),
+      ),
+    ],
+    animationBuilder: (_, animation, alignment, child) {
+      return ScaleTransition(
+        scale: animation,
+        alignment: alignment,
+        child: child,
+      );
+    },
+  );
 }
 
 void YurSnackBar({
@@ -407,7 +440,7 @@ YurAlertDialog({
       builder: (BuildContext context) {
         return PopScope(
           canPop: (dialogType == DialogType.confirmation),
-          onPopInvoked: (didPop) {
+          onPopInvokedWithResult: (didPop, result) {
             if (!didPop) Future.delayed(500.ms, () => onConfirm());
           },
           child: AlertDialog(
@@ -623,7 +656,7 @@ Future<dynamic> YurCustomDialog({
   required List<Widget> actions,
   Widget? icon,
   bool isDismisable = true,
-  Function(bool)? onPopInvoked,
+  Function(bool, dynamic)? onPopInvokedWithResult,
 }) {
   return showDialog(
     context: Get.context,
@@ -631,7 +664,7 @@ Future<dynamic> YurCustomDialog({
     builder: (BuildContext context) {
       return PopScope(
         canPop: isDismisable,
-        onPopInvoked: onPopInvoked,
+        onPopInvokedWithResult: onPopInvokedWithResult,
         child: AlertDialog(
           title: title == null
               ? null
@@ -681,10 +714,8 @@ Future<T?> YurSearch<T>({
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: PopScope(
           canPop: isDialogShow && isDismissable,
-          onPopInvoked: (didPop) {
-            if (didPop) {
-              onConfirm(textController);
-            }
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) onConfirm(textController);
           },
           child: Dialog(
             elevation: 3,
@@ -878,23 +909,6 @@ Position YurPosition({
     headingAccuracy: headingAccuracy ?? 0.0,
   );
   return position;
-}
-
-class YurRing {
-  static void play() {
-    FlutterRingtonePlayer player = FlutterRingtonePlayer();
-    player.play(
-      android: AndroidSounds.notification,
-      ios: IosSounds.glass,
-      looping: true,
-      asAlarm: false,
-    );
-  }
-
-  static void stop() {
-    FlutterRingtonePlayer player = FlutterRingtonePlayer();
-    player.stop();
-  }
 }
 
 Future<void> YurDownload({

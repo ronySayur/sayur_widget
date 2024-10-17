@@ -8,48 +8,88 @@ import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 @pragma('vm:entry-point')
-class PermissionRequest {
-  static bool isShow = true;
-  @pragma('vm:entry-point')
-  static Future<bool> getLocation() async {
+class YurPermissionRequest {
+  static bool isShowDialog = true;
+
+  static Future<bool> isLocationGranted() async {
     try {
-      LocationPermission permission;
-      permission = await Geolocator.checkPermission();
+      LocationPermission permission = await Geolocator.checkPermission();
 
-      YurLog(permission.toString());
+      bool denied = permission == LocationPermission.denied,
+          deniedForever = permission == LocationPermission.deniedForever;
 
-      if (permission == LocationPermission.denied) {
+      String message =
+          "To provide the best possible service, we recommend enabling location services. With location access, we can offer more accurate and maximize services based on your current location. You can enable or disable this feature anytime in your settings.";
+
+      if (denied) {
         permission = await Geolocator.requestPermission();
+
+        YurAlertDialog(
+          context: Get.context,
+          title: "Enable Location Access",
+          message: message,
+          buttonText: "Enable Location",
+          cancelText: "Maybe Later",
+          onConfirm: Geolocator.requestPermission,
+        );
+
         return false;
       }
 
-      if (permission == LocationPermission.deniedForever) {
-        if (isShow) {
-          isShow = false;
-          YurLoading(loadingStatus: LoadingStatus.dismiss);
-          YurAlertDialog(
-            context: Get.context,
-            title: "Izinkan Lokasi",
-            message: "Aplikasi ini membutuhkan izin lokasi anda",
-            buttonText: "Izinkan",
-            onCancel: () {
-              isShow = true;
-              Get.back();
-              return false;
-            },
-            onConfirm: () {
-              AppSettings.openAppSettings(type: AppSettingsType.location);
-              isShow = true;
-              Get.back();
-            },
-          );
-        }
+      if (deniedForever && isShowDialog) {
+        isShowDialog = false;
+        YurLoading(loadingStatus: LoadingStatus.dismiss);
+
+        YurAlertDialog(
+          context: Get.context,
+          title: "Enable Location Access",
+          message: message,
+          buttonText: "Enable Location",
+          cancelText: "Maybe Later",
+          onCancel: () {
+            isShowDialog = true;
+            Get.back();
+            return false;
+          },
+          onConfirm: () async {
+            if (Platform.isAndroid) {
+              await Geolocator.requestPermission();
+            } else if (Platform.isIOS) {
+              await Geolocator.openLocationSettings();
+            }
+
+            isShowDialog = true;
+            Get.back();
+          },
+        );
       }
 
       return true;
     } catch (e) {
       YurLog(e);
       return false;
+    }
+  }
+
+  static Future<Position> getPosition({
+    Position? lastPosition,
+  }) async {
+    Position position = lastPosition ?? YurPosition(latitude: 0, longitude: 0);
+    try {
+      bool isGranted = await isLocationGranted();
+      if (isGranted) {
+        return position = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10,
+          ),
+        );
+      } else {
+        return position;
+      }
+    } catch (e) {
+      YurLog(e);
+      return position;
     }
   }
 
@@ -95,11 +135,9 @@ class PermissionRequest {
 
   static Future<bool> isMocked() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
+      Position position = await getPosition();
       bool isMocked = false;
+
       if (position.isMocked) isMocked = true;
       if (Platform.isIOS) isMocked = false;
 
@@ -122,8 +160,8 @@ class PermissionRequest {
       }
 
       if (status.isPermanentlyDenied) {
-        if (isShow) {
-          isShow = false;
+        if (isShowDialog) {
+          isShowDialog = false;
           YurLoading(loadingStatus: LoadingStatus.dismiss);
           YurAlertDialog(
             context: Get.context,
@@ -131,13 +169,13 @@ class PermissionRequest {
             message: "Aplikasi ini membutuhkan izin kamera anda",
             buttonText: "Izinkan",
             onCancel: () {
-              isShow = true;
+              isShowDialog = true;
               Get.back();
               return false;
             },
             onConfirm: () {
               AppSettings.openAppSettings(type: AppSettingsType.settings);
-              isShow = true;
+              isShowDialog = true;
               Get.back();
             },
           );
