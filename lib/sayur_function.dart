@@ -320,7 +320,6 @@ void _showToast(
     style: ToastificationStyle.minimal,
     closeButtonShowType: CloseButtonShowType.onHover,
     autoCloseDuration: 5.seconds,
-    showProgressBar: false,
     boxShadow: [
       BoxShadow(
         color: Colors.black.withOpacity(0.1),
