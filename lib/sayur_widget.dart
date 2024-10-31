@@ -463,7 +463,7 @@ class YurForm extends StatelessWidget {
             ? null
             : () async {
                 if (isHours) {
-                  YurShowPicker(
+                  YurHourPicker(
                     context: context,
                     controller: controller!,
                     minHour: minHour,
@@ -484,9 +484,7 @@ class YurForm extends StatelessWidget {
                   if (initialDate != null) {
                     initDate = initialDate!;
                   }
-                  YurLog("initDate");
-                  YurLog(initDate);
-                  YurLog(controller!.text);
+                  
                   await selectDate(
                     context: context,
                     initialDate: initDate,
@@ -944,7 +942,7 @@ class YurCheckBox extends StatelessWidget {
 
   const YurCheckBox({
     super.key,
-    required this.labelText,
+    this.labelText = "",
     required this.options,
     required this.selectedOptions,
     required this.onChanged,
@@ -959,7 +957,8 @@ class YurCheckBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        YurText(text: labelText, fontSize: 14, fontWeight: FontWeight.bold),
+        if (labelText.isNotEmpty)
+          YurText(text: labelText, fontSize: 14, fontWeight: FontWeight.bold),
         gap8,
         isVertical
             ? Row(
@@ -994,7 +993,16 @@ class YurCheckBox extends StatelessWidget {
     return YurCard(
       onTap: () => handleOption(option),
       margin: isVertical ? eW4 : eH8,
-      padding: e8,
+      padding: e4,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: br8,
+        side: BorderSide(
+          color: selectedOptions.contains(option)
+              ? Colors.red
+              : Colors.grey.shade500,
+        ),
+      ),
       child: Row(
         children: [
           Checkbox(
@@ -1002,11 +1010,7 @@ class YurCheckBox extends StatelessWidget {
             onChanged: (bool? value) => handleOption(option),
             activeColor: Colors.red,
           ),
-          YurText(
-              text: option,
-              fontWeight: selectedOptions.contains(option)
-                  ? FontWeight.bold
-                  : FontWeight.normal),
+          YurText(text: option),
         ],
       ),
     );
@@ -2964,7 +2968,7 @@ class ReceiveNotification {
 
 class YurListBuilder<T> extends StatefulWidget {
   final String label;
-  final Function() onRefresh;
+  final Function()? onRefresh;
   final List<T> list;
   final Widget Function(T) widgetBuilder;
   final Widget? widgetEmpty;
@@ -2983,7 +2987,7 @@ class YurListBuilder<T> extends StatefulWidget {
   const YurListBuilder({
     super.key,
     required this.label,
-    required this.onRefresh,
+    this.onRefresh,
     required this.list,
     required this.widgetBuilder,
     this.widgetEmpty,
@@ -3085,7 +3089,7 @@ class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () {
-                widget.onRefresh();
+                if (widget.onRefresh != null) widget.onRefresh!();
                 return Future.value();
               },
               child: SingleChildScrollView(

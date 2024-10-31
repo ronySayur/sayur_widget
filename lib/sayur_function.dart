@@ -782,30 +782,40 @@ void YurLog(dynamic message, {String? name}) {
   }
 }
 
-void YurShowPicker({
+Future<void> YurHourPicker({
   required BuildContext context,
   required TextEditingController controller,
   double? minHour,
   double? minMinute,
   Function(String)? onChanged,
-}) {
-  Navigator.of(context).push(
-    showPicker(
-      context: context,
-      value: Time(
-          hour: controller.text.isEmpty
-              ? 0
-              : int.parse(controller.text.split(":")[0]),
-          minute: controller.text.isEmpty
-              ? 0
-              : int.parse(controller.text.split(":")[1])),
-      onChange: (value) {
-        String formattedHour = value.hour.toString().padLeft(2, '0');
-        String formattedMinute = value.minute.toString().padLeft(2, '0');
+}) async {
+  Time time = Time(
+      hour: controller.text.isEmpty
+          ? 0
+          : int.parse(controller.text.split(":")[0]),
+      minute: controller.text.isEmpty
+          ? 0
+          : int.parse(controller.text.split(":")[1]));
 
-        controller.text = "$formattedHour:$formattedMinute";
-        if (onChanged != null) onChanged(controller.text);
-      },
+  onChange(value) {
+    String formattedHour = value.hour.toString().padLeft(2, '0');
+    String formattedMinute = value.minute.toString().padLeft(2, '0');
+
+    controller.text = "$formattedHour:$formattedMinute";
+    if (onChanged != null) onChanged(controller.text);
+  }
+
+  TextStyle style = TextStyle(
+    color: primaryRed,
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  );
+
+  Navigator.of(context).push(
+    await showPicker(
+      context: context,
+      value: time,
+      onChange: onChange,
       is24HrFormat: true,
       iosStylePicker: true,
       blurredBackground: true,
@@ -814,16 +824,8 @@ void YurShowPicker({
       minMinute: minMinute ?? 00,
       okText: "Pilih",
       cancelText: "Batal",
-      okStyle: const TextStyle(
-        color: primaryRed,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-      cancelStyle: const TextStyle(
-        color: primaryRed,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
+      okStyle: style,
+      cancelStyle: style,
       themeData: ThemeData(primaryColor: primaryRed),
     ),
   );
