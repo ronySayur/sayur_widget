@@ -117,6 +117,16 @@ extension IntExtension on int {
 
     return '$hourStr:$minutesStr:$secondsStr';
   }
+
+  String toRupiah() =>
+      NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+          .format(this);
+}
+
+extension DoubleExtension on double {
+  String toRupiah() =>
+      NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0)
+          .format(this);
 }
 
 extension TruthyExtension<T> on T {

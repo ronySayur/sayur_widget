@@ -123,7 +123,7 @@ class YurText extends StatelessWidget {
           maxLines: maxLines,
         ),
       ),
-    );
+    ).animate().fade(duration: 500.ms, curve: Curves.easeInOut);
   }
 }
 
@@ -484,7 +484,7 @@ class YurForm extends StatelessWidget {
                   if (initialDate != null) {
                     initDate = initialDate!;
                   }
-                  
+
                   await selectDate(
                     context: context,
                     initialDate: initDate,
@@ -2149,7 +2149,7 @@ class YurCard extends StatelessWidget {
             padding: padding,
             child: child,
           )),
-    );
+    ).animate().fade(duration: 1.seconds, curve: Curves.easeInOut);
   }
 }
 
@@ -2619,6 +2619,7 @@ class YurWebView extends StatefulWidget {
     this.onInit,
     this.onDispose,
     this.onClose,
+    this.preventBack = false,
   });
 
   final String title;
@@ -2628,6 +2629,7 @@ class YurWebView extends StatefulWidget {
   final Function()? onInit;
   final Function()? onDispose;
   final Function()? onClose;
+  final bool preventBack;
 
   @override
   State<YurWebView> createState() => _YurWebViewState();
@@ -2637,6 +2639,7 @@ class _YurWebViewState extends State<YurWebView> {
   final Completer<void> _refreshCompleter = Completer<void>();
   late InAppWebViewController _webViewController;
   late PullToRefreshController _pullToRefreshController;
+  DateTime? lastPressedTime;
 
   @override
   void initState() {
@@ -2676,15 +2679,15 @@ class _YurWebViewState extends State<YurWebView> {
         onLoadError: onLoadError,
         onDownloadStartRequest: onDownloadStartRequest,
         initialOptions: InAppWebViewGroupOptions(
-          android: androidInAppWebViewOptions,
+          android: androidOptions,
+          ios: iosOptions,
           crossPlatform: inAppWebViewOptions,
-          ios: iosInAppWebViewOptions,
         ),
       ),
     );
   }
 
-  var androidInAppWebViewOptions = AndroidInAppWebViewOptions(
+  var androidOptions = AndroidInAppWebViewOptions(
     builtInZoomControls: false,
     displayZoomControls: false,
     supportMultipleWindows: false,
@@ -2695,37 +2698,51 @@ class _YurWebViewState extends State<YurWebView> {
     serifFontFamily: "Roboto",
     sansSerifFontFamily: "Roboto",
     defaultFixedFontSize: 12,
+    geolocationEnabled: true,
+    allowContentAccess: true,
+    allowFileAccess: true,
+    clearSessionCache: true,
   );
 
   var inAppWebViewOptions = InAppWebViewOptions(
     javaScriptEnabled: true,
-    useShouldOverrideUrlLoading: true,
+    useShouldOverrideUrlLoading: false,
     useOnDownloadStart: true,
     useOnLoadResource: true,
     useShouldInterceptAjaxRequest: true,
     useShouldInterceptFetchRequest: true,
     supportZoom: false,
+    cacheEnabled: false,
+    clearCache: true,
+    allowFileAccessFromFileURLs: true,
+    allowUniversalAccessFromFileURLs: true,
+    disableContextMenu: false,
+    javaScriptCanOpenWindowsAutomatically: true,
     userAgent:
         "Mozilla/5.0 (Linux; Android 10; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.181 Mobile Safari/537.36",
   );
 
-  var iosInAppWebViewOptions = IOSInAppWebViewOptions(
+  var iosOptions = IOSInAppWebViewOptions(
     allowsInlineMediaPlayback: true,
     allowsBackForwardNavigationGestures: true,
     isFraudulentWebsiteWarningEnabled: true,
+    sharedCookiesEnabled: false,
   );
 
-  onPopInvoked(didPop) {
+  void onPopInvoked(didPop) {
     YurLoading(loadingStatus: LoadingStatus.dismiss);
+    if (widget.preventBack) return;
+
+    final currentTime = DateTime.now();
+    if (lastPressedTime == null ||
+        currentTime.difference(lastPressedTime!) > const Duration(seconds: 2)) {
+      lastPressedTime = currentTime;
+      YurToast(message: "Tekan sekali lagi untuk keluar");
+      return;
+    }
 
     if (!didPop) {
-      YurDialog1(
-        title: "Peringatan",
-        subtitle: "Apakah Anda yakin ingin keluar?",
-        buttonConfirm: 'Ya',
-        buttonCancel: 'Tidak',
-        onPressedConfirm: widget.onClose ?? Get.back,
-      );
+      widget.onClose?.call() ?? Get.back();
     }
   }
 
@@ -2733,18 +2750,26 @@ class _YurWebViewState extends State<YurWebView> {
     InAppWebViewController controller,
     String origin,
     List<String> resources,
-  ) async =>
-      PermissionRequestResponse(
-        resources: resources,
-        action: PermissionRequestResponseAction.GRANT,
-      );
+  ) async {
+    return PermissionRequestResponse(
+      resources: resources,
+      action: PermissionRequestResponseAction.GRANT,
+    );
+  }
 
   void onWebViewCreated(InAppWebViewController controller) {
     _webViewController = controller;
-    controller.addJavaScriptHandler(
-      handlerName: "messageChannel",
-      callback: (args) => YurLog(args[0], name: "messageChannel"),
-    );
+    controller
+      ..addJavaScriptHandler(
+        handlerName: "messageChannel",
+        callback: (args) => YurLog(args[0], name: "messageChannel"),
+      )
+      ..addJavaScriptHandler(
+        handlerName: "interceptAjax",
+        callback: (args) {
+          YurLog(args.toString(), name: "interceptAjax");
+        },
+      );
   }
 
   void onLoadStop(
