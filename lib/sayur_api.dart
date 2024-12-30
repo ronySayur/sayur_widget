@@ -14,7 +14,10 @@ class YurApi {
     Map<String, String> headers = const {'content-type': 'application/json'},
   }) async {
     String body = "";
-    Map<String, String> emptyStatus = {"status": ""};
+    Map<String, String> emptyStatus = {
+      "status": "",
+      "message": "",
+    };
 
     try {
       bool result = await InternetConnectionChecker().hasConnection;
@@ -63,6 +66,7 @@ class YurApi {
       return await json.decode(body);
     } catch (e) {
       YurLog(name: urlHttp, "Error: $e | $body");
+      emptyStatus["message"] = e.toString().trim();
       return emptyStatus;
     }
   }

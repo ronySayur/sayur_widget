@@ -168,6 +168,46 @@ const EdgeInsets eW32 = EdgeInsets.symmetric(horizontal: 32);
 const EdgeInsets eW40 = EdgeInsets.symmetric(horizontal: 40);
 const EdgeInsets eW48 = EdgeInsets.symmetric(horizontal: 48);
 
+const EdgeInsets eT4 = EdgeInsets.only(top: 4);
+const EdgeInsets eT8 = EdgeInsets.only(top: 8);
+const EdgeInsets eT12 = EdgeInsets.only(top: 12);
+const EdgeInsets eT16 = EdgeInsets.only(top: 16);
+const EdgeInsets eT20 = EdgeInsets.only(top: 20);
+const EdgeInsets eT24 = EdgeInsets.only(top: 24);
+const EdgeInsets eT32 = EdgeInsets.only(top: 32);
+const EdgeInsets eT40 = EdgeInsets.only(top: 40);
+const EdgeInsets eT48 = EdgeInsets.only(top: 48);
+
+const EdgeInsets eB4 = EdgeInsets.only(bottom: 4);
+const EdgeInsets eB8 = EdgeInsets.only(bottom: 8);
+const EdgeInsets eB12 = EdgeInsets.only(bottom: 12);
+const EdgeInsets eB16 = EdgeInsets.only(bottom: 16);
+const EdgeInsets eB20 = EdgeInsets.only(bottom: 20);
+const EdgeInsets eB24 = EdgeInsets.only(bottom: 24);
+const EdgeInsets eB32 = EdgeInsets.only(bottom: 32);
+const EdgeInsets eB40 = EdgeInsets.only(bottom: 40);
+const EdgeInsets eB48 = EdgeInsets.only(bottom: 48);
+
+const EdgeInsets eL4 = EdgeInsets.only(left: 4);
+const EdgeInsets eL8 = EdgeInsets.only(left: 8);
+const EdgeInsets eL12 = EdgeInsets.only(left: 12);
+const EdgeInsets eL16 = EdgeInsets.only(left: 16);
+const EdgeInsets eL20 = EdgeInsets.only(left: 20);
+const EdgeInsets eL24 = EdgeInsets.only(left: 24);
+const EdgeInsets eL32 = EdgeInsets.only(left: 32);
+const EdgeInsets eL40 = EdgeInsets.only(left: 40);
+const EdgeInsets eL48 = EdgeInsets.only(left: 48);
+
+const EdgeInsets eR4 = EdgeInsets.only(right: 4);
+const EdgeInsets eR8 = EdgeInsets.only(right: 8);
+const EdgeInsets eR12 = EdgeInsets.only(right: 12);
+const EdgeInsets eR16 = EdgeInsets.only(right: 16);
+const EdgeInsets eR20 = EdgeInsets.only(right: 20);
+const EdgeInsets eR24 = EdgeInsets.only(right: 24);
+const EdgeInsets eR32 = EdgeInsets.only(right: 32);
+const EdgeInsets eR40 = EdgeInsets.only(right: 40);
+const EdgeInsets eR48 = EdgeInsets.only(right: 48);
+
 // Border Radius
 const BorderRadius br0 = BorderRadius.all(Radius.circular(0));
 const BorderRadius br4 = BorderRadius.all(Radius.circular(4));
@@ -285,8 +325,7 @@ class PermissionConstants {
 class SayurTextConstants {
   static String appName = "Sayur";
   static String appVersion = "1.0.0";
-  static String appDescription =
-      "Sayur is a mobile application that provides a variety of fresh vegetables and fruits that are guaranteed to be fresh and healthy. Sayur is here to help you get fresh vegetables and fruits easily and quickly.";
+  static String appDescription = "SayursApps";
   static String appContact = "For more information, please contact us at:";
   static String noInternet = "No internet connection";
 }

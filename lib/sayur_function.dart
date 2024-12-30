@@ -244,7 +244,7 @@ void YurLoading({
   InfoType toastType = InfoType.info,
   EasyLoadingIndicatorType indicatorType = EasyLoadingIndicatorType.chasingDots,
   Color? backgroundColor,
-  int duration = 2,
+  int duration = 1,
 }) {
   EasyLoading.instance
     ..displayDuration = Duration(seconds: duration)
@@ -319,7 +319,7 @@ void _showToast(
     showIcon: true,
     style: ToastificationStyle.minimal,
     closeButtonShowType: CloseButtonShowType.onHover,
-    autoCloseDuration: 5.seconds,
+    autoCloseDuration: 3.seconds,
     boxShadow: [
       BoxShadow(
         color: Colors.black.withOpacity(0.1),
@@ -965,4 +965,20 @@ DateTime? tryParseDate(String input) {
     }
   }
   return null;
+}
+
+class YurDebouncer {
+  final int milliseconds;
+  Timer? _timer;
+
+  YurDebouncer({required this.milliseconds});
+
+  void run(VoidCallback action) {
+    _timer?.cancel();
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+
+  void dispose() {
+    _timer?.cancel();
+  }
 }

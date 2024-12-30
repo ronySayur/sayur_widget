@@ -326,6 +326,7 @@ class YurForm extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   List<dynamic>? listDropDown;
   dynamic selectedDropDown;
+  String? helperText;
 
   YurForm({
     super.key,
@@ -385,6 +386,7 @@ class YurForm extends StatelessWidget {
     this.padding = e0,
     this.listDropDown,
     this.selectedDropDown,
+    this.helperText,
   });
 
   @override
@@ -518,7 +520,7 @@ class YurForm extends StatelessWidget {
                               children: [
                                 YurForm(
                                   label: "Cari...",
-                                  hintText: "Cari...",
+                                  hintText: hintText ?? "Cari...",
                                   borderSideColor: borderSideColor,
                                   onChanged: (value) => setState(() {
                                     listLocal = listDropDown!
@@ -662,8 +664,18 @@ class YurForm extends StatelessWidget {
                 )
               : null,
 
+          //Helper
+          helperText: helperText,
+          helperMaxLines: 3,
+          helperStyle: TextStyle(
+            fontWeight: fontWeight,
+            color: Colors.grey,
+            fontStyle: FontStyle.italic,
+          ),
+
           // Hint
           hintText: hintText ?? label,
+          hintMaxLines: 2,
           hintStyle: TextStyle(
             fontSize: fontSize,
             fontWeight: fontWeight,
@@ -682,7 +694,7 @@ class YurForm extends StatelessWidget {
               Shadow(
                 blurRadius: 3,
                 color: Colors.grey,
-                offset: Offset(0.5, 0.5),
+                offset: Offset(1, 1),
               ),
             ],
           ),
@@ -2010,10 +2022,10 @@ class YurImage extends StatelessWidget {
 class YurDivider extends StatelessWidget {
   const YurDivider({
     super.key,
-    this.thickness = 2,
+    this.thickness = 1,
     this.indent = 0,
     this.endIndent = 0,
-    this.color = primaryRed,
+    this.color = Colors.grey,
   });
 
   final double thickness;
@@ -2149,7 +2161,7 @@ class YurCard extends StatelessWidget {
             padding: padding,
             child: child,
           )),
-    ).animate().fade(duration: 1.seconds, curve: Curves.easeInOut);
+    ).animate().fade(duration: 500.ms, curve: Curves.easeInOut);
   }
 }
 
@@ -3008,6 +3020,7 @@ class YurListBuilder<T> extends StatefulWidget {
   final ScrollPhysics? physics;
   final int? displayedItemMax;
   final Widget Function(int)? separatedWidget;
+  final int Function(T a, T b)? sortBy;
 
   const YurListBuilder({
     super.key,
@@ -3027,6 +3040,7 @@ class YurListBuilder<T> extends StatefulWidget {
     this.physics,
     this.displayedItemMax,
     this.separatedWidget,
+    this.sortBy, // Add sortBy parameter
   });
 
   @override
@@ -3062,6 +3076,11 @@ class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
             .toList();
       } else {
         filteredList = widget.list;
+      }
+
+      // Sort the list if sortBy is provided
+      if (widget.sortBy != null) {
+        filteredList.sort(widget.sortBy!);
       }
     });
   }
@@ -3105,6 +3124,11 @@ class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
                         .toList();
                   } else {
                     filteredList = widget.list;
+                  }
+
+                  // Sort after filtering
+                  if (widget.sortBy != null) {
+                    filteredList.sort(widget.sortBy!);
                   }
                 });
               },
