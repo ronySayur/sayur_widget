@@ -1,13 +1,11 @@
 // ignore_for_file: non_constant_identifier_names, must_be_immutable, library_private_types_in_public_api, deprecated_member_use
-
 import 'dart:io';
-
 import 'package:app_settings/app_settings.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/gestures.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -16,15 +14,11 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:pie_chart/pie_chart.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:pinput/pinput.dart';
-
 import 'dart:async';
-
 import 'package:sayur_widget/sayur_core.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
 TextStyle YurTextStyle({
@@ -77,6 +71,7 @@ class YurText extends StatelessWidget {
     this.padding,
     this.margin,
     this.backgroundColor,
+    this.isHtml = false,
   });
 
   final String text;
@@ -96,6 +91,7 @@ class YurText extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final Color? backgroundColor;
+  final bool isHtml;
 
   @override
   Widget build(BuildContext context) {
@@ -105,23 +101,37 @@ class YurText extends StatelessWidget {
       decoration: BoxDecoration(color: backgroundColor),
       child: InkWell(
         onTap: onTap,
-        child: Text(
-          text,
-          style: YurTextStyle(
-            fontSize: fontSize ?? 16,
-            fontWeight: fontWeight ?? FontWeight.normal,
-            color: color ?? Colors.black,
-            fontStyle: fontStyle,
-            decoration: decoration ?? TextDecoration.none,
-            letterSpacing: letterSpacing,
-            shadows: shadows ?? [],
-            height: height ?? 1.0,
-          ),
-          textAlign: textAlign,
-          softWrap: softWrap,
-          overflow: overflow,
-          maxLines: maxLines,
-        ),
+        child: isHtml
+            ? Html(
+                data: text,
+                style: {
+                  "body": Style(
+                    fontSize: FontSize(fontSize ?? 16),
+                    fontWeight: fontWeight,
+                    color: color,
+                    fontStyle: fontStyle,
+                    letterSpacing: letterSpacing,
+                    textAlign: textAlign,
+                  ),
+                },
+              )
+            : Text(
+                text,
+                style: YurTextStyle(
+                  fontSize: fontSize ?? 16,
+                  fontWeight: fontWeight ?? FontWeight.normal,
+                  color: color ?? Colors.black,
+                  fontStyle: fontStyle,
+                  decoration: decoration ?? TextDecoration.none,
+                  letterSpacing: letterSpacing,
+                  shadows: shadows ?? [],
+                  height: height ?? 1.0,
+                ),
+                textAlign: textAlign,
+                softWrap: softWrap,
+                overflow: overflow,
+                maxLines: maxLines,
+              ),
       ),
     ).animate().fade(duration: 500.ms, curve: Curves.easeInOut);
   }
