@@ -104,6 +104,7 @@ class YurText extends StatelessWidget {
         child: isHtml
             ? Html(
                 data: text,
+                shrinkWrap: true,
                 style: {
                   "body": Style(
                     fontSize: FontSize(fontSize ?? 16),
@@ -2007,10 +2008,11 @@ class YurImage extends StatelessWidget {
         centerSlice: centerSlice,
         errorBuilder: (context, error, _) {
           YurLog(name: "YurImageAsset Error : ", error.toString());
-          return const YurIcon(
-            icon: Icons.error,
-            color: primaryRed,
-          );
+          return errorWidget ??
+              const YurIcon(
+                icon: Icons.error,
+                color: primaryRed,
+              );
         },
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (wasSynchronouslyLoaded) {
