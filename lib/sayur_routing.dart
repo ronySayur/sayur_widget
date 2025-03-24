@@ -12,8 +12,9 @@ class Get {
 
   static get context => navigatorKey.currentState?.context;
 
-  static double get width => MediaQuery.of(context).size.width;
-  static double get height => MediaQuery.of(context).size.height;
+  static Size get size => MediaQuery.of(context).size;
+  static double get width => size.width;
+  static double get height => size.height;
 
   static void close() {
     YurLog("Close App", name: "Get.closeApp");
