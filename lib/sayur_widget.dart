@@ -95,12 +95,12 @@ class YurText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
-      margin: margin,
-      decoration: BoxDecoration(color: backgroundColor),
-      child: InkWell(
-        onTap: onTap,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: padding,
+        margin: margin,
+        decoration: BoxDecoration(color: backgroundColor),
         child: isHtml
             ? Html(
                 data: text,
@@ -782,6 +782,7 @@ class YurExpansionTile extends StatelessWidget {
   final Widget? leading;
   final Widget? subtitle;
   final BorderRadius? borderRadius;
+  final ExpansionTileController? controller;
 
   const YurExpansionTile({
     super.key,
@@ -794,6 +795,7 @@ class YurExpansionTile extends StatelessWidget {
     this.leading,
     this.subtitle,
     this.borderRadius,
+    this.controller,
   });
 
   @override
@@ -802,6 +804,7 @@ class YurExpansionTile extends StatelessWidget {
       padding: padding ?? e4,
       margin: margin ?? e0,
       child: ExpansionTile(
+        controller: controller,
         title: YurText(
           text: title,
           fontSize: titleFontSize,
@@ -809,7 +812,7 @@ class YurExpansionTile extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: borderRadius ?? br8,
+          borderRadius: borderRadius ?? br12,
         ),
         expandedAlignment: Alignment.centerLeft,
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
@@ -2034,20 +2037,38 @@ class YurImage extends StatelessWidget {
 class YurDivider extends StatelessWidget {
   const YurDivider({
     super.key,
-    this.thickness = 1,
+    this.thickness = 0.5,
     this.indent = 0,
     this.endIndent = 0,
     this.color = Colors.grey,
+    this.isVertical = false,
+    this.verticalHeight = 24,
   });
 
   final double thickness;
   final double indent;
   final double endIndent;
   final Color color;
+  final bool isVertical;
+  final double verticalHeight;
 
   @override
   Widget build(BuildContext context) {
+    if (isVertical) {
+      return SizedBox(
+        height: verticalHeight,
+        child: VerticalDivider(
+          width: thickness,
+          thickness: thickness,
+          indent: indent,
+          endIndent: endIndent,
+          color: color,
+        ),
+      );
+    }
+
     return Divider(
+      height: thickness,
       thickness: thickness,
       indent: indent,
       endIndent: endIndent,
