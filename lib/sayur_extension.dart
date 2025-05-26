@@ -143,3 +143,11 @@ extension TruthyExtension<T> on T {
 
   bool get isFalsy => !isTruthy;
 }
+
+List<String> splitString(String input, String delimiter) {
+  return input
+      .split(delimiter)
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
+}

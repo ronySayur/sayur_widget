@@ -2068,7 +2068,6 @@ class YurDivider extends StatelessWidget {
     }
 
     return Divider(
-      height: thickness,
       thickness: thickness,
       indent: indent,
       endIndent: endIndent,
