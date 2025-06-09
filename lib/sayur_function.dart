@@ -605,7 +605,7 @@ Future<dynamic> YurDialog1({
           textAlign: TextAlign.start,
           fontWeight: fontWeight ?? FontWeight.w300,
           fontSize: sizeSubtitle ?? 14,
-          maxLines: 10,
+          maxLines: 30,
         ),
         actions: [
           Row(
