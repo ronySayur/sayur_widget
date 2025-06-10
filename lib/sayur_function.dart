@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:day_night_time_picker/day_night_time_picker.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -770,15 +770,42 @@ Future<T?> YurSearch<T>({
   );
 }
 
-void YurLog(dynamic message, {String? name}) {
-  DateTime now = DateTime.now();
+final Logger _logger = Logger(
+  printer: PrettyPrinter(
+    methodCount: 0,
+    errorMethodCount: 5,
+    lineLength: 120,
+    colors: true,
+    printEmojis: true,
+    dateTimeFormat: (time) => time.toLocal().toString(),
+  ),
+);
 
+void YurLog(dynamic message, {String? name, Level level = Level.info}) {
   if (kDebugMode) {
-    log(
-      name: "${now.dateFormat("HH:mm:ss")} - ${name ?? "YurLog"}",
-      message.toString(),
-      time: now,
-    );
+    final tag = name != null ? '[$name]' : '[YurLog]';
+
+    switch (level) {
+      case Level.debug:
+        _logger.d('$tag $message');
+        break;
+      case Level.warning:
+        _logger.w('$tag $message');
+        break;
+      case Level.error:
+        _logger.e('$tag $message');
+        break;
+      case Level.trace:
+        _logger.t('$tag $message');
+        break;
+      case Level.fatal:
+        _logger.f('$tag $message');
+        break;
+      case Level.info:
+      default:
+        _logger.i('$tag $message');
+        break;
+    }
   }
 }
 
