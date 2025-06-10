@@ -1009,3 +1009,31 @@ class YurDebouncer {
     _timer?.cancel();
   }
 }
+
+class LocalFileLogger {
+  static final Logger _logger = Logger(
+      printer: PrettyPrinter(dateTimeFormat: (time) => time.toIso8601String()));
+
+  static Future<File> _getLogFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final logFile = File('${directory.path}/app_logs.txt');
+    if (!await logFile.exists()) {
+      await logFile.create();
+    }
+    return logFile;
+  }
+
+  static Future<void> logToFile(String message) async {
+    final timestamp = DateTime.now().toIso8601String();
+    final logMessage = '$timestamp: $message\n';
+
+    _logger.i(logMessage);
+
+    try {
+      final file = await _getLogFile();
+      await file.writeAsString(logMessage, mode: FileMode.append);
+    } catch (e) {
+      _logger.e('Gagal menulis log ke file: $e');
+    }
+  }
+}
