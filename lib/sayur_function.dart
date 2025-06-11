@@ -777,33 +777,33 @@ final Logger _logger = Logger(
     lineLength: 120,
     colors: true,
     printEmojis: true,
-    dateTimeFormat: (time) => time.toLocal().toString(),
+    dateTimeFormat: (time) => time.toIso8601String(),
   ),
 );
 
 void YurLog(dynamic message, {String? name, Level level = Level.info}) {
   if (kDebugMode) {
-    final tag = name != null ? '[$name]' : '[YurLog]';
+    final msg = name != null ? '[$name] $message' : '$message';
 
     switch (level) {
       case Level.debug:
-        _logger.d('$tag $message');
+        _logger.d(msg);
         break;
       case Level.warning:
-        _logger.w('$tag $message');
+        _logger.w(msg);
         break;
       case Level.error:
-        _logger.e('$tag $message');
+        _logger.e(msg);
         break;
       case Level.trace:
-        _logger.t('$tag $message');
+        _logger.t(msg);
         break;
       case Level.fatal:
-        _logger.f('$tag $message');
+        _logger.f(msg);
         break;
       case Level.info:
       default:
-        _logger.i('$tag $message');
+        _logger.i(msg);
         break;
     }
   }
@@ -1024,16 +1024,41 @@ class LocalFileLogger {
   }
 
   static Future<void> logToFile(String message) async {
-    final timestamp = DateTime.now().toIso8601String();
-    final logMessage = '$timestamp: $message\n';
+    final timestamp = DateTime.now();
+    final logMessage =
+        '${timestamp.dateFormat('yyyy-MM-dd HH:mm:ss')}: $message~!';
 
-    _logger.i(logMessage);
+    YurLog(logMessage);
 
     try {
       final file = await _getLogFile();
       await file.writeAsString(logMessage, mode: FileMode.append);
     } catch (e) {
-      _logger.e('Gagal menulis log ke file: $e');
+      _logger.e('Failed to write log to file: $e');
     }
+  }
+
+  static Future<String> readLogFileContent() async {
+    try {
+      final file = await _getLogFile();
+      return await file.readAsString();
+    } catch (e) {
+      _logger.e('Failed to read log file: $e');
+      return 'Failed to read log file: $e';
+    }
+  }
+
+  static Future<File> getLogFile() async {
+    return _getLogFile();
+  }
+
+  static Future<String> getLogFilePath() async {
+    final file = await _getLogFile();
+    return file.path;
+  }
+
+  static Future<void> clearLogFile() async {
+    final file = await _getLogFile();
+    await file.delete();
   }
 }
