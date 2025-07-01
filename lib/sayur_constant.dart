@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+class PastelColor {
+  static const Color red = Color(0xFFFFC1C1);
+  static const Color blue = Color(0xFFB3E5FC);
+  static const Color yellow = Color(0xFFFFECB3);
+  static const Color green = Color(0xFFB2DFDB);
+  static const Color grey = Color(0xFFEEEEEE);
+  static const Color pink = Color(0xFFFFE0F7);
+  static const Color purple = Color(0xFFE1BEE7);
+  static const Color orange = Color(0xFFFFDAB9);
+}
+
 const MaterialColor primaryRed = MaterialColor(
   0xFFEA1F27,
   <int, Color>{

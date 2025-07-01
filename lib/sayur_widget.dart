@@ -813,6 +813,7 @@ class YurExpansionTile extends StatelessWidget {
   final Widget? subtitle;
   final BorderRadius? borderRadius;
   final ExpansionTileController? controller;
+  final VoidCallback? onTap;
 
   const YurExpansionTile({
     super.key,
@@ -826,6 +827,7 @@ class YurExpansionTile extends StatelessWidget {
     this.subtitle,
     this.borderRadius,
     this.controller,
+    this.onTap,
   });
 
   @override
@@ -833,12 +835,14 @@ class YurExpansionTile extends StatelessWidget {
     return YurCard(
       padding: padding ?? e4,
       margin: margin ?? e0,
+      onTap: onTap,
       child: ExpansionTile(
         controller: controller,
         title: YurText(
           text: title,
           fontSize: titleFontSize,
           fontWeight: FontWeight.bold,
+          maxLines: 3,
         ),
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
