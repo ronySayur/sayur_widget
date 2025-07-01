@@ -145,50 +145,80 @@ class YurAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.action,
     this.actionIcon,
     this.onPressedBack = df,
-    this.centertitle = true,
+    this.centerTitle = true,
     this.withLeading = true,
-    this.onTap,
+    this.onTitleTap,
+    this.activeColor,
   });
 
   final String title;
-  final Function()? action;
+  final VoidCallback? action;
   final IconData? actionIcon;
-  final Function() onPressedBack;
-  final bool centertitle;
+  final VoidCallback onPressedBack;
+  final bool centerTitle;
   final bool withLeading;
-  final Function()? onTap;
+  final VoidCallback? onTitleTap;
+  final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      elevation: 0,
       backgroundColor: Colors.white,
-      leading: withLeading
-          ? IconButton(
-              onPressed: () {
-                Get.back();
-                onPressedBack();
-              },
-              icon: const YurIcon(icon: Icons.arrow_back, color: primaryRed),
-            )
-          : Container(),
-      actions: [
-        if (actionIcon != null)
-          IconButton(
-              onPressed: () => action!(),
-              icon: YurIcon(icon: actionIcon!, color: secondaryYellow))
-      ],
-      title: YurText(
-        fontSize: 20,
-        text: title,
-        onTap: onTap,
-        color: primaryRed,
-      ),
-      centerTitle: centertitle,
+      automaticallyImplyLeading: false,
+      centerTitle: centerTitle,
+      leading: _buildLeading(),
+      title: _buildTitle(),
+      actions: _buildActions(),
     );
   }
 
+  Widget? _buildLeading() {
+    if (!withLeading) return null;
+
+    return IconButton(
+      onPressed: () {
+        Get.back();
+        onPressedBack();
+      },
+      icon: YurIcon(
+        icon: Icons.arrow_back,
+        color: activeColor ?? primaryRed,
+      ),
+      splashRadius: 24,
+    );
+  }
+
+  Widget _buildTitle() {
+    return GestureDetector(
+      onTap: onTitleTap,
+      child: YurText(
+        text: title,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: activeColor ?? primaryRed,
+      ),
+    );
+  }
+
+  List<Widget> _buildActions() {
+    if (actionIcon == null) return [];
+
+    return [
+      IconButton(
+        onPressed: action,
+        icon: YurIcon(
+          icon: actionIcon!,
+          color: secondaryYellow,
+        ),
+        splashRadius: 24,
+      ),
+      const SizedBox(width: 8),
+    ];
+  }
+
   @override
-  Size get preferredSize => const Size.fromHeight(56.0);
+  Size get preferredSize => const Size.fromHeight(56);
 }
 
 class YurLoadingStack extends StatelessWidget {
@@ -3048,6 +3078,7 @@ class YurListBuilder<T> extends StatefulWidget {
   final Color? color;
   final bool? reverse;
   final String? labelEmpty;
+  final String? subtitleEmpty;
   final bool? shrinkWrap;
   final ScrollPhysics? physics;
   final int? displayedItemMax;
@@ -3068,11 +3099,12 @@ class YurListBuilder<T> extends StatefulWidget {
     this.color,
     this.reverse,
     this.labelEmpty,
+    this.subtitleEmpty,
     this.shrinkWrap,
     this.physics,
     this.displayedItemMax,
     this.separatedWidget,
-    this.sortBy, // Add sortBy parameter
+    this.sortBy,
   });
 
   @override
@@ -3125,7 +3157,8 @@ class _YurListBuilderState<T> extends State<YurListBuilder<T>> {
       return widget.widgetEmpty ??
           YurEmptyItem(
             widget.labelEmpty ?? "$label tidak tersedia",
-            "$label tidak tersedia, Silakan periksa koneksi jaringan atau coba lagi nanti.",
+            widget.subtitleEmpty ??
+                "$label tidak tersedia, Silakan periksa koneksi jaringan atau coba lagi nanti.",
           );
     }
 

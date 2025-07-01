@@ -752,11 +752,6 @@ Future<T?> YurSearch<T>({
                       onPressed: () {
                         onConfirm(textController);
                         Get.back();
-
-                        YurLog(
-                          name: "MediSearch",
-                          "MediDialogForm",
-                        );
                       },
                     ),
                   ),
