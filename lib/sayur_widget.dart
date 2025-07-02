@@ -864,12 +864,11 @@ class YurExpansionTile extends StatelessWidget {
   }
 }
 
-class YurDropdown extends StatelessWidget {
-  final BuildContext context;
+class YurDropdown<T> extends StatelessWidget {
   final String? labelText;
-  final List<String> items;
-  final String? selectedValue;
-  final Function(String?) onChanged;
+  final List<T> items;
+  final T? selectedValue;
+  final ValueChanged<T?> onChanged;
   final double fontSize;
   final Color color;
   final Color? fillColor;
@@ -880,11 +879,11 @@ class YurDropdown extends StatelessWidget {
   final FloatingLabelBehavior floatingLabelBehavior;
   final bool isExpanded;
   final BorderRadius borderRadius;
-  final Function()? onTap;
+  final VoidCallback? onTap;
+  final String Function(T item)? itemLabelBuilder;
 
   const YurDropdown({
     super.key,
-    required this.context,
     this.labelText,
     required this.items,
     required this.selectedValue,
@@ -895,98 +894,100 @@ class YurDropdown extends StatelessWidget {
     this.fontStyle = FontStyle.normal,
     this.fontWeight = FontWeight.normal,
     this.suffixText,
-    this.padding = e0,
+    this.padding = EdgeInsets.zero,
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.isExpanded = false,
-    this.borderRadius = br12,
+    this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     this.onTap,
+    this.itemLabelBuilder,
   });
 
   @override
   Widget build(BuildContext context) {
-    DropdownButtonFormField dropdownButtonFormField = DropdownButtonFormField(
+    final labelBuilder = itemLabelBuilder ?? (item) => item.toString();
+
+    final dropdown = DropdownButtonFormField<T>(
       value: selectedValue,
       onTap: onTap,
       iconSize: 16,
       isExpanded: true,
       elevation: 4,
-      borderRadius: br12,
+      borderRadius: borderRadius,
       isDense: true,
       padding: padding,
-      icon: const YurIcon(
-        icon: Icons.keyboard_arrow_down,
-        color: Colors.grey,
-      ),
-      selectedItemBuilder: (context) {
-        return items.map((item) {
-          return YurText(
-            padding: eW12,
-            text: item,
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
-            fontStyle: fontStyle,
-          );
-        }).toList();
-      },
+      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+      selectedItemBuilder: (context) => items.map((item) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            labelBuilder(item),
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              fontStyle: fontStyle,
+              color: color,
+            ),
+          ),
+        );
+      }).toList(),
       style: TextStyle(
-        fontStyle: fontStyle,
         fontSize: fontSize,
         fontWeight: fontWeight,
+        fontStyle: fontStyle,
         color: color,
       ),
       onChanged: (value) {
         onChanged(value);
-        YurLog(name: labelText, value!);
       },
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: borderRadius),
+        filled: true,
+        fillColor: fillColor,
+        isDense: true,
+        floatingLabelBehavior: floatingLabelBehavior,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
         floatingLabelStyle: TextStyle(
-          fontStyle: fontStyle,
           fontSize: fontSize,
           fontWeight: fontWeight,
+          fontStyle: fontStyle,
           color: color,
         ),
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelBehavior: floatingLabelBehavior,
-        filled: true,
-        isDense: true,
-        fillColor: fillColor,
         suffixText: suffixText,
         suffixStyle: TextStyle(
-          fontStyle: fontStyle,
           fontSize: fontSize,
           fontWeight: fontWeight,
-          color: color,
-        ),
-        label: YurText(
-          text: labelText ?? "",
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          color: color,
           fontStyle: fontStyle,
+          color: color,
         ),
-        isCollapsed: false,
-      ),
-      items: items
-          .map((i) => DropdownMenuItem<String>(
-                value: i,
-                child: YurText(
-                  text: i,
+        label: labelText != null
+            ? Text(
+                labelText!,
+                style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: fontWeight,
-                  color: color,
                   fontStyle: fontStyle,
+                  color: color,
                 ),
-              ))
-          .toList(),
+              )
+            : null,
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem<T>(
+          value: item,
+          child: Text(
+            labelBuilder(item),
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              fontStyle: fontStyle,
+              color: color,
+            ),
+          ),
+        );
+      }).toList(),
     );
 
-    if (isExpanded) {
-      return dropdownButtonFormField;
-    } else {
-      return IntrinsicWidth(child: dropdownButtonFormField);
-    }
+    return isExpanded ? dropdown : IntrinsicWidth(child: dropdown);
   }
 }
 
