@@ -650,9 +650,9 @@ Future<dynamic> YurDialog1({
 }
 
 Future<dynamic> YurCustomDialog({
-  String? title,
   required Widget content,
-  required List<Widget> actions,
+  String? title,
+  List<Widget>? actions,
   Widget? icon,
   bool isDismisable = true,
   Function(bool, dynamic)? onPopInvokedWithResult,
