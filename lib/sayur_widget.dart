@@ -27,10 +27,9 @@ TextStyle YurTextStyle({
   Color color = Colors.black,
   FontStyle fontStyle = FontStyle.normal,
   TextDecoration decoration = TextDecoration.none,
-  double letterSpacing = 0.3,
+  double letterSpacing = 0.25,
   List<Shadow> shadows = const [],
-  double height = 1.0,
-  String fontFamily = 'Poppins',
+  double height = 1.4,
 }) {
   return TextStyle(
     fontSize: fontSize,
@@ -41,9 +40,8 @@ TextStyle YurTextStyle({
     letterSpacing: letterSpacing,
     shadows: shadows,
     height: height,
-    fontFamily: fontFamily,
-    decorationStyle: TextDecorationStyle.solid,
-    textBaseline: TextBaseline.ideographic,
+    decorationStyle: TextDecorationStyle.wavy,
+    textBaseline: TextBaseline.alphabetic,
     wordSpacing: 0.5,
     locale: const Locale('id', 'ID'),
     leadingDistribution: TextLeadingDistribution.even,
@@ -116,8 +114,9 @@ class YurText extends StatelessWidget {
                   ),
                 },
               )
-            : Text(
-                text,
+            : AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
                 style: YurTextStyle(
                   fontSize: fontSize ?? 16,
                   fontWeight: fontWeight ?? FontWeight.normal,
@@ -126,15 +125,18 @@ class YurText extends StatelessWidget {
                   decoration: decoration ?? TextDecoration.none,
                   letterSpacing: letterSpacing,
                   shadows: shadows ?? [],
-                  height: height ?? 1.0,
+                  height: height ?? 1.2,
                 ),
-                textAlign: textAlign,
-                softWrap: softWrap,
-                overflow: overflow,
-                maxLines: maxLines,
+                child: Text(
+                  text,
+                  textAlign: textAlign,
+                  softWrap: softWrap,
+                  overflow: overflow,
+                  maxLines: maxLines,
+                ),
               ),
       ),
-    ).animate().fade(duration: 500.ms, curve: Curves.easeInOut);
+    );
   }
 }
 
@@ -915,30 +917,16 @@ class YurDropdown<T> extends StatelessWidget {
       borderRadius: borderRadius,
       isDense: true,
       padding: padding,
-      icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-      selectedItemBuilder: (context) => items.map((item) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            labelBuilder(item),
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              fontStyle: fontStyle,
-              color: color,
-            ),
-          ),
-        );
-      }).toList(),
+      icon: const YurIcon(icon: Icons.keyboard_arrow_down, color: Colors.grey),
+      selectedItemBuilder: (context) =>
+          items.map((item) => YurText(text: labelBuilder(item))).toList(),
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,
         fontStyle: fontStyle,
         color: color,
       ),
-      onChanged: (value) {
-        onChanged(value);
-      },
+      onChanged: onChanged,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: borderRadius),
         filled: true,
@@ -960,31 +948,27 @@ class YurDropdown<T> extends StatelessWidget {
           color: color,
         ),
         label: labelText != null
-            ? Text(
-                labelText!,
-                style: TextStyle(
+            ? YurText(
+                text: labelText!,
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                color: color,
+              )
+            : null,
+      ),
+      items: items
+          .map((item) => DropdownMenuItem<T>(
+                value: item,
+                child: YurText(
+                  text: labelBuilder(item),
                   fontSize: fontSize,
                   fontWeight: fontWeight,
                   fontStyle: fontStyle,
                   color: color,
                 ),
-              )
-            : null,
-      ),
-      items: items.map((item) {
-        return DropdownMenuItem<T>(
-          value: item,
-          child: Text(
-            labelBuilder(item),
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-              fontStyle: fontStyle,
-              color: color,
-            ),
-          ),
-        );
-      }).toList(),
+              ))
+          .toList(),
     );
 
     return isExpanded ? dropdown : IntrinsicWidth(child: dropdown);
