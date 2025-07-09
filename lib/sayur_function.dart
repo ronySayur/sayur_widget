@@ -148,21 +148,21 @@ ThemeData YurTheme() {
       // ignore: deprecated_member_use
       onBackground: Colors.black,
     ),
-    dialogTheme: const DialogTheme(
+    dialogTheme: const DialogThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: br16,
       ),
       elevation: 4,
       surfaceTintColor: Colors.white,
       shadowColor: Colors.black,
+      backgroundColor: Colors.white,
     ),
-    dialogBackgroundColor: Colors.white,
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: primaryRed,
       foregroundColor: Colors.white,
     ),
     cardColor: Colors.white,
-    cardTheme: const CardTheme(
+    cardTheme: const CardThemeData(
       elevation: 4,
       color: Colors.white,
       surfaceTintColor: Colors.white,
@@ -251,11 +251,11 @@ void YurLoading({
     ..indicatorType = indicatorType
     ..indicatorSize = 45.0
     ..radius = 10.0
-    ..backgroundColor = backgroundColor ?? Colors.black.withOpacity(0.5)
+    ..backgroundColor = backgroundColor ?? Colors.black.withValues(alpha: 0.5)
     ..progressColor = Colors.white
     ..indicatorColor = Colors.white
     ..textColor = Colors.white
-    ..maskColor = Colors.black.withOpacity(0.5)
+    ..maskColor = Colors.black.withValues(alpha: 0.5)
     ..userInteractions = true
     ..dismissOnTap = isDismisable
     ..loadingStyle = EasyLoadingStyle.custom;
@@ -322,7 +322,7 @@ void _showToast(
     autoCloseDuration: 3.seconds,
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withValues(alpha: 0.1),
         spreadRadius: 5,
         blurRadius: 7,
         offset: const Offset(0, 3),
@@ -433,7 +433,7 @@ YurAlertDialog({
               ? true
               : false
           : false,
-      barrierColor: barrierColor.withOpacity(0.5),
+      barrierColor: barrierColor.withValues(alpha: 0.5),
       useSafeArea: true,
       useRootNavigator: true,
       builder: (BuildContext context) {
@@ -634,7 +634,7 @@ Future<dynamic> YurDialog1({
           ),
         ],
         icon: icon,
-        backgroundColor: Colors.white.withOpacity(0.9),
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
         elevation: 24,
         shadowColor: Colors.black,
         surfaceTintColor: Colors.white,
@@ -676,7 +676,7 @@ Future<dynamic> YurCustomDialog({
           content: IntrinsicHeight(child: content),
           actions: actions,
           icon: icon,
-          backgroundColor: Colors.white.withOpacity(0.9),
+          backgroundColor: Colors.white.withValues(alpha: 0.9),
           elevation: 24,
           shadowColor: Colors.black,
           surfaceTintColor: Colors.white,
@@ -720,7 +720,7 @@ Future<T?> YurSearch<T>({
             elevation: 3,
             insetPadding: e16,
             shape: const RoundedRectangleBorder(borderRadius: br16),
-            backgroundColor: Colors.white.withOpacity(0.99),
+            backgroundColor: Colors.white.withValues(alpha: 0.99),
             clipBehavior: Clip.antiAliasWithSaveLayer,
             child: Padding(
               padding: e12,
