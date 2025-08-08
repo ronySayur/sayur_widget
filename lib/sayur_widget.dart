@@ -370,6 +370,8 @@ class YurForm extends StatelessWidget {
   List<dynamic>? listDropDown;
   dynamic selectedDropDown;
   String? helperText;
+  final FormFieldValidator<String>? externalValidator;
+  final bool? enabled;
 
   YurForm({
     super.key,
@@ -430,46 +432,48 @@ class YurForm extends StatelessWidget {
     this.listDropDown,
     this.selectedDropDown,
     this.helperText,
+    this.externalValidator,
+    this.enabled,
   });
 
   @override
   Widget build(BuildContext context) {
     // Validasi input sesuai kriteria tertentu.
     String? validateInput(String? value) {
-      // Jika tidak ada validator, langsung kembalikan null.
+      // Jika validator dinonaktifkan, langsung lolos
       if (!validator) return null;
 
-      // Validasi jika input tidak boleh kosong, kecuali jika opsional.
-      if (!optional && (value?.isEmpty ?? true)) {
+      // Jika ada validator eksternal, pakai dulu
+      if (externalValidator != null) {
+        final result = externalValidator!(value);
+        if (result != null) return result;
+      }
+
+      // Jika tidak opsional dan kosong
+      if (!optional && (value?.trim().isEmpty ?? true)) {
         return '$label tidak boleh kosong';
       }
 
-      // Validasi jika input tidak boleh ' ' (spasi), kecuali jika opsional.
-      if (!optional && (value?.trim() == '')) {
-        return '$label tidak boleh kosong';
-      }
-
-      // Validasi alamat email jika diperlukan.
+      // Validasi email
       if (emailValidator && value != null && !value.isValidEmail()) {
         return '$label tidak valid';
       }
 
-      // Validasi NIK jika diperlukan.
+      // Validasi NIK
       if (nikValidator && value != null && !value.isValidNik()) {
         return '$label minimal 16 karakter dan wajib diisi';
       }
 
-      // Validasi nomor telepon jika diperlukan.
+      // Validasi nomor telepon
       if (phoneNumberValidator && value != null && !value.isValidPhone()) {
         return '$label tidak valid';
       }
 
-      // Validasi panjang minimal untuk jenis tertentu.
+      // Validasi password (jika jenis password)
       if (suffixType == SuffixType.password && (value?.length ?? 0) < 4) {
         return '$label minimal 4 karakter';
       }
 
-      // Jika lolos semua validasi, kembalikan null.
       return null;
     }
 
@@ -565,6 +569,7 @@ class YurForm extends StatelessWidget {
                                   label: "Cari...",
                                   hintText: hintText ?? "Cari...",
                                   borderSideColor: borderSideColor,
+                                  enabled: enabled,
                                   onChanged: (value) => setState(() {
                                     listLocal = listDropDown!
                                         .where((element) => element
@@ -816,6 +821,7 @@ class YurExpansionTile extends StatelessWidget {
   final BorderRadius? borderRadius;
   final ExpansionTileController? controller;
   final VoidCallback? onTap;
+  final int maxTitleLines;
 
   const YurExpansionTile({
     super.key,
@@ -830,6 +836,7 @@ class YurExpansionTile extends StatelessWidget {
     this.borderRadius,
     this.controller,
     this.onTap,
+    this.maxTitleLines = 3,
   });
 
   @override
@@ -844,7 +851,7 @@ class YurExpansionTile extends StatelessWidget {
           text: title,
           fontSize: titleFontSize,
           fontWeight: FontWeight.bold,
-          maxLines: 3,
+          maxLines: maxTitleLines,
         ),
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
@@ -1697,6 +1704,7 @@ class YurButton extends StatelessWidget {
   final String? iconNetwork;
   final double? iconNetworkHeight;
   final EdgeInsetsGeometry? padding;
+  final Widget? iconWidget;
 
   const YurButton({
     super.key,
@@ -1720,6 +1728,7 @@ class YurButton extends StatelessWidget {
     this.iconNetwork,
     this.iconNetworkHeight,
     this.padding,
+    this.iconWidget,
   });
 
   @override
@@ -1844,6 +1853,7 @@ class YurButton extends StatelessWidget {
                       color: iconColor ?? primaryRed,
                       size: iconSize ?? fontSize * 1.5,
                     ),
+                  if (iconWidget != null) iconWidget!,
                   if (iconNetwork != null)
                     YurImage(
                       imageUrl: iconNetwork!,
@@ -2512,9 +2522,7 @@ class YurSwiper extends StatelessWidget {
                   )
             : null,
         onIndexChanged: (index) {
-          if (onPageChanged != null) {
-            onPageChanged!(index);
-          }
+          if (onPageChanged != null) onPageChanged!(index);
         },
       ),
     );
