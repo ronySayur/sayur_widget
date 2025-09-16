@@ -822,6 +822,8 @@ class YurExpansionTile extends StatelessWidget {
   final ExpansionTileController? controller;
   final VoidCallback? onTap;
   final int maxTitleLines;
+  final Color? color;
+  final FontWeight fontWeight;
 
   const YurExpansionTile({
     super.key,
@@ -837,6 +839,8 @@ class YurExpansionTile extends StatelessWidget {
     this.controller,
     this.onTap,
     this.maxTitleLines = 3,
+    this.color,
+    this.fontWeight = FontWeight.w600,
   });
 
   @override
@@ -850,8 +854,9 @@ class YurExpansionTile extends StatelessWidget {
         title: YurText(
           text: title,
           fontSize: titleFontSize,
-          fontWeight: FontWeight.bold,
+          fontWeight: fontWeight,
           maxLines: maxTitleLines,
+          color: color,
         ),
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
@@ -2217,7 +2222,10 @@ class YurCard extends StatelessWidget {
       clipBehavior: clipBehavior,
       margin: margin,
       child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            onTap?.call();
+          },
           child: Container(
             padding: padding,
             child: child,
