@@ -2457,81 +2457,88 @@ class YurPieChart extends StatelessWidget {
 
 class YurSwiper extends StatelessWidget {
   final List<Widget> children;
-  final SwiperLayout swiperLayout;
+  final SwiperLayout layout;
   final bool loop;
-  final bool dotSwiper;
-  final Alignment? dotAllignment;
-  final bool control;
+  final bool showDots;
+  final Alignment? dotAlignment;
+  final bool showControl;
   final double? itemHeight;
   final double? itemWidth;
   final bool fullscreen;
   final double? height;
-  final SwiperController? swiperController;
-  final Function(int)? onPageChanged;
+  final double? width;
+  final SwiperController? controller;
+  final ValueChanged<int>? onPageChanged;
+  final bool autoPlay;
 
   const YurSwiper({
     super.key,
     required this.children,
-    this.swiperLayout = SwiperLayout.DEFAULT,
+    this.layout = SwiperLayout.DEFAULT,
     this.loop = false,
-    this.dotSwiper = true,
-    this.dotAllignment,
-    this.control = true,
+    this.showDots = true,
+    this.dotAlignment,
+    this.showControl = true,
     this.itemHeight,
     this.itemWidth,
     this.fullscreen = false,
     this.height,
-    this.swiperController,
+    this.width,
+    this.controller,
     this.onPageChanged,
+    this.autoPlay = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: height ?? Get.height * 0.35,
+      width: width ?? Get.width * 0.9,
       child: Swiper(
         itemCount: children.length,
-        itemBuilder: (context, index) => children[index],
+        itemBuilder: (_, index) => children[index],
         itemHeight: itemHeight ?? Get.height * 0.35,
         itemWidth: itemWidth ?? Get.width * 0.8,
         physics: const ClampingScrollPhysics(),
-        viewportFraction: fullscreen ? 1 : 0.95,
+        viewportFraction: fullscreen ? 1 : 0.99,
         containerWidth: double.infinity,
         curve: Curves.easeInOut,
         fade: 0.3,
         loop: loop,
         indicatorLayout: PageIndicatorLayout.COLOR,
         transformer: ScaleAndFadeTransformer(),
-        controller: swiperController ?? SwiperController(),
-        layout: swiperLayout,
-        autoplay: true,
-        autoplayDelay: 10000,
+        controller: controller ?? SwiperController(),
+        layout: layout,
+        autoplay: autoPlay,
+        autoplayDelay: 20000,
         allowImplicitScrolling: true,
-        control: control
-            ? children.length == 1
-                ? null
-                : const SwiperControl(
-                    color: primaryRed,
-                    disableColor: Colors.grey,
-                    size: 24,
-                  )
-            : null,
-        pagination: dotSwiper
-            ? children.length == 1
-                ? null
-                : SwiperPagination(
-                    alignment: dotAllignment ?? Alignment.bottomCenter,
-                    builder: const DotSwiperPaginationBuilder(
-                      activeColor: primaryRed,
-                      color: Colors.grey,
-                      activeSize: 12,
-                      size: 6,
-                    ),
-                  )
-            : null,
-        onIndexChanged: (index) {
-          if (onPageChanged != null) onPageChanged!(index);
-        },
+        control: _buildControl(),
+        pagination: _buildPagination(),
+        onIndexChanged: onPageChanged,
+      ),
+    );
+  }
+
+  /// Membuat tombol navigasi swipe (arrow)
+  SwiperControl? _buildControl() {
+    if (!showControl || children.length == 1) return null;
+    return const SwiperControl(
+      color: primaryRed,
+      disableColor: Colors.grey,
+      size: 24,
+    );
+  }
+
+  /// Membuat indikator dot (pagination)
+  SwiperPagination? _buildPagination() {
+    if (!showDots || children.length == 1) return null;
+    return SwiperPagination(
+      alignment: dotAlignment ?? Alignment.bottomCenter,
+      builder: const DotSwiperPaginationBuilder(
+        activeColor: primaryRed,
+        color: Colors.grey,
+        activeSize: 12,
+        size: 6,
       ),
     );
   }
