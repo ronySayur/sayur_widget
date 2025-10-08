@@ -918,47 +918,43 @@ class YurDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelBuilder = itemLabelBuilder ?? (item) => item.toString();
+    // Fungsi untuk membangun label item
+    String labelBuilder(T item) =>
+        itemLabelBuilder?.call(item) ?? item.toString();
 
+    // TextStyle yang konsisten untuk semua teks
+    final textStyle = TextStyle(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      color: color,
+    );
+
+    // DropdownButtonFormField
     final dropdown = DropdownButtonFormField<T>(
       value: selectedValue,
+      onChanged: onChanged,
       onTap: onTap,
-      iconSize: 16,
       isExpanded: true,
       elevation: 4,
+      iconSize: 16,
       borderRadius: borderRadius,
       isDense: true,
-      padding: padding,
-      icon: const YurIcon(icon: Icons.keyboard_arrow_down, color: Colors.grey),
-      selectedItemBuilder: (context) =>
-          items.map((item) => YurText(text: labelBuilder(item))).toList(),
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        fontStyle: fontStyle,
-        color: color,
+      style: textStyle,
+      icon: const YurIcon(
+        icon: Icons.keyboard_arrow_down,
+        color: Colors.grey,
       ),
-      onChanged: onChanged,
+      selectedItemBuilder: (context) => items
+          .map((item) => YurText(
+                text: labelBuilder(item),
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                color: color,
+              ))
+          .toList(),
       decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: borderRadius),
-        filled: true,
-        fillColor: fillColor,
-        isDense: true,
-        floatingLabelBehavior: floatingLabelBehavior,
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelStyle: TextStyle(
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          fontStyle: fontStyle,
-          color: color,
-        ),
-        suffixText: suffixText,
-        suffixStyle: TextStyle(
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          fontStyle: fontStyle,
-          color: color,
-        ),
         label: labelText != null
             ? YurText(
                 text: labelText!,
@@ -968,6 +964,15 @@ class YurDropdown<T> extends StatelessWidget {
                 color: color,
               )
             : null,
+        suffixText: suffixText,
+        suffixStyle: textStyle,
+        filled: fillColor != null,
+        fillColor: fillColor,
+        isDense: true,
+        contentPadding: padding,
+        floatingLabelBehavior: floatingLabelBehavior,
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        floatingLabelStyle: textStyle,
       ),
       items: items
           .map((item) => DropdownMenuItem<T>(
