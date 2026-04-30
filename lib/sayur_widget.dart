@@ -2419,7 +2419,7 @@ class YurPieChart extends StatelessWidget {
     );
   }
 
-  DetailsLegend({
+  Container DetailsLegend({
     required String title,
     required String value,
     required Color color,
@@ -2820,7 +2820,7 @@ class _YurWebViewState extends State<YurWebView> {
     sharedCookiesEnabled: false,
   );
 
-  void onPopInvoked(didPop) {
+  void onPopInvoked(bool didPop) {
     YurLoading(loadingStatus: LoadingStatus.dismiss);
     if (widget.preventBack) return;
 
@@ -3054,7 +3054,7 @@ class YurNotification {
     await YurPermissionRequest.isNotification().then((value) {
       if (!value) {
         return YurAlertDialog(
-          context: Get.context,
+          context: Get.context!,
           title: "Notifikasi",
           isDismissable: true,
           message: PermissionConstants.notification,

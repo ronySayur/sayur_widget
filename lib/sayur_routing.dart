@@ -3,16 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-BuildContext get globalContext => Get.context;
+BuildContext get globalContext => Get.context!;
 
 enum UrlScheme { http, telp }
 
 class Get {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  static get context => navigatorKey.currentState?.context;
+  static BuildContext? get context => navigatorKey.currentState?.context;
 
-  static Size get size => MediaQuery.of(context).size;
+  static Size get size => MediaQuery.of(context!).size;
   static double get width => size.width;
   static double get height => size.height;
 
@@ -24,7 +24,7 @@ class Get {
   static void back({dynamic result}) {
     YurLog("Back", name: "Get.back");
     EasyLoading.dismiss();
-    if (Navigator.canPop(context)) Navigator.pop(context, result);
+    if (Navigator.canPop(context!)) Navigator.pop(context!, result);
   }
 
   static Future<dynamic> to(
@@ -33,7 +33,7 @@ class Get {
   }) async {
     YurLog("To : ${page.toString()}", name: "Get.to");
     await Navigator.push(
-      localContext ?? context,
+      localContext ?? context!,
       CupertinoPageRoute(builder: (context) => page),
     );
   }
@@ -44,7 +44,7 @@ class Get {
   }) async {
     YurLog("Replace : ${page.toString()}", name: "Get.replace");
     await Navigator.pushReplacement(
-      localContext ?? context,
+      localContext ?? context!,
       CupertinoPageRoute(builder: (context) => page),
     );
   }
@@ -55,7 +55,7 @@ class Get {
   }) async {
     YurLog("Off All : ${page.toString()}", name: "Get.offAll");
     await Navigator.pushAndRemoveUntil(
-      localContext ?? context,
+      localContext ?? context!,
       CupertinoPageRoute(builder: (context) => page),
       (route) => false,
     );
@@ -63,7 +63,7 @@ class Get {
 
   static Future<dynamic> firstRoute() async {
     YurLog("First Route", name: "Get.firstRoute");
-    Navigator.popUntil(context, (route) => route.isFirst);
+    Navigator.popUntil(context!, (route) => route.isFirst);
   }
 
   static Future<void> launch({

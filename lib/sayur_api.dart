@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:sayur_widget/sayur_core.dart';
 import 'package:http/http.dart' as http;
@@ -20,7 +21,7 @@ class YurApi {
     };
 
     try {
-      bool result = await InternetConnectionChecker().hasConnection;
+      bool result = await InternetConnectionChecker.instance.hasConnection;
       if (!result) return emptyStatus;
 
       YurLog(name: urlHttp, dataMap);
@@ -73,7 +74,7 @@ class YurApi {
 
   static Future<Map<String, dynamic>> IP() async {
     try {
-      bool result = await InternetConnectionChecker().hasConnection;
+      bool result = await InternetConnectionChecker.instance.hasConnection;
       if (!result) return {"status": ""};
 
       final response = await http
@@ -94,15 +95,41 @@ class YurApi {
     required String lat,
     required String lon,
   }) async {
+    bool result = await InternetConnectionChecker.instance.hasConnection;
+    if (!result) return {"status": ""};
+
+    final userAgents = [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+      'Mozilla/5.0 (X11; Linux x86_64)',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
+      'Mozilla/5.0 (Android 14; Mobile; rv:127.0)',
+    ];
+
+    final referrers = [
+      'https://google.com',
+      'https://duckduckgo.com',
+      'https://maps.app',
+    ];
+
+    final timeSeed = DateTime.now().millisecondsSinceEpoch;
+    final random = Random(timeSeed);
+
+    final randomUserAgent = userAgents[random.nextInt(userAgents.length)];
+    final randomReferrer = referrers[random.nextInt(referrers.length)];
+
+    final url =
+        'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lon&accept-language=id';
+
+    final headers = {
+      'User-Agent': '$randomUserAgent (${timeSeed % 10000})',
+      'Accept-Language': 'id',
+      'Content-Type': 'application/json',
+      'Referer': randomReferrer,
+    };
+
     try {
-      bool result = await InternetConnectionChecker().hasConnection;
-
-      if (!result) return {"status": ""};
-
-      String url =
-          'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lon&accept-language=id';
-
-      final response = await http.get(Uri.parse(url)).timeout(
+      final response = await http.get(Uri.parse(url), headers: headers).timeout(
             30.seconds,
             onTimeout: () => http.Response('', 500),
           );

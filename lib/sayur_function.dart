@@ -171,7 +171,7 @@ ThemeData YurTheme() {
       ),
     ),
     appBarTheme: const AppBarTheme(
-      color: Colors.white,
+      backgroundColor: Colors.white,
       elevation: 4,
       iconTheme: IconThemeData(color: Colors.black),
       surfaceTintColor: Colors.white,
@@ -187,12 +187,6 @@ ThemeData YurTheme() {
       landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
       selectedIconTheme: IconThemeData(color: primaryRed),
       selectedLabelStyle: TextStyle(color: primaryRed),
-    ),
-    bottomAppBarTheme: const BottomAppBarTheme(
-      color: Colors.white,
-      elevation: 4,
-      surfaceTintColor: Colors.white,
-      shape: CircularNotchedRectangle(),
     ),
   );
 }
@@ -260,10 +254,6 @@ void YurLoading({
     ..dismissOnTap = isDismisable
     ..loadingStyle = EasyLoadingStyle.custom;
 
-  EasyLoading.addStatusCallback(
-    (status) => YurLog(name: "EasyLoading", status.toString()),
-  );
-
   switch (loadingStatus) {
     case LoadingStatus.show:
       EasyLoading.dismiss();
@@ -318,7 +308,9 @@ void _showToast(
     type: type,
     showIcon: true,
     style: ToastificationStyle.minimal,
-    closeButtonShowType: CloseButtonShowType.onHover,
+    closeButton: const ToastCloseButton(
+      showType: CloseButtonShowType.onHover,
+    ),
     autoCloseDuration: 3.seconds,
     boxShadow: [
       BoxShadow(
@@ -346,7 +338,7 @@ void YurSnackBar({
   int maxLines = 2,
   TextAlign textAlign = TextAlign.start,
 }) {
-  var scaffoldMessenger = ScaffoldMessenger.of(Get.context);
+  var scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
 
   Color backgroundColor = Colors.green;
   Color textColor = Colors.white;
@@ -407,7 +399,7 @@ void YurSnackBar({
   );
 }
 
-YurAlertDialog({
+Future<void> YurAlertDialog({
   required BuildContext context,
   required String title,
   required String message,
@@ -590,7 +582,7 @@ Future<dynamic> YurDialog1({
   FontWeight? fontWeight,
 }) {
   var showDialog2 = showDialog(
-    context: Get.context,
+    context: Get.context!,
     barrierDismissible: isDismisable,
     builder: (BuildContext context) {
       return AlertDialog(
@@ -658,7 +650,7 @@ Future<dynamic> YurCustomDialog({
   Function(bool, dynamic)? onPopInvokedWithResult,
 }) {
   return showDialog(
-    context: Get.context,
+    context: Get.context!,
     barrierDismissible: isDismisable,
     builder: (BuildContext context) {
       return PopScope(
@@ -881,7 +873,7 @@ Future<String> selectDate({
 
     if (withTimePick) {
       pickedTime = await showTimePicker(
-        context: Get.context,
+        context: Get.context!,
         initialTime: initialTime ?? TimeOfDay.now(),
       );
 

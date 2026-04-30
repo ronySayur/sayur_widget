@@ -24,7 +24,7 @@ class YurPermissionRequest {
         permission = await Geolocator.requestPermission();
 
         YurAlertDialog(
-          context: Get.context,
+          context: Get.context!,
           title: "Enable Location Access",
           message: message,
           buttonText: "Enable Location",
@@ -40,7 +40,7 @@ class YurPermissionRequest {
         YurLoading(loadingStatus: LoadingStatus.dismiss);
 
         YurAlertDialog(
-          context: Get.context,
+          context: Get.context!,
           title: "Enable Location Access",
           message: message,
           buttonText: "Enable Location",
@@ -148,7 +148,7 @@ class YurPermissionRequest {
           isShowDialog = false;
           YurLoading(loadingStatus: LoadingStatus.dismiss);
           YurAlertDialog(
-            context: Get.context,
+            context: Get.context!,
             title: "Izinkan Kamera",
             message: "Aplikasi ini membutuhkan izin kamera anda",
             buttonText: "Izinkan",
