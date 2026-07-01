@@ -7,8 +7,14 @@ extension DateTimeExtension on DateTime {
 
 extension StringExtension on String {
   String dateFormat(String format) {
-    if (isEmpty) return '';
-    return DateFormat(format).format(DateTime.parse(this));
+    if (isEmpty || this == '0') return '-';
+    try {
+      final parsedDate = DateTime.tryParse(this);
+      if (parsedDate == null) return this;
+      return DateFormat(format).format(parsedDate);
+    } catch (e) {
+      return this;
+    }
   }
 
   String parseDateTime(String format) {
