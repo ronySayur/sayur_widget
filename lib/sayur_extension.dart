@@ -90,9 +90,9 @@ extension StringExtension on String {
     return "$diff menit";
   }
 
-  int toInt() => int.parse(this);
-  double toDouble() => double.parse(this);
-  DateTime toDateTime() => DateTime.parse(this);
+  int toInt() => int.tryParse(this) ?? 0;
+  double toDouble() => double.tryParse(this) ?? 0.0;
+  DateTime toDateTime() => DateTime.tryParse(this) ?? DateTime.now();
 }
 
 extension IntExtension on int {

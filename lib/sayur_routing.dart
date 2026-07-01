@@ -12,6 +12,15 @@ class Get {
 
   static BuildContext? get context => navigatorKey.currentState?.context;
 
+  static String get currentRoute {
+    String? name;
+    navigatorKey.currentState?.popUntil((route) {
+      name = route.settings.name;
+      return true;
+    });
+    return name ?? '/';
+  }
+
   static Size get size => MediaQuery.of(context!).size;
   static double get width => size.width;
   static double get height => size.height;
@@ -34,7 +43,10 @@ class Get {
     YurLog("To : ${page.toString()}", name: "Get.to");
     await Navigator.push(
       localContext ?? context!,
-      CupertinoPageRoute(builder: (context) => page),
+      CupertinoPageRoute(
+        builder: (context) => page,
+        settings: RouteSettings(name: '/${page.runtimeType.toString()}'),
+      ),
     );
   }
 
@@ -45,7 +57,10 @@ class Get {
     YurLog("Replace : ${page.toString()}", name: "Get.replace");
     await Navigator.pushReplacement(
       localContext ?? context!,
-      CupertinoPageRoute(builder: (context) => page),
+      CupertinoPageRoute(
+        builder: (context) => page,
+        settings: RouteSettings(name: '/${page.runtimeType.toString()}'),
+      ),
     );
   }
 
@@ -56,7 +71,10 @@ class Get {
     YurLog("Off All : ${page.toString()}", name: "Get.offAll");
     await Navigator.pushAndRemoveUntil(
       localContext ?? context!,
-      CupertinoPageRoute(builder: (context) => page),
+      CupertinoPageRoute(
+        builder: (context) => page,
+        settings: RouteSettings(name: '/${page.runtimeType.toString()}'),
+      ),
       (route) => false,
     );
   }

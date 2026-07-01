@@ -24,7 +24,7 @@ class YurApi {
       bool result = await InternetConnectionChecker.instance.hasConnection;
       if (!result) return emptyStatus;
 
-      YurLog(name: urlHttp, dataMap);
+      YurLog(name: "📤 REQUEST - $urlHttp", dataMap);
       final url = Uri.parse(urlHttp);
       const timeout = 30;
       onTimeout() => http.Response('', 500);
@@ -36,6 +36,7 @@ class YurApi {
 
         body = response.body;
         var decoded = json.decode(utf8.decoder.convert(response.bodyBytes));
+        YurLog(name: "📥 RESPONSE - $urlHttp", decoded);
         return decoded;
       }
 
@@ -46,6 +47,7 @@ class YurApi {
 
         body = responEncode.body;
         var decoded = await json.decode(body);
+        YurLog(name: "📥 RESPONSE - $urlHttp", decoded);
         return decoded;
       }
 
@@ -62,11 +64,16 @@ class YurApi {
       body = await response.stream.bytesToString();
 
       bool empty = body.isEmpty || body == "[]" || body.contains("No data");
-      if (empty) return emptyStatus;
+      if (empty) {
+        YurLog(name: "📥 RESPONSE - $urlHttp", "Empty response");
+        return emptyStatus;
+      }
 
-      return await json.decode(body);
+      var decoded = await json.decode(body);
+      YurLog(name: "📥 RESPONSE - $urlHttp", decoded);
+      return decoded;
     } catch (e) {
-      YurLog(name: urlHttp, "Error: $e | $body");
+      YurLog(name: "❌ ERROR - $urlHttp", "Error: $e | $body");
       emptyStatus["message"] = e.toString().trim();
       return emptyStatus;
     }
