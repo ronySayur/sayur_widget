@@ -17,7 +17,7 @@ class YurApi {
   }) async {
     String body = "";
     int statusCode = 200;
-    Map<String, String> emptyStatus = {
+    Map<String, dynamic> emptyStatus = {
       "status": "",
       "message": "",
     };
@@ -82,16 +82,20 @@ Stacktrace: ${stacktrace ?? 'N/A'}
           level: Level.error,
         );
         emptyStatus["message"] = "Error $statusCode: Terjadi kesalahan pada server.";
+        emptyStatus["request"] = isEncoded ? jsonEncode(dataMap) : dataMap.toString();
+        emptyStatus["response"] = body;
         return emptyStatus;
       }
 
       bool empty = body.isEmpty || body == "[]" || body.contains("No data");
       if (empty) {
-        YurLog(
-          generateDetailedLog("Warning", "Empty response body"),
-          name: "WARNING",
-          level: Level.warning,
-        );
+        if (statusCode != 200) {
+          YurLog(
+            generateDetailedLog("Warning", "Empty response body"),
+            name: "WARNING",
+            level: Level.warning,
+          );
+        }
         return emptyStatus;
       }
 
@@ -122,6 +126,8 @@ Stacktrace: ${stacktrace ?? 'N/A'}
           level: Level.error,
         );
         emptyStatus["message"] = "Format data tidak valid";
+        emptyStatus["request"] = isEncoded ? jsonEncode(dataMap) : dataMap.toString();
+        emptyStatus["response"] = body;
         return emptyStatus;
       }
     } catch (e, stacktrace) {
@@ -144,6 +150,8 @@ Response Body: ${body.length > 1000 ? body.substring(0, 1000) + '...' : body}
         level: Level.error,
       );
       emptyStatus["message"] = e.toString().trim();
+      emptyStatus["request"] = isEncoded ? jsonEncode(dataMap) : dataMap.toString();
+      emptyStatus["response"] = body;
       return emptyStatus;
     }
   }
