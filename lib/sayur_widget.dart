@@ -233,27 +233,30 @@ class YurLoadingStack extends StatelessWidget {
       color: Colors.transparent,
       child: Stack(
         children: [
-          Positioned.fill(
-            child: content,
-          ),
+          content,
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.5),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: LottieHelper(
-                      lottieEnum: LottieEnum.loading,
-                    ),
+              child: const Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: LottieHelper(
+                          lottieEnum: LottieEnum.loading,
+                        ),
+                      ),
+                      gap4,
+                      YurText(
+                        fontSize: 24,
+                        text: "Tunggu Sebentar...",
+                        color: Colors.white,
+                      ),
+                    ],
                   ),
-                  gap4,
-                  YurText(
-                    fontSize: 24,
-                    text: "Tunggu Sebentar...",
-                    color: Colors.white,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -287,22 +290,27 @@ class YurStack extends StatelessWidget {
       color: Colors.transparent,
       child: Stack(
         children: [
-          Positioned.fill(child: content),
+          content,
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.5),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: LottieHelper(
-                      lottieEnum:
-                          isSuccess ? LottieEnum.success : LottieEnum.failed,
-                      text: message,
-                    ),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: LottieHelper(
+                          lottieEnum:
+                              isSuccess ? LottieEnum.success : LottieEnum.failed,
+                          text: message,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

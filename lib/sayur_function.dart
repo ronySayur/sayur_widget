@@ -770,11 +770,14 @@ final Logger _logger = Logger(
 
 void YurLog(dynamic message, {String? name, Level level = Level.info}) {
   if (kDebugMode) {
-    if (level != Level.error && level != Level.warning && level != Level.fatal) return;
+    if (level != Level.info && level != Level.error && level != Level.warning && level != Level.fatal) return;
 
     final msg = name != null ? '[$name]\n$message' : '$message';
 
     switch (level) {
+      case Level.info:
+        _logger.i(msg);
+        break;
       case Level.warning:
         _logger.w(msg);
         break;
